@@ -23,8 +23,8 @@
     ]
   },
   "logo": {
-    "light": "/images/final-dark.svg",
-    "dark": "/images/final-light.svg",
+    "light": "/images/final-light.svg",
+    "dark": "/images/final-dark.svg",
     "href": "https://final.net"
   },
   "navbar": {
