@@ -1,13 +1,16 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "theme": "palm",
+  "name": "Final",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#ff4e96",
+    "light": "#ff4e96",
+    "dark": "#ff4e96"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/favicon.svg",
+    "dark": "/images/favicon.svg"
+  },
   "navigation": {
     "pages": [
       {
@@ -17,31 +20,18 @@
           "quickstart"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/images/final-dark.svg",
+    "dark": "/images/final-light.svg",
+    "href": "https://final.net"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@final.net"
       }
     ],
     "primary": {
@@ -64,9 +54,19 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/usefinal",
+      "github": "https://github.com/final-net",
+      "linkedin": "https://linkedin.com/company/usefinal"
     }
+  },
+  "description": "How machines move money.",
+  "icons": {
+    "library": "tabler"
+  },
+  "fonts": {
+    "family": "GT Mechanik Semi",
+    "weight": 500,
+    "source": "https://final.net/assets/fonts/GT-Mechanik-Semi-Medium.woff2",
+    "format": "woff2"
   }
 }
