@@ -19,6 +19,10 @@
           "index",
           "quickstart"
         ]
+      },
+      {
+        "group": "API Reference",
+        "openapi": "/openapi.public.json"
       }
     ]
   },
