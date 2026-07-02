@@ -1,47 +1,79 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Propose your first intent and take a user from approval to a funded card"
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+Final lets you propose payment actions, such as issuing a card, that a user approves on a Final-hosted page.
 
 ## Prerequisites
 
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+Before you can call the API, you must complete integrator setup in the dashboard. Both steps are passkey-gated and cannot be performed with an API key.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Setup your integrator profile">
+    Complete your **integrator profile**: display name, logo, support URL, terms URL, and privacy policy URL.
+    This is what users see on the approval page, and it's required before you can create an integrator key.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
-
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
-    ```bash
-    your-cli start
-    ```
+  <Step title="Create your API key">
+    Create an **integrator API key** in the dashboard. You will need this to be able to create intents.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+All requests use the base URL `https://api.final.net/v1` and pass the key as a bearer token:
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+```
+Authorization: Bearer final_live_...
+```
+
+## Create an intent
+
+Propose a `card.create` intent. The response includes an `approval_url` and a `funding` block.
+
+```bash
+curl -X POST https://api.final.net/v1/intents \
+  -H "Authorization: Bearer final_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "kind": "card.create",
+    "payload": { "acceptable_funding_assets": ["<asset_id>"] }
+  }'
+```
+
+<Note>
+Assets are CAIP-19 identifiers. Call `GET /v1/inflow_assets` for the funding sources you can list in `acceptable_funding_assets`.
+</Note>
+
+## Send the user to approve
+
+Redirect the user to the `approval_url` from the response. They sign in, review your integrator information, and approve. On approval the intent moves toward `funded` and, once funding settles, the card is provisioned.
+
+## Track progress
+
+Watch an intent through its lifecycle in one of two ways — use whichever fits your backend:
+
+<CardGroup cols={1}>
+  <Card title="Server-Sent Events" icon="bolt">
+    Open a stream for a single intent and receive events as they happen.
+
+    ```
+    GET /v1/intents/{intent_id}/events
+    ```
+  </Card>
+  <Card title="Webhooks" icon="webhook">
+    Register an endpoint in the dashboard and subscribe to `intent.*` to receive events across all intents.
+  </Card>
+</CardGroup>
+
+## Show the card
+
+Once the card exists, mint a short-lived embed URL and render the card details in an iframe on one of your registered origins.
+
+```bash
+curl -X POST https://api.final.net/v1/card_refs/{ref}/embed_url \
+  -H "Authorization: Bearer final_live_..."
+```
+
+<Tip>
+  Need help? Reach out at [support@final.net](mailto:support@final.net).
 </Tip>

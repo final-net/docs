@@ -1,0 +1,24 @@
+# Mintlify
+.mintlify/
+.mint/
+
+# Dependencies (if the Mintlify CLI is ever installed locally)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
