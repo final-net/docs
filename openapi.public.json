@@ -589,12 +589,25 @@
         },
         "type": "object"
       },
+      "IntentCardCreatePayload": {
+        "properties": {
+          "acceptable_funding_assets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "IntentCreateRequest": {
         "properties": {
           "kind": {
-            "type": "string"
+            "$ref": "#/components/schemas/IntentKind"
           },
-          "payload": {}
+          "payload": {
+            "$ref": "#/components/schemas/IntentCardCreatePayload"
+          }
         },
         "type": "object"
       },
@@ -642,6 +655,12 @@
           }
         },
         "type": "object"
+      },
+      "IntentKind": {
+        "enum": [
+          "card.create"
+        ],
+        "type": "string"
       },
       "IntentListResponse": {
         "properties": {
