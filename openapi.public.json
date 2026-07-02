@@ -1,0 +1,770 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Final API",
+    "version": "0.0.0-poc"
+  },
+  "paths": {
+    "/v1/assets": {
+      "get": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "List holdable assets",
+        "operationId": "listAssets",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetList"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
+    "/v1/card_refs/{ref}/embed_url": {
+      "post": {
+        "tags": [
+          "Intents"
+        ],
+        "summary": "Mint a card embed URL for a card ref",
+        "operationId": "mintCardRefEmbedURL",
+        "parameters": [
+          {
+            "name": "ref",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardEmbedURLResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      }
+    },
+    "/v1/inflow_assets": {
+      "get": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "List inflow (swap-source) assets",
+        "operationId": "listInflowAssets",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InflowAssetList"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
+    "/v1/intents": {
+      "get": {
+        "tags": [
+          "Intents"
+        ],
+        "summary": "List intents",
+        "operationId": "listIntents",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after_cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      },
+      "post": {
+        "tags": [
+          "Intents"
+        ],
+        "summary": "Create an intent",
+        "operationId": "createIntent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntentCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      }
+    },
+    "/v1/intents/{intent_id}": {
+      "get": {
+        "tags": [
+          "Intents"
+        ],
+        "summary": "Get an intent",
+        "operationId": "getIntent",
+        "parameters": [
+          {
+            "name": "intent_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      }
+    },
+    "/v1/intents/{intent_id}/events": {
+      "get": {
+        "tags": [
+          "Intents"
+        ],
+        "summary": "Intent event stream (SSE)",
+        "operationId": "streamIntentEvents",
+        "parameters": [
+          {
+            "name": "intent_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssetList": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AssetsAssetView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AssetsAssetView": {
+        "properties": {
+          "decimals": {
+            "type": "integer"
+          },
+          "deposit_instruction_shapes": {
+            "items": {
+              "$ref": "#/components/schemas/AssetsDepositInstructionShape"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AssetsDepositInstructionShape": {
+        "properties": {
+          "chain": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "source_chain": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AssetsInflowAssetView": {
+        "properties": {
+          "decimals": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "routes": {
+            "items": {
+              "$ref": "#/components/schemas/AssetsRouteEdge"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "source_chain": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AssetsRouteEdge": {
+        "properties": {
+          "destination_asset": {
+            "type": "string"
+          },
+          "source_asset": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardEmbedURLResponse": {
+        "properties": {
+          "card_embed_url": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/HttpxAPIError"
+          }
+        },
+        "type": "object"
+      },
+      "HttpxAPIError": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "detail": {},
+          "message": {
+            "type": "string"
+          },
+          "param": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InflowAssetList": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AssetsInflowAssetView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "IntentCreateRequest": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "payload": {}
+        },
+        "type": "object"
+      },
+      "IntentFundingBlock": {
+        "properties": {
+          "address": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "amount": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "destination_asset": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "memo": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mode": {
+            "type": "string"
+          },
+          "partner_reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "source_asset": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IntentListResponse": {
+        "properties": {
+          "after_cursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/IntentView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "IntentResponse": {
+        "properties": {
+          "intent": {
+            "$ref": "#/components/schemas/IntentView"
+          }
+        },
+        "type": "object"
+      },
+      "IntentView": {
+        "properties": {
+          "account_id": {
+            "type": "string"
+          },
+          "approval_url": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "approved_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "completed_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expired_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "failed_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "failure_reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "funded_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "funding": {
+            "$ref": "#/components/schemas/IntentFundingBlock"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "payload": {},
+          "provisioning_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "result_resource": {},
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "description": "Opaque secret; resolved by prefix to a session token or API key.",
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
