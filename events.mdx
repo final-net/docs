@@ -1,0 +1,158 @@
+---
+title: "Events"
+description: "The events Final emits as intents progress, and how to receive them"
+---
+
+<Note>
+  These are preliminary docs for the Final integrator API and are subject to change.
+</Note>
+
+Final emits an event whenever an intent changes state or an account-level change occurs. The same event types are delivered over both channels, **Server-Sent Events (SSE)** and **webhooks**, so you build against one model and choose the transport that fits your stack.
+
+## Delivery channels
+
+<CardGroup cols={1}>
+  <Card title="Server-Sent Events" icon="bolt">
+    `GET /v1/intents/{intent_id}/events` opens a live stream **scoped to a single intent**. It sends the intent's current state immediately as the first event, streams each transition as it happens, and closes when the intent reaches a terminal state. Carries only that intent's `intent.*` events.
+  </Card>
+  <Card title="Webhooks" icon="webhook">
+    Register an endpoint in the dashboard and set `subscribed_events` to receive events **across your whole account**. Use an exact type (`intent.completed`), a prefix wildcard (`intent.*`), or the universal wildcard (`*`). Deliveries are signed and retried on failure.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Wildcards are the recommended subscription style: new event types under a subscribed prefix are delivered automatically, with no change on your side.
+</Tip>
+
+## Intent lifecycle events
+
+An intent moves through the states below. Each transition emits an event carrying the current intent object. Event names track the state names, with one exception: entering the `awaiting_funds` state emits `intent.funding_required`.
+
+| Event | Meaning |
+| --- | --- |
+| `intent.pending_approval` | The intent was created and is waiting for a user to approve it on the Final-hosted page. This is the initial state. |
+| `intent.approved` | A user signed in and approved the intent. Whoever approves becomes the actor. |
+| `intent.funding_required` | The intent needs funds. The `funding` block on the intent carries the destination asset, and where applicable an address and amount. |
+| `intent.funded` | Funds were received and settled. |
+| `intent.provisioning` | Final is creating the resource. For a `card.create` intent, the card is being issued. |
+| `intent.completed` | **Terminal.** The action succeeded; `result_resource` on the intent references the created resource (e.g. the card). |
+| `intent.expired` | **Terminal.** The intent was not approved or funded before its `expires_at`. |
+| `intent.failed` | **Terminal.** The action could not be completed; `failure_reason` explains why. |
+
+<Note>
+  The three terminal states (`completed`, `expired`, and `failed`) are final. An SSE stream closes once its intent reaches one of them.
+</Note>
+
+## Event payloads
+
+**Over SSE**, each frame carries the event type and the current intent:
+
+```
+id: 3
+event: intent.completed
+data: {"intent": { "id": "intent_01HXYZ...", "status": "completed", "...": "see intent object" }}
+```
+
+**Over webhooks**, each event is wrapped in a standard envelope. The resource is available under `data.object`:
+
+```json
+{
+  "id": "event_01HXYZ...",
+  "type": "intent.completed",
+  "created_at": "2026-07-02T12:00:00Z",
+  "livemode": true,
+  "data": {
+    "object": { "id": "intent_01HXYZ...", "status": "completed", "...": "see intent object" }
+  }
+}
+```
+
+In both cases the payload is a snapshot of the resource at the time the event fired. Treat it as the state to act on, and re-fetch the resource if you need the latest.
+
+## Verifying webhooks
+
+Every webhook delivery is signed. Verify the signature before trusting a payload so you know it came from Final and was not altered in transit. SSE needs no equivalent step, since that stream is a direct response to your own authenticated request.
+
+Each delivery POST includes these headers:
+
+| Header | Description |
+| --- | --- |
+| `Final-Signature` | The signature, in the form `t=<unix>,v1=<hex>`. |
+| `Final-Event-Type` | The event type, for example `intent.completed`. |
+| `Final-Event-Id` | Stable ID for the event. Dedupe on this: retries reuse it. |
+| `Final-Delivery-Id` | Unique per delivery attempt. Useful for logging. |
+
+The signature is an HMAC-SHA256 computed over the string `<t>.<raw_body>` (the `t` value from the header, a literal `.`, then the exact raw request body), keyed with the endpoint's signing secret. The secret is the `whsec_...` value shown once when you create the endpoint or rotate its secret in the dashboard.
+
+To verify:
+
+1. Read the **raw request body** before parsing it as JSON. Re-serializing changes the bytes and breaks the signature.
+2. Parse `t` and `v1` from the `Final-Signature` header.
+3. Compute `HMAC_SHA256(whsec, "<t>.<raw_body>")` and compare it to `v1` using a constant-time comparison.
+4. Reject the request if the signature does not match, or if `t` is outside your allowed window (for example, more than five minutes old) to guard against replays.
+
+<CodeGroup>
+
+```javascript Node.js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function verifyWebhook(rawBody, signatureHeader, secret, toleranceSeconds = 300) {
+  const parts = Object.fromEntries(
+    signatureHeader.split(",").map((kv) => kv.split("=")),
+  );
+  const t = Number(parts.t);
+  if (!t || Math.abs(Date.now() / 1000 - t) > toleranceSeconds) return false;
+
+  const expected = createHmac("sha256", secret)
+    .update(`${t}.${rawBody}`)
+    .digest("hex");
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(parts.v1 ?? "");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+```
+
+```rust Rust
+// Cargo.toml: hmac = "0.12", sha2 = "0.10", hex = "0.4"
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
+use std::time::{SystemTime, UNIX_EPOCH};
+
+type HmacSha256 = Hmac<Sha256>;
+
+fn verify_webhook(raw_body: &[u8], signature_header: &str, secret: &[u8], tolerance_secs: i64) -> bool {
+    // Parse "t=<unix>,v1=<hex>".
+    let (mut t, mut v1) = (None, None);
+    for part in signature_header.split(',') {
+        match part.split_once('=') {
+            Some(("t", val)) => t = val.parse::<i64>().ok(),
+            Some(("v1", val)) => v1 = Some(val),
+            _ => {}
+        }
+    }
+    let (Some(t), Some(v1)) = (t, v1) else { return false };
+
+    // Reject stale timestamps to guard against replays.
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
+    if (now - t).abs() > tolerance_secs {
+        return false;
+    }
+
+    let Ok(expected) = hex::decode(v1) else { return false };
+
+    // Recompute HMAC-SHA256 over "<t>.<raw_body>".
+    let mut mac = HmacSha256::new_from_slice(secret).expect("HMAC accepts any key length");
+    mac.update(format!("{t}.").as_bytes());
+    mac.update(raw_body);
+
+    // verify_slice is a constant-time comparison.
+    mac.verify_slice(&expected).is_ok()
+}
+```
+
+</CodeGroup>
+
+<Note>
+  Final always signs deliveries, but it cannot enforce verification on your end. Treat verification as required in your receiver: reject any request that fails the check.
+</Note>
