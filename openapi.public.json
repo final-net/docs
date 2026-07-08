@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Final API",
-    "version": "0.0.0-poc-docsync-test"
+    "version": "0.1.0"
   },
   "paths": {
     "/v1/assets": {
@@ -10,7 +10,7 @@
         "tags": [
           "Assets"
         ],
-        "summary": "List holdable assets test",
+        "summary": "List holdable assets",
         "operationId": "listAssets",
         "responses": {
           "200": {
@@ -18,7 +18,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AssetList"
+                  "$ref": "#/components/schemas/AssetsAssetList"
                 }
               }
             }
@@ -50,7 +50,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CardEmbedURLResponse"
+                  "$ref": "#/components/schemas/IntentCardEmbedURLResponse"
                 }
               }
             }
@@ -60,7 +60,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -70,7 +70,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -80,7 +80,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -90,7 +90,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -100,7 +100,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -127,7 +127,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InflowAssetList"
+                  "$ref": "#/components/schemas/AssetsInflowAssetList"
                 }
               }
             }
@@ -145,13 +145,6 @@
         "operationId": "listIntents",
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
             "name": "kind",
             "in": "query",
             "schema": {
@@ -163,6 +156,13 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
             }
           },
           {
@@ -189,7 +189,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -199,7 +199,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -243,7 +243,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -253,7 +253,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -263,7 +263,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -310,7 +310,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -320,7 +320,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -330,7 +330,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -340,7 +340,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -387,7 +387,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -397,7 +397,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -407,7 +407,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -417,7 +417,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
                 }
               }
             }
@@ -434,7 +434,7 @@
   },
   "components": {
     "schemas": {
-      "AssetList": {
+      "AssetsAssetList": {
         "properties": {
           "data": {
             "items": {
@@ -494,6 +494,20 @@
         },
         "type": "object"
       },
+      "AssetsInflowAssetList": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AssetsInflowAssetView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AssetsInflowAssetView": {
         "properties": {
           "decimals": {
@@ -534,26 +548,6 @@
         },
         "type": "object"
       },
-      "CardEmbedURLResponse": {
-        "properties": {
-          "card_embed_url": {
-            "type": "string"
-          },
-          "expires_at": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "ErrorEnvelope": {
-        "properties": {
-          "error": {
-            "$ref": "#/components/schemas/HttpxAPIError"
-          }
-        },
-        "type": "object"
-      },
       "HttpxAPIError": {
         "properties": {
           "code": {
@@ -575,16 +569,10 @@
         },
         "type": "object"
       },
-      "InflowAssetList": {
+      "HttpxErrorEnvelope": {
         "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/AssetsInflowAssetView"
-            },
-            "type": [
-              "array",
-              "null"
-            ]
+          "error": {
+            "$ref": "#/components/schemas/HttpxAPIError"
           }
         },
         "type": "object"
@@ -600,13 +588,36 @@
         },
         "type": "object"
       },
+      "IntentCardCreateResult": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IntentCardEmbedURLResponse": {
+        "properties": {
+          "card_embed_url": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "IntentCreateRequest": {
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/IntentKind"
           },
           "payload": {
-            "$ref": "#/components/schemas/IntentCardCreatePayload"
+            "$ref": "#/components/schemas/IntentPayloadUnion"
           }
         },
         "type": "object"
@@ -685,6 +696,15 @@
         },
         "type": "object"
       },
+      "IntentPayloadUnion": {
+        "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IntentCardCreatePayload"
+          }
+        ],
+        "type": "object"
+      },
       "IntentResponse": {
         "properties": {
           "intent": {
@@ -760,9 +780,11 @@
             "type": "string"
           },
           "kind": {
-            "type": "string"
+            "$ref": "#/components/schemas/IntentKind"
           },
-          "payload": {},
+          "payload": {
+            "$ref": "#/components/schemas/IntentPayloadUnion"
+          },
           "provisioning_at": {
             "format": "date-time",
             "type": [
@@ -770,7 +792,9 @@
               "string"
             ]
           },
-          "result_resource": {},
+          "result_resource": {
+            "$ref": "#/components/schemas/IntentCardCreateResult"
+          },
           "status": {
             "type": "string"
           }
