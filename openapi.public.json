@@ -639,6 +639,9 @@
           "destination_asset": {
             "type": "string"
           },
+          "display_amount": {
+            "type": "string"
+          },
           "expires_at": {
             "format": "date-time",
             "type": [
@@ -651,9 +654,6 @@
               "null",
               "string"
             ]
-          },
-          "mode": {
-            "type": "string"
           },
           "partner_reference": {
             "type": [
