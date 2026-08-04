@@ -27,6 +27,38 @@
         "x-audience": "public"
       }
     },
+    "/v1/assets/shortlist": {
+      "get": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "List assets a Balance can be opened with",
+        "operationId": "listAssetShortlist",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetsShortlist"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
     "/v1/card_refs/{ref}/embed_url": {
       "post": {
         "tags": [
@@ -97,6 +129,79 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      }
+    },
+    "/v1/exchange_rate": {
+      "get": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Get a spot exchange rate",
+        "operationId": "getExchangeRate",
+        "parameters": [
+          {
+            "name": "base",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quote",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExchangerateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -543,6 +648,48 @@
             "type": "string"
           },
           "source_asset": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AssetsShortlist": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AssetsShortlistView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AssetsShortlistView": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ExchangerateResponse": {
+        "properties": {
+          "base": {
+            "type": "string"
+          },
+          "display_rate": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "rate": {
             "type": "string"
           }
         },
