@@ -696,6 +696,48 @@
         ],
         "x-audience": "integrator"
       }
+    },
+    "/v1/logos/{logo_key}.webp": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get a stored integrator logo — served as image/webp with immutable caching; the URL comes from the profile's logo_url and is not constructed by callers",
+        "operationId": "getIntegratorLogo",
+        "parameters": [
+          {
+            "name": "logo_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
     }
   },
   "components": {
