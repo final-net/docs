@@ -59,6 +59,1427 @@
         "x-audience": "public"
       }
     },
+    "/v1/balances": {
+      "get": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "List balances",
+        "operationId": "listBalances",
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parent_balance_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "after_cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceListResponseBody"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      },
+      "post": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Create a balance",
+        "operationId": "createBalance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BalanceCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceCreateResponseBody"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}": {
+      "get": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Get a balance",
+        "operationId": "getBalance",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceGetResponseBody"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/deposit_instructions": {
+      "get": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Get deposit instructions for a balance",
+        "operationId": "getBalanceDepositInstructions",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceDepositInstructionsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      },
+      "post": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Allocate a swap-receive address for a balance",
+        "operationId": "allocateBalanceDepositInstructions",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BalanceAllocateDepositInstructionsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceDepositInstructionsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/transactions": {
+      "get": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "List balance transactions",
+        "operationId": "listBalanceTransactions",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "after_cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceTransactionsListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/cards": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "List cards",
+        "operationId": "listCards",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "after_cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      },
+      "post": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Create a card",
+        "operationId": "createCard",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/cards/{card_id}": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Get a card",
+        "operationId": "getCard",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      },
+      "delete": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Close a card",
+        "operationId": "deleteCard",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/cards/{card_id}/embed_url": {
+      "post": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Mint a short-lived embed URL for a card",
+        "operationId": "createCardEmbedURL",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardEmbedURLResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/cards/{card_id}/freeze": {
+      "post": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Freeze a card",
+        "operationId": "freezeCard",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/cards/{card_id}/test_authorizations": {
+      "post": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Simulate a card authorization (test mode)",
+        "operationId": "createCardTestAuthorization",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardauthTestAuthorizationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardauthTestAuthorizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/cards/{card_id}/unfreeze": {
+      "post": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Unfreeze a card",
+        "operationId": "unfreezeCard",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/connections/{connection_id}": {
+      "get": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Get a connection",
+        "operationId": "getConnection",
+        "parameters": [
+          {
+            "name": "connection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      },
+      "delete": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Revoke a connection — this install only",
+        "operationId": "revokeConnection",
+        "parameters": [
+          {
+            "name": "connection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      }
+    },
+    "/v1/connections/{connection_id}/activate": {
+      "post": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Exchange the activation code and verifier for the connection's client_secret",
+        "operationId": "activateConnection",
+        "parameters": [
+          {
+            "name": "connection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionActivateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionSecretResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "integrator"
+      }
+    },
+    "/v1/connections/{connection_id}/events": {
+      "get": {
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Connection event stream (SSE)",
+        "operationId": "streamConnectionEvents",
+        "parameters": [
+          {
+            "name": "connection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
     "/v1/exchange_rate": {
       "get": {
         "tags": [
@@ -556,6 +1977,788 @@
         },
         "type": "object"
       },
+      "BalanceAllocateDepositInstructionsRequest": {
+        "properties": {
+          "inbound_amount": {
+            "type": "string"
+          },
+          "outbound_amount": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceConnectionBalanceView": {
+        "properties": {
+          "asset": {
+            "type": "string"
+          },
+          "available": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "card_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "display_available": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "display_pending": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "limits": {
+            "items": {
+              "$ref": "#/components/schemas/LimitsRuleUnion"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "parent_balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parent_imposed_limits": {
+            "items": {
+              "$ref": "#/components/schemas/LimitsRuleUnion"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "pending": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceConnectionCreateResponse": {
+        "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceConnectionGetResponse": {
+        "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceConnectionListResponse": {
+        "properties": {
+          "after_cursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceCreateRequest": {
+        "properties": {
+          "asset": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "limits": {
+            "items": {
+              "$ref": "#/components/schemas/LimitsRuleUnion"
+            },
+            "type": "array"
+          },
+          "parent_balance_id": {
+            "type": "string"
+          },
+          "parent_imposed_limits": {
+            "items": {
+              "$ref": "#/components/schemas/LimitsRuleUnion"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceCreateResponse": {
+        "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/BalanceView"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceCreateResponseBody": {
+        "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BalanceCreateResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BalanceConnectionCreateResponse"
+          }
+        ],
+        "type": "object"
+      },
+      "BalanceDepositInstructionUnion": {
+        "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BalanceOnchainAddressInstruction"
+          },
+          {
+            "$ref": "#/components/schemas/BalanceSwapViaInstruction"
+          }
+        ],
+        "type": "object"
+      },
+      "BalanceDepositInstructionsResponse": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "asset": {
+            "type": "string"
+          },
+          "balance_id": {
+            "type": "string"
+          },
+          "instructions": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceDepositInstructionUnion"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "BalanceGetResponse": {
+        "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/BalanceView"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceGetResponseBody": {
+        "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BalanceGetResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BalanceConnectionGetResponse"
+          }
+        ],
+        "type": "object"
+      },
+      "BalanceListResponse": {
+        "properties": {
+          "after_cursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceListResponseBody": {
+        "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BalanceListResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BalanceConnectionListResponse"
+          }
+        ],
+        "type": "object"
+      },
+      "BalanceOnchainAddressInstruction": {
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "chain": {
+            "type": "string"
+          },
+          "memo": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "min_confirmations": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceSwapViaInstruction": {
+        "properties": {
+          "deposit_id": {
+            "type": "string"
+          },
+          "display_inbound_amount": {
+            "type": "string"
+          },
+          "display_outbound_amount": {
+            "type": "string"
+          },
+          "estimated_settlement_minutes": {
+            "type": "integer"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inbound_amount": {
+            "type": "string"
+          },
+          "memo": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "min_source_confirmations": {
+            "type": "integer"
+          },
+          "outbound_amount": {
+            "type": "string"
+          },
+          "source_address": {
+            "type": "string"
+          },
+          "source_chain": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceTransactionFiat": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "display_amount": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceTransactionMerchant": {
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "descriptor": {
+            "type": "string"
+          },
+          "mcc": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceTransactionRelated": {
+        "properties": {
+          "card_id": {
+            "type": "string"
+          },
+          "deposit_id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceTransactionView": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "asset": {
+            "type": "string"
+          },
+          "balance_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "display_amount": {
+            "type": "string"
+          },
+          "fiat": {
+            "$ref": "#/components/schemas/BalanceTransactionFiat"
+          },
+          "id": {
+            "type": "string"
+          },
+          "merchant": {
+            "$ref": "#/components/schemas/BalanceTransactionMerchant"
+          },
+          "related": {
+            "$ref": "#/components/schemas/BalanceTransactionRelated"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceTransactionsListResponse": {
+        "properties": {
+          "after_cursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceTransactionView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "BalanceView": {
+        "properties": {
+          "account_id": {
+            "type": "string"
+          },
+          "asset": {
+            "type": "string"
+          },
+          "available": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "card_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "display_available": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "display_pending": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "limits": {
+            "items": {
+              "$ref": "#/components/schemas/LimitsRuleUnion"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "owner_wallet": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "parent_balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parent_imposed_limits": {
+            "items": {
+              "$ref": "#/components/schemas/LimitsRuleUnion"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "pending": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardCreateRequest": {
+        "properties": {
+          "balance_id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardEmbedURLResponse": {
+        "properties": {
+          "embed_url": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardListResponse": {
+        "properties": {
+          "after_cursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CardView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "CardResponse": {
+        "properties": {
+          "card": {
+            "$ref": "#/components/schemas/CardView"
+          }
+        },
+        "type": "object"
+      },
+      "CardView": {
+        "properties": {
+          "activated_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "balance_id": {
+            "type": "string"
+          },
+          "closed_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "exp_month": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "exp_year": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "frozen_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "last4": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "network": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardauthTestAuthorizationRequest": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "asset_amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "merchant_category": {
+            "type": "string"
+          },
+          "merchant_country": {
+            "type": "string"
+          },
+          "merchant_name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardauthTestAuthorizationResponse": {
+        "properties": {
+          "decline_reason": {
+            "type": "string"
+          },
+          "partner_auth_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionActivateRequest": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "code_verifier": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionGrantView": {
+        "properties": {
+          "assets": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionIntentLink": {
+        "properties": {
+          "grant": {
+            "$ref": "#/components/schemas/ConnectionGrantView"
+          },
+          "id": {
+            "type": "string"
+          },
+          "reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionResponse": {
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/ConnectionView"
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionSecretResponse": {
+        "properties": {
+          "client_secret": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionView": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "failure_reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "grant": {
+            "$ref": "#/components/schemas/ConnectionGrantView"
+          },
+          "id": {
+            "type": "string"
+          },
+          "livemode": {
+            "type": "boolean"
+          },
+          "reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "revoked_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ExchangerateResponse": {
         "properties": {
           "base": {
@@ -602,10 +2805,44 @@
         },
         "type": "object"
       },
+      "IntentAccountConnectPayload": {
+        "properties": {
+          "assets": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IntentAccountConnectResult": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "IntentCreateRequest": {
         "properties": {
           "kind": {
-            "type": "string"
+            "$ref": "#/components/schemas/IntentKind"
           },
           "payload": {
             "$ref": "#/components/schemas/IntentPayloadUnion"
@@ -615,11 +2852,28 @@
       },
       "IntentCreateResponse": {
         "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/IntentCreateResponseConnection"
+          },
           "intent": {
             "$ref": "#/components/schemas/IntentView"
           }
         },
         "type": "object"
+      },
+      "IntentCreateResponseConnection": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IntentKind": {
+        "enum": [
+          "account.connect"
+        ],
+        "type": "string"
       },
       "IntentListResponse": {
         "properties": {
@@ -646,6 +2900,11 @@
       },
       "IntentPayloadUnion": {
         "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IntentAccountConnectPayload"
+          }
+        ],
         "type": "object"
       },
       "IntentResponse": {
@@ -681,6 +2940,9 @@
               "string"
             ]
           },
+          "connection": {
+            "$ref": "#/components/schemas/ConnectionIntentLink"
+          },
           "created_at": {
             "format": "date-time",
             "type": "string"
@@ -702,18 +2964,139 @@
             "type": "string"
           },
           "kind": {
-            "type": "string"
+            "$ref": "#/components/schemas/IntentKind"
           },
           "payload": {
             "$ref": "#/components/schemas/IntentPayloadUnion"
           },
           "result_resource": {
-            "type": [
-              "object",
-              "null"
-            ]
+            "$ref": "#/components/schemas/IntentAccountConnectResult"
           },
           "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LimitsCalendarWindowRule": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "max": {
+            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+          },
+          "period": {
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "quarter",
+              "year"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "calendar_window"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LimitsLifetimeRule": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "max": {
+            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+          },
+          "type": {
+            "enum": [
+              "lifetime"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LimitsPerRecipientRule": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "max": {
+            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/LimitsRecipientRef"
+          },
+          "type": {
+            "enum": [
+              "per_recipient"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LimitsRecipientRef": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LimitsRollingWindowRule": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "max": {
+            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+          },
+          "type": {
+            "enum": [
+              "rolling_window"
+            ],
+            "type": "string"
+          },
+          "window": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LimitsRuleUnion": {
+        "additionalProperties": {},
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/LimitsRollingWindowRule"
+          },
+          {
+            "$ref": "#/components/schemas/LimitsCalendarWindowRule"
+          },
+          {
+            "$ref": "#/components/schemas/LimitsLifetimeRule"
+          },
+          {
+            "$ref": "#/components/schemas/LimitsPerRecipientRule"
+          }
+        ],
+        "type": "object"
+      },
+      "LimitsRuleVariantMax": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "asset": {
             "type": "string"
           }
         },
