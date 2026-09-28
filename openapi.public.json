@@ -341,6 +341,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -428,6 +438,425 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/deposit_receipts": {
+      "get": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "List what has landed in a balance's account",
+        "operationId": "listDepositReceipts",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "after_cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectdepositDepositReceiptsDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/deposit_routing": {
+      "get": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Get where deposits in this asset are credited",
+        "operationId": "getDepositRouting",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectdepositRoutingDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/deposit_routing/default": {
+      "post": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Make this balance the default for deposits in its asset",
+        "operationId": "setDefaultDepositBalance",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectdepositRoutingDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/deposit_routing/overrides": {
+      "post": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Route the next deposits in this asset to this balance",
+        "operationId": "createDepositRoutingOverride",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectdepositOverrideRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectdepositOverrideDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/v1/balances/{balance_id}/deposit_routing/overrides/{override_id}": {
+      "delete": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Cancel a deposit routing override",
+        "operationId": "cancelDepositRoutingOverride",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "override_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -2217,6 +2646,18 @@
         ],
         "type": "object"
       },
+      "BalanceDepositInProgress": {
+        "properties": {
+          "balance_id": {
+            "type": "string"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "BalanceDepositInstructionUnion": {
         "additionalProperties": {},
         "oneOf": [
@@ -2240,6 +2681,12 @@
           },
           "balance_id": {
             "type": "string"
+          },
+          "delegation_required": {
+            "type": "boolean"
+          },
+          "deposit_in_progress": {
+            "$ref": "#/components/schemas/BalanceDepositInProgress"
           },
           "instructions": {
             "items": {
@@ -2316,6 +2763,12 @@
           "chain": {
             "type": "string"
           },
+          "fee_basis_points": {
+            "type": "integer"
+          },
+          "fiat_currency": {
+            "type": "string"
+          },
           "memo": {
             "type": [
               "null",
@@ -2324,6 +2777,15 @@
           },
           "min_confirmations": {
             "type": "integer"
+          },
+          "minimum_fiat": {
+            "type": "string"
+          },
+          "mint": {
+            "type": "string"
+          },
+          "token_account": {
+            "type": "string"
           },
           "type": {
             "type": "string"
@@ -2413,6 +2875,9 @@
             "type": "string"
           },
           "deposit_id": {
+            "type": "string"
+          },
+          "deposit_receipt_id": {
             "type": "string"
           }
         },
@@ -2535,12 +3000,6 @@
             "type": [
               "array",
               "null"
-            ]
-          },
-          "owner_wallet": {
-            "type": [
-              "null",
-              "string"
             ]
           },
           "parent_balance_id": {
@@ -2825,6 +3284,239 @@
         },
         "type": "object"
       },
+      "DirectdepositBatchDTO": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deposit_id": {
+            "type": "string"
+          },
+          "display_fee_amount": {
+            "type": "string"
+          },
+          "display_gross_total": {
+            "type": "string"
+          },
+          "display_net_amount": {
+            "type": "string"
+          },
+          "fee_amount": {
+            "type": "string"
+          },
+          "fee_basis_points": {
+            "type": "integer"
+          },
+          "gross_total": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "net_amount": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "strand_reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DirectdepositDepositReceiptsDTO": {
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "after_cursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "asset": {
+            "type": "string"
+          },
+          "balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/DirectdepositReceiptDTO"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "display_waiting_total": {
+            "type": "string"
+          },
+          "fee_basis_points": {
+            "type": "integer"
+          },
+          "fiat_currency": {
+            "type": "string"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "minimum_fiat": {
+            "type": "string"
+          },
+          "waiting_total": {
+            "type": "string"
+          },
+          "waiting_total_fiat": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DirectdepositOverrideDTO": {
+        "properties": {
+          "balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closed_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "opened_by_caller": {
+            "type": "boolean"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DirectdepositOverrideRequestDTO": {
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "DirectdepositReceiptDTO": {
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "asset": {
+            "type": "string"
+          },
+          "balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "batch": {
+            "$ref": "#/components/schemas/DirectdepositBatchDTO"
+          },
+          "block_time": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "chain": {
+            "type": "string"
+          },
+          "display_amount": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "livemode": {
+            "type": "boolean"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "routed_by": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tx_signature": {
+            "type": "string"
+          },
+          "waiting_reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DirectdepositRoutingDTO": {
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "asset": {
+            "type": "string"
+          },
+          "balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "default_balance_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "override": {
+            "$ref": "#/components/schemas/DirectdepositOverrideDTO"
+          },
+          "routed_by": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ExchangerateResponse": {
         "properties": {
           "base": {
@@ -2884,6 +3576,9 @@
           },
           "code_challenge": {
             "type": "string"
+          },
+          "direct_deposit": {
+            "type": "boolean"
           },
           "redirect_uri": {
             "type": "string"
