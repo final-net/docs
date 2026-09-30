@@ -978,6 +978,48 @@
         "x-audience": "connection"
       }
     },
+    "/v1/card_art/{card_art_key}.webp": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get stored integrator card art — served as image/webp with immutable caching; the URL comes from the profile's card_art_url and is not constructed by callers",
+        "operationId": "getIntegratorCardArt",
+        "parameters": [
+          {
+            "name": "card_art_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
     "/v1/cards": {
       "get": {
         "tags": [
@@ -2264,6 +2306,87 @@
         "x-audience": "public"
       }
     },
+    "/v1/members/email_verifications": {
+      "post": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Confirm a first email address from its emailed link — sets the member's email if they still have none and the address is still free; a clash cancels the link",
+        "operationId": "verifyEmailLink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountVerifyFirstEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountEmailVerificationEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
     "/v1/transactions/export": {
       "get": {
         "tags": [
@@ -2333,6 +2456,30 @@
   },
   "components": {
     "schemas": {
+      "AccountEmailVerificationEnvelope": {
+        "properties": {
+          "email_verification": {
+            "$ref": "#/components/schemas/AccountEmailVerificationView"
+          }
+        },
+        "type": "object"
+      },
+      "AccountEmailVerificationView": {
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AccountVerifyFirstEmailRequest": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AssetsAssetList": {
         "properties": {
           "data": {
