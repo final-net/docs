@@ -1,0 +1,61 @@
+---
+title: "From a server"
+description: "Connecting with a secret key: reference, no activation, the bare connection id"
+---
+
+A server holds a secret key, `final_live_…` or `final_test_…`. The key already proves who you are, so there is nothing to activate and no secret to store. The flow is the app's with two steps removed.
+
+<Steps>
+  <Step title="Propose">
+    `POST /intents` with the secret key. `code_challenge` is optional, and `reference` is allowed.
+  </Step>
+  <Step title="Approve">
+    Send the user to `approval_url`. They sign in to Final and approve with a passkey, and Final returns them to your `redirect_uri`, or to the primary one registered on your profile.
+  </Step>
+  <Step title="Call">
+    Present the bare connection id in `Final-Connection` on every call for that user.
+  </Step>
+</Steps>
+
+## The proposal
+
+```bash
+curl -s -X POST https://api.final.com/v1/intents \
+  -H "Authorization: Bearer final_test_..." \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{
+    "kind": "account.connect",
+    "payload": {
+      "assets": ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"],
+      "reference": "user_8841",
+      "redirect_uri": "https://app.example.com/final/return",
+      "direct_deposit": true
+    }
+  }'
+```
+
+`reference` is your own id for the user, up to 256 printable characters. Final never reads it. It comes back on `GET /connections/{id}`, on `GET /intents/{id}`, and on every webhook envelope for that user's Balances, which is how a delivery is matched to a row in your database. On a publishable key it is refused with `400 reference_not_allowed`.
+
+The response is the same as the app's: `intent.approval_url` to send the user to, and `connection.id` to address from now on.
+
+## Knowing when the user approved
+
+Two ways, and both carry the connection id:
+
+- Webhooks. Subscribe to `intent.*` and `connection.created`. `intent.completed` carries the intent with its `connection` block, and `connection.created` carries `{ "id", "reference", "grant" }`. The setup page is where you register an endpoint; the envelope and signature are on [Webhooks](/events/webhooks).
+- Polling. `GET /intents/{intent_id}` answers `status: "completed"` once approved, with the same `connection` block. `GET /intents` lists what you proposed, newest first, with `?kind=`, `?status=` and the usual paging.
+
+## Calling on the user's behalf
+
+```bash
+curl -s https://api.final.com/v1/balances \
+  -H "Authorization: Bearer final_test_..." \
+  -H "Final-Connection: connection_01j6b3v8x2q7k9m4n5p6r7s8t9"
+```
+
+Every money route on the following pages takes the same two headers. A connection that was revoked answers `403 connection_revoked`; one that does not exist, is another integrator's, or is in the other mode answers `404 connection_not_found`.
+
+## Events
+
+A server receives [webhooks](/events/webhooks). The stream exists for a client with no server, but a secret key may open it too, with the bare id in `Final-Connection`.

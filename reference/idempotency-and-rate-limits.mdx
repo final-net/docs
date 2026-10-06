@@ -1,0 +1,21 @@
+---
+title: "Idempotency and rate limits"
+description: "Retrying safely, and how much you can send"
+---
+
+## Idempotency
+
+Send `Idempotency-Key: <uuid>` on any POST you might retry. A retry under the same key returns the first response instead of running again.
+
+- A key is bound to its request body for 24 hours. The same key with a different body is `409 idempotency_key_reused`.
+- A retry that arrives while the first request is still running is `409 idempotency_in_flight`. Retry after it answers.
+- A replayed response carries `Idempotent-Replayed: true`.
+- Every answered response is recorded, 4xx included, and replayed as it was. So retry with the same key only when you do not know whether the request completed: a timeout, a dropped connection, the app suspended mid-flight. Mint a new key when the server answered and you want a fresh attempt, since the same key would replay the refusal.
+
+Activation is where this matters most: the `client_secret` is issued once, and a retry under the same key is the only way to recover a response you lost.
+
+## Rate limits
+
+Each credential may send 200 requests per second. Past that, a request answers `429 rate_limited` with `Retry-After: 1`. Back off for that long and resume.
+
+Proposals and activation are bucketed on the publishable key, which every install of your app shares. Everything after activation is bucketed per connection.

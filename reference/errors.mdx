@@ -1,0 +1,103 @@
+---
+title: "Errors"
+description: "The error envelope, its types, and the codes by route family"
+---
+
+Every non-2xx body is this envelope. The fields sit under `error`, never at the top level.
+
+```json
+{
+  "error": {
+    "type": "permission",
+    "code": "user_action_required",
+    "message": "…",
+    "param": "inbound_amount",
+    "detail": { "url": "https://final.com/…" },
+    "request_id": "req_…"
+  }
+}
+```
+
+| Field | |
+| --- | --- |
+| `type` | One of `invalid_request`, `authentication`, `permission`, `compliance`, `payment_required`, `not_found`, `conflict`, `gone`, `precondition`, `rate_limited`, `unavailable`, `upstream_failed`, `internal`. |
+| `code` | What to branch on. |
+| `message` | For logs, not for users. |
+| `param` | Only when a field is at fault. |
+| `detail` | Only on user-present gates. See [Gates](/money/gates). |
+| `request_id` | Always present. Echoes a client `X-Request-ID` when you send one; quote it to support. |
+
+## Every connection route
+
+Every route that takes `Final-Connection` can answer these before the route itself runs.
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 404 | `connection_not_found` | Unknown id, wrong key, wrong mode, bad secret, or not yet activated. One code on purpose. |
+| 403 | `connection_revoked` | The user disconnected you, the connection went dormant, or your integrator account was closed, locked or placed in review. Connect again. |
+| 403 | `verification_pending` | The user's account is under review. Every call waits. |
+| 403 | `region_not_supported`, `region_unverified` | Type `compliance`. The request's region. |
+| 400 | `connection_header_unexpected` | `Final-Connection` sent to a route that does not take it, such as `POST /intents` or activation. |
+| 403 | `origin_not_allowed` | A browser `Origin` that is not registered for this publishable key. |
+| 429 | `rate_limited` | Back off per `Retry-After`. |
+
+A Balance or card outside your grant is a plain `404 not_found`, the same as one that does not exist.
+
+## Proposals and activation
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `code_challenge_required`, `code_challenge_invalid` | A publishable key must send an `S256` challenge. |
+| 400 | `intent_payload_invalid` | Assets missing, more than 8, not holdable, or not available in this mode. |
+| 400 | `redirect_uri_required` | A live proposal with a challenge needs a redirect. |
+| 400 | `redirect_uri_unregistered` | Not exactly one of your registered redirects. |
+| 400 | `reference_not_allowed`, `reference_invalid` | `reference` is for secret keys, and up to 256 printable characters. |
+| 400 | `intent_kind_unsupported` | A kind other than `account.connect`. |
+| 403 | `integrator_profile_required` | Save a profile first. |
+| 403 | `integrator_unverified` | Live mode needs Final to verify you. Test mode works meanwhile. |
+| 404 | `connection_not_found` | Activation: wrong code, wrong verifier, wrong key, or already activated. |
+| 409 | `activation_code_expired` | The code is older than 10 minutes. Propose again. |
+| 503 | `asset_chain_unavailable` | An asset's chain is temporarily unavailable. |
+
+## Balances
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `connection_root_not_allowed` | `POST /balances` without `parent_balance_id`. Roots come from approval. |
+| 400 | `parent_invalid`, `depth_exceeded`, `limit_invalid` | The sub-balance request. |
+| 503 | `asset_chain_unavailable` | Temporarily unavailable. |
+
+## Deposits
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_amount` | Exactly one positive integer-string amount. |
+| 400 | `no_inflow_route` | Nothing swaps into this asset in this mode. |
+| 400 | `test_behavior_not_allowed`, `test_behavior_invalid` | `Final-Test-Behavior` on a live credential, or an unknown value. |
+| 400 | `ends_at_out_of_range` | A routing window must end in the future and within 24 hours. |
+| 404 | `balance_not_found` | Not a root in your grant, or no `direct_deposit` on the grant. |
+| 404 | `override_not_found` | A window you did not open, or one already closed. |
+| 409 | `override_in_flight` | The account's one window is taken. |
+| 503 | `direct_deposit_unavailable` | Direct deposit is paused. Retry shortly. |
+| 400 | `base_required`, `quote_required`, `asset_unknown`, `pair_unpriceable` | `GET /exchange_rate`. |
+| 503 | `rates_unavailable` | No rate source is configured. |
+
+## Cards
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `balance_id_required` | No `balance_id`. |
+| 400 | `status_invalid` | `?status=` is not `active`, `provisioning`, `frozen`, `closed` or `all`. |
+| 400 | `invalid_amount`, `merchant_name_required` | A test authorization's body. |
+| 409 | `balance_closed` | The Balance is closed. |
+| 409 | `card_provisioning`, `card_closed` | The card is not active yet, or closed. |
+| 503 | `cardauth_unavailable` | Authorization is temporarily unavailable. |
+
+## Everywhere
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `body_invalid` | The JSON body could not be parsed. |
+| 400 | `id_invalid` | A path id is malformed. |
+| 403 | `terms_unaccepted` | The user has new Final terms to accept. A connection sees it as `user_action_required`. |
+| 409 | `idempotency_key_reused`, `idempotency_in_flight` | See [Idempotency and rate limits](/reference/idempotency-and-rate-limits). |

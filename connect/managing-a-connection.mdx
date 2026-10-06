@@ -1,0 +1,30 @@
+---
+title: "Managing a connection"
+description: "What to do in each situation, and what a second approval changes"
+---
+
+| Situation | What to do |
+| --- | --- |
+| Which Balances do I have? | `GET /balances`, already scoped to your grant; `?parent_balance_id=null` for the roots only. `GET /connections/{id}` answers whether you are still connected and for which assets (`status`, `grant.assets`). |
+| Need another asset | Propose again with the full asset set you want. Same user, same grant; a new asset gets a new root Balance. |
+| Second device or reinstall | Propose again with the full current asset set. Each approval mints a new connection on the same grant; old ones keep working until revoked, or until 30 days unused. |
+| Sign this install out | `DELETE /connections/{id}`. The user's Balances stay theirs. Any deposit routing windows this connection opened close with it. |
+| Suspect the secret leaked | `DELETE /connections/{id}`, then connect again. That ends it for whoever has the copy as well as for you. |
+| Lost the activate response | If you sent an `Idempotency-Key`, retry with the same one and the secret comes back. If you did not, connect again. |
+| `403 connection_revoked` on any call | The user disconnected you, the connection went dormant, or your integrator account was closed, locked or placed in review. Connect again; the same Balances come back. |
+| The user closed the browser without approving | Nothing expires. Connect again whenever you like. |
+
+## A second approval replaces the grant
+
+One grant exists per integrator, user and mode. Every approval writes the proposal's asset set and its `direct_deposit` permission onto that grant, for every install on it, so always send the full current set:
+
+- An asset left out is removed from the grant, and your access to its Balance with it. Any routing windows you held in that asset close, and a routing default naming your Balance is cleared.
+- Dropping `direct_deposit` closes every routing window the grant holds and clears your routing defaults.
+
+Approving again always asks the user for their passkey. That is by design.
+
+## Revoking
+
+`DELETE /connections/{id}` answers `204`. A second call with the same secret is `403 connection_revoked`. Other installs on the grant keep working. The user's own Balances, cards and funds are untouched.
+
+The user can revoke the whole grant from Final. Every connection on it then answers `403 connection_revoked`, every routing window closes, and a routing default naming your Balance is cleared. What landed inside a window before that still credits you.

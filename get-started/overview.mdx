@@ -1,0 +1,45 @@
+---
+title: "Overview"
+description: "What Final is, the two credentials, and the conventions every request follows"
+---
+
+Final gives a user a Balance in an asset they choose, a card that spends it at the point of sale, and a way for your product to hold both on their behalf. A user approves your app once. From then on you create sub-balances, show deposit instructions, issue a card and watch money move, all through one REST API.
+
+## One guide, two credentials
+
+Every Balance, deposit and card route is the same route whether you call it from an app or from a server. Only the credential differs.
+
+|  | App (client only) | Server |
+| --- | --- | --- |
+| `Authorization` | `Bearer final_publishable_live_…` or `final_publishable_test_…` | `Bearer final_live_…` or `final_test_…` |
+| Proposal | `code_challenge` required | `code_challenge` optional, `reference` allowed |
+| After approval | `POST /connections/{id}/activate` returns the `client_secret` | Nothing to activate |
+| `Final-Connection` | The `connection_…_secret_…` from activation | The bare `connection_…` id |
+| Events | `GET /connections/{id}/events`, a Server-Sent Events stream | Webhooks |
+
+A publishable key ships inside your app and is treated as public. A secret key stays on your server and proves you are the integrator. Both come from one mint on the [setup page](/get-started/setup).
+
+The pages split only where the flow splits: [connecting from an app](/connect/from-an-app) or [from a server](/connect/from-a-server), and receiving events on [the stream](/events/event-stream) or [by webhook](/events/webhooks). Everything else is one page with both shapes in it.
+
+## Conventions
+
+| | |
+| --- | --- |
+| Base URL | `https://api.final.com/v1`. JSON in and out. |
+| Amounts | Smallest-unit integer strings. USDe has 9 decimals, so `"1000000000"` is 1 USDe. Every amount carries a `display_*` sibling for humans, such as `"1.000000000"`. Compute against the integer. |
+| Assets | CAIP-19 ids, such as `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT` for USDe. Fiat is `iso4217:USD`. `GET /assets` lists the ids your credential can open a Balance in. |
+| Lists | `{ "data": [...], "has_more": true, "after_cursor": "…" }`. Page with `?limit=` and `?after_cursor=`. |
+| Retries | Send `Idempotency-Key: <uuid>` on any POST you might retry. See [Idempotency and rate limits](/reference/idempotency-and-rate-limits). |
+| Times | RFC 3339 UTC strings. |
+| Errors | Every non-2xx body is `{ "error": { "type", "code", "message", … } }`. Branch on `code`. See [Errors](/reference/errors). |
+| Modes | A test credential sees test-mode data only, and a live one sees live data only. The same code runs in both; the [Test mode](/reference/test-mode) page is what differs. |
+
+## The worked asset
+
+The samples use USDe. It is funded by sending USDe to the user's own address, so every proposal in these pages asks for the `direct_deposit` permission. Without it your app cannot show the user where to send funds.
+
+In test mode the same asset id opens a simulated Balance. It carries a placeholder address no wallet accepts, and `POST /balances/{id}/test_deposits` stands in for the sender. The same code runs in both modes; only the funding step differs.
+
+<Note>
+  Reach us at [support@final.com](mailto:support@final.com).
+</Note>

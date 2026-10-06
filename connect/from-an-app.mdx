@@ -1,0 +1,199 @@
+---
+title: "From an app"
+description: "PKCE, the return to your app, and activating the connection"
+---
+
+An app holds a publishable key, which is public. What makes the connection yours is PKCE: whoever proposed keeps the verifier, and only your registered redirect receives the code.
+
+<Steps>
+  <Step title="Propose">
+    `POST /intents` with a `code_challenge`. The response names the connection id. No secret exists yet.
+  </Step>
+  <Step title="Approve">
+    Open `approval_url` in the system browser. The user signs in to Final and approves with a passkey.
+  </Step>
+  <Step title="Return">
+    Final returns to your `redirect_uri` with `?intent_id=…&code=…`.
+  </Step>
+  <Step title="Activate">
+    `POST /connections/{id}/activate` with the code and the verifier returns the `client_secret`, once.
+  </Step>
+</Steps>
+
+## PKCE
+
+The verifier is 43 to 128 characters of base64url. The challenge is `base64url(sha256(verifier))`, and `S256` is the only method. A verifier outside that range, or one that does not hash to the challenge, is answered at activation with the same `404 connection_not_found` as a wrong code.
+
+<CodeGroup>
+
+```kotlin Kotlin
+val verifier = ByteArray(32).also { SecureRandom().nextBytes(it) }
+    .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
+val challenge = Base64.getUrlEncoder().withoutPadding()
+    .encodeToString(MessageDigest.getInstance("SHA-256").digest(verifier.toByteArray(Charsets.US_ASCII)))
+```
+
+```swift Swift
+import CryptoKit
+let verifier = Data((0..<32).map { _ in UInt8.random(in: 0...255) }).base64URLEncoded()
+let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncoded()
+extension Data {
+    func base64URLEncoded() -> String {
+        base64EncodedString().replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+    }
+}
+```
+
+```bash curl
+VERIFIER=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+CHALLENGE=$(printf '%s' "$VERIFIER" | openssl dgst -sha256 -binary | base64 | tr '+/' '-_' | tr -d '=')
+```
+
+</CodeGroup>
+
+## The proposal
+
+```json
+{
+  "kind": "account.connect",
+  "payload": {
+    "assets": ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"],
+    "code_challenge": "<base64url(sha256(verifier))>",
+    "redirect_uri": "yourapp://final/return",
+    "direct_deposit": true
+  }
+}
+```
+
+| Field | |
+| --- | --- |
+| `assets` | 1 to 8 CAIP-19 ids. The cap is checked before duplicates are removed. One root Balance each. |
+| `code_challenge` | Required on a publishable key. |
+| `redirect_uri` | Must exactly equal a registered redirect. Omitting it falls back to the primary, so an app on a custom scheme sends it every time. Required in live mode. |
+| `direct_deposit` | Ask to route the user's own deposits to your Balances. The approval page states the fee. Without it, deposit instructions carry no address. |
+
+The response:
+
+```json
+{
+  "intent": {
+    "id": "intent_…",
+    "kind": "account.connect",
+    "status": "pending_approval",
+    "approval_url": "https://final.com/authorize?intent_id=…&sig=…",
+    "created_at": "…"
+  },
+  "connection": { "id": "connection_…" }
+}
+```
+
+`approval_url` is opaque: open it as it is, top level, and never rebuild it. It does not expire.
+
+## Opening the approval
+
+<CodeGroup>
+
+```kotlin Kotlin
+// Custom Tabs for the browser. Declare the intent-filter for yourapp://final/return on an activity
+// with android:launchMode="singleTask", so the redirect reaches onNewIntent of the activity that
+// stashed the verifier rather than a fresh one.
+val created = finalRequest("POST", "intents", body = buildJsonObject {
+    put("kind", "account.connect")
+    putJsonObject("payload") {
+        putJsonArray("assets") { add(USDE) }
+        put("code_challenge", challenge)
+        put("redirect_uri", "yourapp://final/return")
+        put("direct_deposit", true)
+    }
+}).body!!
+val connectionId = created["connection"]!!.jsonObject["id"]!!.jsonPrimitive.content
+securePrefs.edit { putString("final_pending", "$connectionId|$verifier") }
+
+CustomTabsIntent.Builder().build()
+    .launchUrl(this, Uri.parse(created["intent"]!!.jsonObject["approval_url"]!!.jsonPrimitive.content))
+
+// Back in onNewIntent for yourapp://final/return?intent_id=…&code=…
+val code = intent.data!!.getQueryParameter("code")!!
+val (id, verifier) = securePrefs.getString("final_pending", null)!!.split("|")
+val activated = finalRequest("POST", "connections/$id/activate", body = buildJsonObject {
+    put("code", code); put("code_verifier", verifier)
+})
+if (activated.status == 409) { /* activation_code_expired: start over */ }
+keystore.put("final_connection", activated.body!!["client_secret"]!!.jsonPrimitive.content)
+```
+
+```swift Swift
+// ASWebAuthenticationSession for the browser; it closes itself when Final navigates to your scheme.
+let created = try await finalRequest("POST", "intents", body: [
+    "kind": "account.connect",
+    "payload": ["assets": [usde], "code_challenge": challenge,
+                "redirect_uri": "yourapp://final/return", "direct_deposit": true],
+]).body!
+let connection = created["connection"] as! [String: Any], intent = created["intent"] as! [String: Any]
+try keychain.set(verifier, for: "final_pending_verifier")
+
+let callback: URL = try await withCheckedThrowingContinuation { cont in
+    let session = ASWebAuthenticationSession(url: URL(string: intent["approval_url"] as! String)!,
+                                             callbackURLScheme: "yourapp") { url, error in
+        if let url { cont.resume(returning: url) } else { cont.resume(throwing: error!) }
+    }
+    session.prefersEphemeralWebBrowserSession = false // reuse the user's Final session
+    session.presentationContextProvider = self
+    session.start()
+}
+let code = URLComponents(url: callback, resolvingAgainstBaseURL: false)!.queryItems!.first { $0.name == "code" }!.value!
+
+let activated = try await finalRequest("POST", "connections/\(connection["id"]!)/activate",
+                                       body: ["code": code, "code_verifier": verifier])
+guard activated.status == 200 else { return } // 409 activation_code_expired: start over
+try keychain.set(activated.body!["client_secret"] as! String, for: "final_connection")
+```
+
+```bash curl
+curl -s -X POST $FINAL_API/intents \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -H "Idempotency-Key: $(uuidgen)" \
+  -d "{\"kind\":\"account.connect\",\"payload\":{\"assets\":[\"$USDE\"],\"code_challenge\":\"$CHALLENGE\",\"redirect_uri\":\"https://app.example.com/final/return\",\"direct_deposit\":true}}"
+
+# After the user approves, your redirect receives ?intent_id=…&code=…
+curl -s -X POST $FINAL_API/connections/$CONNECTION_ID/activate \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+  -d "{\"code\":\"$CODE\",\"code_verifier\":\"$VERIFIER\"}"
+```
+
+</CodeGroup>
+
+<Note>
+  Prefer a verified App Link on Android. Register `https://app.example.com/final/return` with an `assetlinks.json` and use it as `redirect_uri`: Android verifies the domain, so no other app can claim the callback, where a custom scheme is first come, first served. iOS gets the same guarantee from 17.4 with `ASWebAuthenticationSession.Callback.https`.
+</Note>
+
+<Note>
+  On iOS, a new user needs iOS 18 to create a Final account, since sign-up uses a passkey feature Safari supports from there. An existing user can sign in and approve on iOS 16 and 17.
+</Note>
+
+## Activation
+
+```json
+{ "code": "…", "code_verifier": "…" }
+```
+
+The code is valid for 10 minutes. The response is `{ "id": "connection_…", "client_secret": "connection_…_secret_…" }`.
+
+The secret is the connection id with a secret half appended, so you store one string. The id is everything before the literal `_secret_`, and neither half can contain that token. Store it in the Keychain or Keystore. From now on every request on the user's behalf carries it:
+
+```
+Final-Connection: connection_01j6b3v8x2q7k9m4n5p6r7s8t9_secret_a91c7e4d…
+```
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 404 | `connection_not_found` | Wrong code, wrong verifier, wrong key, wrong mode or already activated. One code on purpose. |
+| 409 | `activation_code_expired` | The code is older than 10 minutes. Propose again. |
+
+<Warning>
+  Activation is the one response Final can never reissue. Send an `Idempotency-Key` and a retry under the same key hands the secret back; without one, a lost response means the user approves again.
+</Warning>
+
+## Trying it from a terminal
+
+In test mode, from a profile with no primary redirect, propose without `redirect_uri`. Final shows the user an approved screen instead of redirecting, and for 10 minutes `POST /connections/{id}/activate` accepts `{ "code_verifier" }` alone. This exists only for that; live mode always requires the redirect.

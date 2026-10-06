@@ -1,0 +1,320 @@
+---
+title: "Quickstart"
+description: "From an empty project to a connected user, a funded test Balance, an active card and a simulated purchase"
+---
+
+This walks an app through the whole flow in test mode. A server does the same with a secret key and curl; the differences are on [Connect from a server](/connect/from-a-server).
+
+## Before you start
+
+<Steps>
+  <Step title="Set up your integrator">
+    On the [setup page](/get-started/setup), save a profile, register the redirect your app will return to, and mint a key pair. Keep the publishable test key, `final_publishable_test_…`, for this guide.
+  </Step>
+  <Step title="Pick the asset">
+    `GET /assets` lists what your credential can open a Balance in. The samples use USDe:
+
+    ```
+    solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT
+    ```
+  </Step>
+</Steps>
+
+## The request helper
+
+Every later sample calls this. It returns the status and parses only a non-empty body, since `DELETE` answers `204` with none.
+
+<CodeGroup>
+
+```kotlin Kotlin
+// OkHttp + kotlinx.serialization. A suspend function, so it never runs on the main thread.
+const val FINAL_API = "https://api.final.com/v1"
+val http = OkHttpClient()
+val json = Json { ignoreUnknownKeys = true }
+
+class FinalResponse(val status: Int, val body: JsonObject?)
+
+suspend fun finalRequest(
+    method: String, path: String, body: JsonObject? = null,
+    connection: String? = null, headers: Map<String, String> = emptyMap()
+): FinalResponse = withContext(Dispatchers.IO) {
+    val req = Request.Builder().url("$FINAL_API/$path")
+        .header("Authorization", "Bearer $PUBLISHABLE_KEY")
+        .apply {
+            connection?.let { header("Final-Connection", it) }
+            headers.forEach { (k, v) -> header(k, v) }
+        }
+        .method(method, body?.let { json.encodeToString(it).toRequestBody("application/json".toMediaType()) }
+            ?: if (method == "POST") ByteArray(0).toRequestBody() else null) // OkHttp refuses a POST with no body
+        .build()
+    http.newCall(req).execute().use { resp ->
+        val text = resp.body?.string().orEmpty()
+        FinalResponse(resp.code, if (text.isBlank()) null else json.parseToJsonElement(text).jsonObject)
+    }
+}
+```
+
+```swift Swift
+// URLSession.
+let api = URL(string: "https://api.final.com/v1")!
+
+func finalRequest(_ method: String, _ path: String, body: [String: Any]? = nil, connection: String? = nil,
+                  headers: [String: String] = [:]) async throws -> (status: Int, body: [String: Any]?) {
+    var r = URLRequest(url: api.appending(path: path)); r.httpMethod = method
+    r.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
+    r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    if let connection { r.setValue(connection, forHTTPHeaderField: "Final-Connection") }
+    headers.forEach { r.setValue($1, forHTTPHeaderField: $0) }
+    if let body { r.httpBody = try JSONSerialization.data(withJSONObject: body) }
+    let (data, resp) = try await URLSession.shared.data(for: r)
+    let status = (resp as! HTTPURLResponse).statusCode
+    let parsed = data.isEmpty ? nil : try JSONSerialization.jsonObject(with: data) as? [String: Any]
+    return (status, parsed)
+}
+```
+
+```bash curl
+export FINAL_API=https://api.final.com/v1
+export KEY=final_publishable_test_...
+```
+
+</CodeGroup>
+
+## Connect the user
+
+<Steps>
+  <Step title="Propose">
+    Generate a PKCE pair and propose with the challenge. Ask for `direct_deposit` so the deposit screen can show an address.
+
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    val verifier = ByteArray(32).also { SecureRandom().nextBytes(it) }
+        .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
+    val challenge = Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(MessageDigest.getInstance("SHA-256").digest(verifier.toByteArray(Charsets.US_ASCII)))
+
+    val created = finalRequest("POST", "intents", body = buildJsonObject {
+        put("kind", "account.connect")
+        putJsonObject("payload") {
+            putJsonArray("assets") { add(USDE) }
+            put("code_challenge", challenge)
+            put("redirect_uri", "yourapp://final/return")
+            put("direct_deposit", true)
+        }
+    }).body!!
+    val connectionId = created["connection"]!!.jsonObject["id"]!!.jsonPrimitive.content
+    securePrefs.edit { putString("final_pending", "$connectionId|$verifier") }
+    ```
+
+    ```swift Swift
+    import CryptoKit
+    let verifier = Data((0..<32).map { _ in UInt8.random(in: 0...255) }).base64URLEncoded()
+    let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncoded()
+
+    let created = try await finalRequest("POST", "intents", body: [
+        "kind": "account.connect",
+        "payload": ["assets": [usde], "code_challenge": challenge,
+                    "redirect_uri": "yourapp://final/return", "direct_deposit": true],
+    ]).body!
+    let connectionId = (created["connection"] as! [String: Any])["id"] as! String
+    try keychain.set(verifier, for: "final_pending_verifier")
+    ```
+
+    ```bash curl
+    # From a terminal, in test mode, with no primary redirect on the profile: omit redirect_uri
+    # and code_challenge is still required on a publishable key.
+    VERIFIER=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+    CHALLENGE=$(printf '%s' "$VERIFIER" | openssl dgst -sha256 -binary | base64 | tr '+/' '-_' | tr -d '=')
+    curl -s -X POST $FINAL_API/intents \
+      -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+      -H "Idempotency-Key: $(uuidgen)" \
+      -d "{\"kind\":\"account.connect\",\"payload\":{\"assets\":[\"$USDE\"],\"code_challenge\":\"$CHALLENGE\",\"direct_deposit\":true}}"
+    ```
+
+    </CodeGroup>
+
+    The response carries `intent.approval_url` and `connection.id`. No secret exists yet.
+  </Step>
+  <Step title="Approve">
+    Open `approval_url` in the system browser. The user signs in to Final and approves with a passkey. Final returns to `yourapp://final/return?intent_id=…&code=…`.
+
+    From a terminal there is no redirect: Final shows the user an approved screen instead.
+  </Step>
+  <Step title="Activate">
+    Exchange the code and your verifier for the `client_secret`. It is issued once.
+
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    val code = intent.data!!.getQueryParameter("code")!!
+    val (id, verifier) = securePrefs.getString("final_pending", null)!!.split("|")
+    val activated = finalRequest("POST", "connections/$id/activate", body = buildJsonObject {
+        put("code", code); put("code_verifier", verifier)
+    })
+    if (activated.status == 409) { /* activation_code_expired: propose again */ }
+    keystore.put("final_connection", activated.body!!["client_secret"]!!.jsonPrimitive.content)
+    ```
+
+    ```swift Swift
+    let code = URLComponents(url: callback, resolvingAgainstBaseURL: false)!
+        .queryItems!.first { $0.name == "code" }!.value!
+    let activated = try await finalRequest("POST", "connections/\(connectionId)/activate",
+                                           body: ["code": code, "code_verifier": verifier])
+    guard activated.status == 200 else { return } // 409 activation_code_expired: propose again
+    try keychain.set(activated.body!["client_secret"] as! String, for: "final_connection")
+    ```
+
+    ```bash curl
+    # Within 10 minutes of the approval, the verifier alone activates a terminal proposal.
+    curl -s -X POST $FINAL_API/connections/$CONNECTION_ID/activate \
+      -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+      -d "{\"code_verifier\":\"$VERIFIER\"}"
+    export SECRET=connection_..._secret_...
+    ```
+
+    </CodeGroup>
+  </Step>
+</Steps>
+
+Every request from here carries the secret in `Final-Connection`.
+
+## Open the stream
+
+Open `GET /connections/{id}/events` and keep it open. The first frame is `connection.active`. Store the last `id:` you see and send it as `Last-Event-ID` when you reconnect, or the stream replays the connection's whole history. The code is on [Event stream](/events/event-stream).
+
+## Fund the Balance
+
+`GET /balances?parent_balance_id=null` lists your roots, one per approved asset. Read the deposit instructions for the USDe root:
+
+<CodeGroup>
+
+```kotlin Kotlin
+val secret = keystore.get("final_connection")
+val root = finalRequest("GET", "balances?parent_balance_id=null", connection = secret).body!!["data"]!!.jsonArray
+    .map { it.jsonObject }.first { it["asset"]!!.jsonPrimitive.content == USDE }
+val balanceId = root["id"]!!.jsonPrimitive.content
+val instructions = finalRequest("GET", "balances/$balanceId/deposit_instructions", connection = secret).body!!
+```
+
+```swift Swift
+let secret = try keychain.get("final_connection")
+let roots = try await finalRequest("GET", "balances?parent_balance_id=null", connection: secret).body!["data"] as! [[String: Any]]
+let balanceId = roots.first { $0["asset"] as? String == usde }!["id"] as! String
+let instructions = try await finalRequest("GET", "balances/\(balanceId)/deposit_instructions", connection: secret).body!
+```
+
+```bash curl
+curl -s "$FINAL_API/balances?parent_balance_id=null" -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET"
+curl -s $FINAL_API/balances/$BALANCE_ID/deposit_instructions -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET"
+```
+
+</CodeGroup>
+
+In live mode the `onchain_address` instruction is where the user sends USDe. In test mode it is a placeholder, so send the deposit yourself:
+
+<CodeGroup>
+
+```kotlin Kotlin
+finalRequest("POST", "balances/$balanceId/test_deposits", connection = secret,
+    body = buildJsonObject { put("amount", "1000000000") }, // 1 USDe
+    headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString()))
+// The stream delivers deposit.credited. GET /balances/{id} then shows available "1000000000".
+```
+
+```swift Swift
+_ = try await finalRequest("POST", "balances/\(balanceId)/test_deposits",
+                           body: ["amount": "1000000000"], connection: secret,
+                           headers: ["Idempotency-Key": UUID().uuidString])
+// The stream delivers deposit.credited. GET /balances/{id} then shows available "1000000000".
+```
+
+```bash curl
+curl -s -X POST $FINAL_API/balances/$BALANCE_ID/test_deposits \
+  -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET" \
+  -H "Content-Type: application/json" -H "Idempotency-Key: $(uuidgen)" \
+  -d '{"amount":"1000000000"}'
+```
+
+</CodeGroup>
+
+## Issue a card
+
+<CodeGroup>
+
+```kotlin Kotlin
+val card = finalRequest("POST", "cards", connection = secret, body = buildJsonObject {
+    put("balance_id", balanceId)
+    putJsonObject("cardholder_info") {
+        put("name", "A. Nakamoto")
+        putJsonObject("billing_address") {
+            put("line1", "1 Main St"); put("city", "Austin"); put("region", "TX")
+            put("postal_code", "78701"); put("country", "US")
+        }
+    }
+}, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString())).body!!["card"]!!.jsonObject
+// status is "provisioning" until the Balance is funded; card.activated arrives on the stream.
+val embed = finalRequest("POST", "cards/${card["id"]!!.jsonPrimitive.content}/embed_url", connection = secret)
+    .body!!["embed_url"]!!.jsonPrimitive.content
+webView.loadUrl(embed)
+```
+
+```swift Swift
+let card = try await finalRequest("POST", "cards", body: [
+    "balance_id": balanceId,
+    "cardholder_info": ["name": "A. Nakamoto",
+                        "billing_address": ["line1": "1 Main St", "city": "Austin", "region": "TX",
+                                            "postal_code": "78701", "country": "US"]],
+], connection: secret, headers: ["Idempotency-Key": UUID().uuidString]).body!["card"] as! [String: Any]
+// status is "provisioning" until the Balance is funded; card.activated arrives on the stream.
+let embed = try await finalRequest("POST", "cards/\(card["id"]!)/embed_url", connection: secret).body!["embed_url"] as! String
+webView.load(URLRequest(url: URL(string: embed)!))
+```
+
+```bash curl
+curl -s -X POST $FINAL_API/cards \
+  -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET" \
+  -H "Content-Type: application/json" -H "Idempotency-Key: $(uuidgen)" \
+  -d "{\"balance_id\":\"$BALANCE_ID\",\"cardholder_info\":{\"name\":\"A. Nakamoto\",\"billing_address\":{\"line1\":\"1 Main St\",\"city\":\"Austin\",\"region\":\"TX\",\"postal_code\":\"78701\",\"country\":\"US\"}}}"
+curl -s -X POST $FINAL_API/cards/$CARD_ID/embed_url -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET"
+```
+
+</CodeGroup>
+
+A card issued before the deposit activates when the deposit credits. Issued after, it activates within about a minute.
+
+## Simulate a purchase
+
+<CodeGroup>
+
+```kotlin Kotlin
+val auth = finalRequest("POST", "cards/$cardId/test_authorizations", connection = secret, body = buildJsonObject {
+    put("amount", "1899")              // what the merchant charges, in cents
+    put("asset_amount", "18990000000") // what the swipe pulls from the Balance, in the asset's smallest unit
+    put("merchant_name", "Blue Bottle"); put("merchant_category", "5812")
+}, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString())).body!!
+// auth["status"] == "approved". The stream delivers card_auth.approved, then card_auth.settled.
+```
+
+```swift Swift
+let auth = try await finalRequest("POST", "cards/\(cardId)/test_authorizations", body: [
+    "amount": "1899", "asset_amount": "18990000000",
+    "merchant_name": "Blue Bottle", "merchant_category": "5812",
+], connection: secret, headers: ["Idempotency-Key": UUID().uuidString]).body!
+// auth["status"] == "approved". The stream delivers card_auth.approved, then card_auth.settled.
+```
+
+```bash curl
+curl -s -X POST $FINAL_API/cards/$CARD_ID/test_authorizations \
+  -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET" \
+  -H "Content-Type: application/json" -H "Idempotency-Key: $(uuidgen)" \
+  -d '{"amount":"1899","asset_amount":"18990000000","merchant_name":"Blue Bottle","merchant_category":"5812"}'
+```
+
+</CodeGroup>
+
+`GET /balances/{id}/transactions` now lists the credit and the debit.
+
+## Go live
+
+Swap the publishable test key for the live one and point the deposit screen at the real `onchain_address`. Nothing else in the code changes. [Going live](/reference/going-live) lists what Final needs from you first.

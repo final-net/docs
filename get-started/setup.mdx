@@ -1,0 +1,47 @@
+---
+title: "Setup"
+description: "The setup page: your profile, redirect URIs, origins, keys and webhook endpoints"
+---
+
+Everything an account needs to become an integrator lives on one page at [final.com/temporary/integrator-setup](https://final.com/temporary/integrator-setup). Sign in to Final first; every control on it acts on the signed-in account. The page is temporary, until the designed settings screen lands, and is not linked from the app.
+
+## Profile
+
+What a user sees on the approval page: display name, support URL, terms URL, privacy policy URL, an optional brand colour and a logo. Save it before anything else, since a key mint without a profile is refused with `403 integrator_profile_required`.
+
+## Redirect URIs
+
+Where Final returns the user after they approve.
+
+- The primary `redirect_uri` must be `https://` with a host. It is what a proposal falls back to when it omits `redirect_uri`.
+- `redirect_uris` holds up to 8 more, and this is where a custom scheme such as `yourapp://final/return` lives. An `http://` URI, a wildcard, a fragment or userinfo is refused anywhere.
+- A proposal's `redirect_uri` must exactly equal one registered entry. Scheme and host compare case-insensitively; path and query must match as written.
+
+So an app on a custom scheme sends `redirect_uri` on every proposal, and a web app that registered its callback as the primary can omit it.
+
+## Origins
+
+The browser origins a publishable key may be presented from, such as `https://app.example.com`. Only a browser is held to them: a native app sends no `Origin` header and never preflights, so an integrator that ships only an app registers nothing here. Register one only for a WebView or web layer that sends `Origin`.
+
+A live publishable key additionally needs its origin to be `https://` on a public hostname, and the integrator to be verified by Final.
+
+## API keys
+
+One mint produces two keys: the secret key, `final_live_…` or `final_test_…`, which proposes from a server and must stay there, and its publishable sibling, `final_publishable_live_…` or `final_publishable_test_…`, which ships inside an app. Both plaintexts are shown once, on the mint, and never again.
+
+Mint a test pair to build against. Mint a live pair when you are ready to [go live](/reference/going-live).
+
+## Webhooks
+
+A server receives events on a webhook endpoint registered here. Each endpoint has one mode, live or test, and receives that mode's events alone.
+
+- The URL must be `https://` on a named host.
+- `subscribed_events` defaults to `*`, which includes event types added later. An exact type such as `deposit.credited` or a prefix such as `card_auth.*` narrows it.
+- The signing secret, `whsec_…`, is shown once when the endpoint is created and again only when you rotate it. Rotating stops the old secret verifying at once.
+- Recent deliveries are listed per endpoint, with the event type, outcome, response code and time.
+
+How to verify a delivery is on [Webhooks](/events/webhooks). An app with no server needs no endpoint: it reads the [event stream](/events/event-stream) instead.
+
+## Verification
+
+Live mode needs Final to verify your integrator. The page shows whether that has happened; only Final can change it. Until then, a live proposal answers `403 integrator_unverified` and your origins do not back a live publishable key. Test mode works either way.

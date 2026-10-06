@@ -1,33 +1,37 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
-
 # Documentation project instructions
 
 ## About this project
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
+- This is the integrator documentation for Final, built on [Mintlify](https://mintlify.com)
 - Pages are MDX files with YAML frontmatter
 - Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+- `openapi.public.json` is generated in `final-net/Final` and synced here; never edit it by hand
+- Every claim on every page must match the code on `main` of `final-net/Final`. Verify a route, field, enum or error code there before writing it
 
 ## Terminology
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- "Balance", capitalized, is the resource; a sub-balance is a Balance under a root
+- "connection" is one install's credential on a grant; "grant" is what the user approved
+- "publishable key" and "secret key" are the two credentials; never "API key" on its own
+- "test mode" and "live mode", two words, never "sandbox"
+- Assets are CAIP-19 identifiers; a ticker such as USDe is display only
+- "user" is the person who approves; "integrator" is the company building on Final
+- No customer or partner product name appears in a page. Redirect examples use `yourapp://final/return` and `https://app.example.com/final/return`
 
 ## Style preferences
 
-{/* Add any project-specific style rules below */}
-
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+- Second person, present tense, short sentences
+- Sentence case for headings
+- No em dashes. Use a comma, a colon, parentheses or a second sentence
+- A page says what to do and the one consequence that matters, and nothing about how Final works inside
+- Prefer Mintlify components (`<Steps>`, `<CodeGroup>`, `<Note>`, `<Warning>`) to prose
+- Every code sample is a `<CodeGroup>` of Kotlin, Swift and curl, in that order
+- Amounts in samples are smallest-unit integer strings; USDe has 9 decimals, so `"1000000000"` is 1 USDe
+- Hosts: API `https://api.final.com/v1`, app `https://final.com`
+- Code formatting for routes, fields, error codes and headers
 
 ## Content boundaries
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Document the integrator surface only: what `openapi.public.json` carries
+- Do not describe internal mechanisms, partners or operations
+- Do not document session-only dashboard features beyond what the setup page needs

@@ -1,0 +1,39 @@
+---
+title: "Going live"
+description: "What changes between test mode and production"
+---
+
+The code does not change. The credential and the funding step do.
+
+<Steps>
+  <Step title="Get verified">
+    Live mode needs Final to verify your integrator. Until then a live proposal answers `403 integrator_unverified`, and your origins do not back a live publishable key. Ask [support@final.com](mailto:support@final.com); the [setup page](/get-started/setup) shows when it is done.
+  </Step>
+  <Step title="Register the live redirect">
+    A live proposal must carry a `code_challenge` and a `redirect_uri` that exactly equals a registered one, or omit it and fall back to the primary. The terminal shortcut without a redirect is test mode only.
+  </Step>
+  <Step title="Register origins, if a browser is involved">
+    A WebView or web layer that sends `Origin` needs that origin registered, `https://` on a public hostname. A native app sends none and needs nothing here.
+  </Step>
+  <Step title="Mint the live pair">
+    On the setup page, mint a live key pair. Ship `final_publishable_live_…` in the app and keep `final_live_…` on the server.
+  </Step>
+  <Step title="Register a live webhook endpoint">
+    A server needs an endpoint in live mode: a test endpoint receives test events only.
+  </Step>
+  <Step title="Swap the key and the funding step">
+    Replace the test key with the live one. The deposit screen now shows the user's real `onchain_address`; the user sends the asset to it, and `deposit.credited` arrives once the fee is taken. `test_deposits` and `test_authorizations` answer `400` and `404` on a live credential.
+  </Step>
+</Steps>
+
+## What a live first run looks like
+
+Connect, a real direct deposit, the card activating on the credit, a real purchase, and the events for each arriving on the stream or on a webhook. A first money call after consent can still answer `user_action_required`; [Gates](/money/gates) is the handling for that.
+
+## Hosts
+
+| | |
+| --- | --- |
+| API | `https://api.final.com/v1` |
+| App | `https://final.com` |
+| Docs | `https://docs.final.com` |

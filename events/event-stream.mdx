@@ -1,0 +1,102 @@
+---
+title: "Event stream"
+description: "Server-Sent Events for an app with no server"
+---
+
+`GET /connections/{id}/events` is a Server-Sent Events stream scoped to one connection. It carries everything that happens on the Balances the grant reaches, and nothing outside it.
+
+```
+GET /v1/connections/{id}/events
+Authorization: Bearer final_publishable_…
+Final-Connection: connection_…_secret_…
+Accept: text/event-stream
+Last-Event-ID: 8812
+```
+
+- The first frame is `connection.active`, the current state of the connection, synthesized rather than stored. It carries no `id:`.
+- A stream opened without `Last-Event-ID` then replays the connection's whole history, `connection.created` included, before going live. Store the last `id:` you see from the first connect on, and send it on every reconnect.
+- `Last-Event-ID` is the integer `id:` of a frame this stream sent. A non-integer or negative value is `400 last_event_id_invalid`; any other number is accepted and replays what follows it.
+- A `: keep-alive` comment arrives every 20 seconds. An open stream closes within 20 seconds of a revoke, and the reconnect answers `403 connection_revoked`.
+- One stream per connection. Opening a second closes the first.
+- An error before the first frame is a JSON body with the status: `{ "error": { "code", "message" } }`, and nothing else.
+
+## Frames
+
+```
+id: 8812
+event: deposit.credited
+data: {"object":{"id":"deposit_…","balance_id":"balance_…","status":"credited","requested_balance_id":"balance_…"}}
+```
+
+`object` is the bare resource, the same shape as inside the route's wrapper. The event types and their objects are on [Webhooks](/events/webhooks); both channels deliver the same set.
+
+## Code
+
+<CodeGroup>
+
+```kotlin Kotlin
+// OkHttp's EventSource.
+val req = Request.Builder().url("$FINAL_API/connections/$connectionId/events")
+    .header("Authorization", "Bearer $PUBLISHABLE_KEY")
+    .header("Final-Connection", secret)
+    .apply { lastEventId?.let { header("Last-Event-ID", it) } }
+    .build()
+EventSources.createFactory(http).newEventSource(req, object : EventSourceListener() {
+    override fun onEvent(es: EventSource, id: String?, type: String?, data: String) {
+        id?.let { lastEventId = it }
+        val obj = json.parseToJsonElement(data).jsonObject["object"]!!.jsonObject
+        when (type) {
+            "connection.active"  -> refreshBalances()
+            "deposit.credited"   -> refreshBalances() // re-read: available can lag the event briefly
+            "card.activated"     -> showCard(obj)
+            "card_auth.approved" -> toast("Card used at ${obj["merchant_name"]}")
+        }
+    }
+    override fun onFailure(es: EventSource, t: Throwable?, r: Response?) {
+        // 403 connection_revoked: connect again. Otherwise reconnect with Last-Event-ID.
+    }
+})
+```
+
+```swift Swift
+// URLSession.bytes. SSE is three line prefixes and a blank line.
+var stream = URLRequest(url: api.appending(path: "connections/\(connectionId)/events"))
+stream.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
+stream.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+stream.setValue(secret, forHTTPHeaderField: "Final-Connection")
+if let last = lastEventId { stream.setValue(last, forHTTPHeaderField: "Last-Event-ID") }
+
+do {
+    let (bytes, _) = try await URLSession.shared.bytes(for: stream)
+    var event = "", data = ""
+    for try await line in bytes.lines {
+        if line.hasPrefix("id:")         { lastEventId = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces) }
+        else if line.hasPrefix("event:") { event = String(line.dropFirst(6)).trimmingCharacters(in: .whitespaces) }
+        else if line.hasPrefix("data:")  { data += line.dropFirst(5) }
+        else if line.hasPrefix(":")      { continue } // keep-alive
+        else if line.isEmpty, !data.isEmpty {
+            let object = (try JSONSerialization.jsonObject(with: Data(data.utf8)) as! [String: Any])["object"] as! [String: Any]
+            switch event {
+            case "connection.active":  await refreshBalances()
+            case "deposit.credited":   await refreshBalances() // re-read: available can lag the event briefly
+            case "card.activated":     showCard(object)
+            case "card_auth.approved": toast("Card used at \(object["merchant_name"]!)")
+            default: break
+            }
+            (event, data) = ("", "")
+        }
+    }
+} catch { /* 403 connection_revoked: connect again. Otherwise reopen with Last-Event-ID. */ }
+```
+
+```bash curl
+curl -N $FINAL_API/connections/$CONNECTION_ID/events \
+  -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET" \
+  -H "Accept: text/event-stream" -H "Last-Event-ID: 8812"
+```
+
+</CodeGroup>
+
+<Note>
+  Every other request in these pages works over Tor. The stream is one long-lived HTTP response, which a request-and-response Tor client cannot carry. When the user has Tor on, open the stream over clearnet or poll `GET /connections/{id}`, `GET /balances` and `GET /cards` instead.
+</Note>

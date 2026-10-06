@@ -1,0 +1,155 @@
+---
+title: "Webhooks"
+description: "The events Final emits, the envelope, and how to verify a delivery"
+---
+
+Final emits an event whenever something happens on a Balance your grant reaches, on a connection, or on an intent you proposed. The same event types are delivered on the [stream](/events/event-stream) and by webhook. A server registers an endpoint on the [setup page](/get-started/setup); each endpoint has one mode and receives that mode's events alone.
+
+## Events
+
+| Event | When | `object` |
+| --- | --- | --- |
+| `intent.pending_approval`, `intent.approved`, `intent.completed`, `intent.failed` | An intent you proposed moved. `intent.completed` carries the `connection` block. Webhooks only. | Intent |
+| `connection.created` | A user approved and minted a connection on your grant. | `{ "id", "reference", "grant": { "id", "assets" } }` |
+| `connection.active` | The first frame on every stream: the current state. Stream only. | Connection |
+| `deposit.detected` | A partner saw a swap deposit on its way in. `status` is `pending`, and `detected_amount` is the partner's provisional figure. | Deposit, below |
+| `deposit.confirmed`, `deposit.credited`, `deposit.failed`, `deposit.stranded` | The funds are real but not yet yours to spend; the ledger entry exists; failed; stuck and awaiting Final, with no further event coming. | Deposit, below |
+| `card.created`, `card.activated`, `card.frozen`, `card.unfrozen`, `card.closed` | Card lifecycle. | Card |
+| `card_auth.approved`, `card_auth.declined` | The card was just used at a merchant. | Authorization, below |
+| `card_auth.settled` | The merchant's charge settled. | Settlement, below |
+
+The deposit object:
+
+```json
+{
+  "id": "deposit_…",
+  "balance_id": "balance_…",
+  "status": "credited",
+  "requested_balance_id": "balance_…",
+  "detected_amount": "100000000",
+  "batch_id": "deposit_batch_…"
+}
+```
+
+`balance_id` is always the root's. `requested_balance_id` is the Balance you named when you asked for instructions, root included, so an integrator that funded a sub-balance can tell which. `detected_amount` is on `deposit.detected` only. A direct deposit emits only `deposit.credited` and `deposit.failed`, carries `batch_id`, and has no `requested_balance_id`. The event is not the deposit itself: read the Balance on `deposit.credited`, and expect `available` to lag it briefly.
+
+The authorization object, on `card_auth.approved` and `card_auth.declined`:
+
+```json
+{
+  "card_id": "card_…",
+  "balance_id": "balance_…",
+  "partner_auth_id": "…",
+  "amount": "18990000000",
+  "currency": "iso4217:USD",
+  "fiat_amount": "1899",
+  "merchant_name": "Blue Bottle",
+  "merchant_category": "5812",
+  "merchant_country": "US",
+  "reason": "insufficient_funds",
+  "detail": { "url": "https://final.com/balance/balance_…/activate" }
+}
+```
+
+`amount` is in the held asset's smallest unit and `fiat_amount` in the merchant currency's. `reason` is on declines only, and `detail` only with `user_action_required`, where to send the user as on a `403`; see [Gates](/money/gates). The reasons: `insufficient_funds`, `limit_exceeded`, `card_frozen`, `card_closed`, `account_locked`, `balance_locked`, `policy_blocked`, `currency_unsupported`, `asset_mismatch`, `source_amount_required`, `amount_invalid`, `authorization_reversed`, `internal_error`, `user_action_required`.
+
+The settlement object, on `card_auth.settled`, carries `card_id`, `balance_id`, `partner_auth_id`, `amount`, `merchant_name` and `merchant_category` only, and the merchant fields can be empty. `amount` is what was actually pulled.
+
+## The envelope
+
+```json
+{
+  "id": "event_…",
+  "type": "deposit.credited",
+  "created_at": "2026-07-02T12:00:00Z",
+  "livemode": true,
+  "grant_id": "grant_…",
+  "reference": "user_8841",
+  "data": {
+    "object": { "id": "deposit_…", "balance_id": "balance_…", "status": "credited" }
+  }
+}
+```
+
+`grant_id` and `reference` are present on an event for a Balance or connection your grant reaches; `reference` is what a secret-key proposal sent. `data.object` is a snapshot of the resource when the event fired. Treat it as the state to act on and re-fetch the resource if you need the latest.
+
+Deliveries are at least once and not ordered. Dedupe on `id`, and on the `Final-Event-Id` header, which retries reuse.
+
+## Retries
+
+A delivery your endpoint does not answer with a 2xx is retried after 1 minute, then 5 minutes, 30 minutes, 2 hours, 6 hours and 12 hours, and abandoned after 24 hours. Retries reuse `Final-Event-Id` and carry a new `Final-Delivery-Id`. Repeated failures disable the endpoint; the setup page shows why, and re-enabling it resets the count.
+
+## Verifying a delivery
+
+Every delivery is signed. Verify the signature before trusting a payload, so you know it came from Final and was not altered in transit. The stream needs no equivalent step, since it is a direct response to your own authenticated request.
+
+Each delivery POST carries these headers:
+
+| Header | Description |
+| --- | --- |
+| `Final-Signature` | The signature, in the form `t=<unix>,v1=<hex>`. |
+| `Final-Event-Type` | The event type, for example `deposit.credited`. |
+| `Final-Event-Id` | Stable id for the event. Dedupe on this: retries reuse it. |
+| `Final-Delivery-Id` | Unique per delivery attempt. Useful for logging. |
+
+The signature is an HMAC-SHA256 over the string `<t>.<raw_body>`, the `t` value from the header, a literal `.`, then the exact raw request body, keyed with the endpoint's signing secret: the `whsec_…` string, as shown on the setup page, used as the key bytes.
+
+1. Read the raw request body before parsing it as JSON. Re-serializing changes the bytes and breaks the signature.
+2. Parse `t` and `v1` from `Final-Signature`.
+3. Compute `HMAC_SHA256(secret, "<t>.<raw_body>")` and compare it to `v1` with a constant-time comparison.
+4. Reject the request if the signature does not match, or if `t` is outside your window, say five minutes, to guard against replays.
+
+<CodeGroup>
+
+```kotlin Kotlin
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+
+fun verifyWebhook(rawBody: ByteArray, signatureHeader: String, secret: String, toleranceSeconds: Long = 300): Boolean {
+    val parts = signatureHeader.split(",").associate { it.substringBefore("=") to it.substringAfter("=", "") }
+    val t = parts["t"]?.toLongOrNull() ?: return false
+    if (kotlin.math.abs(System.currentTimeMillis() / 1000 - t) > toleranceSeconds) return false
+    val mac = Mac.getInstance("HmacSHA256").apply { init(SecretKeySpec(secret.toByteArray(), "HmacSHA256")) }
+    mac.update("$t.".toByteArray())
+    val expected = mac.doFinal(rawBody).joinToString("") { "%02x".format(it) }
+    return MessageDigest.isEqual(expected.toByteArray(), (parts["v1"] ?: "").toByteArray())
+}
+```
+
+```swift Swift
+import CryptoKit
+
+func verifyWebhook(rawBody: Data, signatureHeader: String, secret: String, toleranceSeconds: Double = 300) -> Bool {
+    var t: Int64?, v1: String?
+    for part in signatureHeader.split(separator: ",") {
+        let kv = part.split(separator: "=", maxSplits: 1).map(String.init)
+        if kv.count == 2 && kv[0] == "t" { t = Int64(kv[1]) }
+        if kv.count == 2 && kv[0] == "v1" { v1 = kv[1] }
+    }
+    guard let t, let v1, abs(Date().timeIntervalSince1970 - Double(t)) <= toleranceSeconds else { return false }
+    var signed = Data("\(t).".utf8); signed.append(rawBody)
+    let mac = HMAC<SHA256>.authenticationCode(for: signed, using: SymmetricKey(data: Data(secret.utf8)))
+    let expected = mac.map { String(format: "%02x", $0) }.joined()
+    return expected.count == v1.count && zip(expected.utf8, v1.utf8).reduce(0) { $0 | Int($1.0 ^ $1.1) } == 0
+}
+```
+
+```javascript Node.js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function verifyWebhook(rawBody, signatureHeader, secret, toleranceSeconds = 300) {
+  const parts = Object.fromEntries(signatureHeader.split(",").map((kv) => kv.split("=")));
+  const t = Number(parts.t);
+  if (!t || Math.abs(Date.now() / 1000 - t) > toleranceSeconds) return false;
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  const a = Buffer.from(expected);
+  const b = Buffer.from(parts.v1 ?? "");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+```
+
+</CodeGroup>
+
+<Note>
+  Final always signs deliveries but cannot enforce verification on your end. Treat it as required in your receiver and reject any request that fails the check.
+</Note>
