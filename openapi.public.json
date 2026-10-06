@@ -332,6 +332,16 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -3573,6 +3583,9 @@
               "null",
               "string"
             ]
+          },
+          "replace_active": {
+            "type": "boolean"
           }
         },
         "type": "object"
