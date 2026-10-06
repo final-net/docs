@@ -10,7 +10,7 @@ export const DepositRouting = () => (
       CAIP-19 id of the asset.
     </ResponseField>
 
-    <ResponseField name="balance_id" type="string | null">
+    <ResponseField name="balance_id" type="string">
       The Balance asked about.
     </ResponseField>
 
@@ -23,11 +23,11 @@ export const DepositRouting = () => (
     </ResponseField>
 
     <ResponseField name="override" type="Routing window">
-      The open window, or null. See [Routing window](/reference/objects/routing-window).
+      The open window, or null. See <a href="/reference/objects/routing-window">Routing window</a>.
     </ResponseField>
 
     <ResponseField name="routed_by" type="string">
-      The rule a landing arriving now would route by. One of `override`, `default`, `sole_balance`, `oldest_balance`.
+      The rule a landing arriving now would route by. One of <code>override</code>, <code>default</code>, <code>sole_balance</code>, <code>oldest_balance</code>.
     </ResponseField>
   </>
 );

@@ -39,13 +39,15 @@ The response is `{ "card": Card }` with `201`. One card per Balance: if one alre
 
 ## The Card object
 
-import { Card } from '/snippets/objects/card.mdx';
+import CardShape from '/snippets/objects/card-shape.mdx';
 
-<Card />
+<CardShape />
 
 <ResponseField name="cardholder_info" type="object | null">
   The name on the card and its billing address, when one was sent at creation: `{ "name", "billing_address": { "line1", "line2", "city", "region", "postal_code", "country" } }`. Null on a card issued in the user's verified name and address.
 </ResponseField>
+
+The full reference is [Card](/reference/objects/card).
 
 ## Reuse a previous cardholder
 
@@ -89,9 +91,11 @@ Each change emits `card.frozen`, `card.unfrozen` or `card.closed`.
 
 `POST /cards/{id}/embed_url` mints a short-lived URL that renders the card number, expiry and CVC. It is the only place one is minted; no Balance or card read carries it.
 
-import { EmbedUrl } from '/snippets/objects/embed-url.mdx';
+import EmbedUrlShape from '/snippets/objects/embed-url-shape.mdx';
 
-<EmbedUrl />
+<EmbedUrlShape />
+
+The full reference is [Embed URL](/reference/objects/embed-url).
 
 Open it top level in a web view. The URL expires after 15 minutes; mint again after that. The card details never pass through your code, which is what keeps your app out of PCI scope.
 

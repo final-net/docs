@@ -58,7 +58,7 @@ export const DepositReceipt = () => (
         </ResponseField>
 
         <ResponseField name="status" type="string">
-          Where the batch is. One of `pulling`, `credited`, `stranded`.
+          Where the batch is. One of <code>pulling</code>, <code>credited</code>, <code>stranded</code>.
         </ResponseField>
 
         <ResponseField name="strand_reason" type="string">
@@ -92,11 +92,11 @@ export const DepositReceipt = () => (
     </ResponseField>
 
     <ResponseField name="routed_by" type="string">
-      The rule that routed it. One of `override`, `default`, `sole_balance`, `oldest_balance`.
+      The rule that routed it. One of <code>override</code>, <code>default</code>, <code>sole_balance</code>, <code>oldest_balance</code>.
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Where the landing is. One of `uncredited`, `held`, `unbacked`, `rejected`, `pulling`, `credited`.
+      Where the landing is. One of <code>uncredited</code>, <code>held</code>, <code>unbacked</code>, <code>rejected</code>, <code>pulling</code>, <code>credited</code>.
     </ResponseField>
 
     <ResponseField name="tx_signature" type="string">
@@ -104,7 +104,7 @@ export const DepositReceipt = () => (
     </ResponseField>
 
     <ResponseField name="waiting_reason" type="string">
-      Why it has not credited. Absent when nothing is in the way. One of `unrouted`, `delegation_required`, `below_minimum`.
+      Why it has not credited. Absent when nothing is in the way. One of <code>unrouted</code>, <code>delegation_required</code>, <code>below_minimum</code>.
     </ResponseField>
   </>
 );

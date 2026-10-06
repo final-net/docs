@@ -2,7 +2,7 @@
 
 export const RoutingWindow = () => (
   <>
-    <ResponseField name="balance_id" type="string | null">
+    <ResponseField name="balance_id" type="string">
       Present only when the window is on your Balance.
     </ResponseField>
 
@@ -31,7 +31,7 @@ export const RoutingWindow = () => (
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Whether it is still routing. One of `active`, `expired`, `cancelled`.
+      Whether it is still routing. One of <code>active</code>, <code>expired</code>, <code>cancelled</code>.
     </ResponseField>
   </>
 );

@@ -9,14 +9,18 @@ A user funds a Balance by sending the asset to their own Final address from any 
 
 `GET /balances/{id}/deposit_instructions` is a pure read. Money lives on the root, so asking any Balance in a tree answers for its root, and `balance_id` in the response is the root's.
 
-import { DepositInstructions } from '/snippets/objects/deposit-instructions.mdx';
-import { OnchainAddressInstruction } from '/snippets/objects/onchain-address-instruction.mdx';
+import DepositInstructionsShape from '/snippets/objects/deposit-instructions-shape.mdx';
+import OnchainAddressInstructionShape from '/snippets/objects/onchain-address-instruction-shape.mdx';
 
-<DepositInstructions />
+<DepositInstructionsShape />
+
+The full reference is [Deposit instructions](/reference/objects/deposit-instructions).
 
 The `onchain_address` instruction:
 
-<OnchainAddressInstruction />
+<OnchainAddressInstructionShape />
+
+The full reference is [Onchain address instruction](/reference/objects/onchain-address-instruction).
 
 - `address` is the user's own wallet, which is what a sender enters. `token_account` is where the asset lands; every Balance of that asset on the account shares it. Pasting `token_account` where `address` belongs sends funds somewhere unreachable.
 - `minimum_fiat` is the floor in the smallest unit of `fiat_currency`. A landing worth less waits and credits together with whatever lands beside it.
@@ -33,9 +37,11 @@ The `onchain_address` instruction:
 
 A landing routes by the moment it landed: to the window covering that moment, else the account's default Balance for the asset, else its only Balance, else its oldest. `GET /balances/{id}/deposit_routing` reads which rule is in force:
 
-import { DepositRouting } from '/snippets/objects/deposit-routing.mdx';
+import DepositRoutingShape from '/snippets/objects/deposit-routing-shape.mdx';
 
-<DepositRouting />
+<DepositRoutingShape />
+
+The full reference is [Deposit routing](/reference/objects/deposit-routing).
 
 - `POST /balances/{id}/deposit_routing/default` makes this root the default for its asset. Replaces whatever the default was. Answers the routing, as the read does.
 - `POST /balances/{id}/deposit_routing/overrides` opens a window: `{ "ends_at": "…" }`, an hour from now by default and at most 24 hours. An account has one window at a time, shared with the user and every other app, so a second is `409 override_in_flight`. `{ "replace_active": true }` closes a window your own connection opened and opens the new one in its place. Send an `Idempotency-Key`.
@@ -54,14 +60,18 @@ Reading the address opens a window too, and reading it again inside that hour ex
 
 `GET /balances/{id}/deposit_receipts` lists every landing routed to this Balance, newest first, credited or still waiting.
 
-import { DepositReceipts } from '/snippets/objects/deposit-receipts.mdx';
-import { DepositReceipt } from '/snippets/objects/deposit-receipt.mdx';
+import DepositReceiptsShape from '/snippets/objects/deposit-receipts-shape.mdx';
+import DepositReceiptShape from '/snippets/objects/deposit-receipt-shape.mdx';
 
-<DepositReceipts />
+<DepositReceiptsShape />
+
+The full reference is [Deposit receipts](/reference/objects/deposit-receipts).
 
 Each receipt:
 
-<DepositReceipt />
+<DepositReceiptShape />
+
+The full reference is [Deposit receipt](/reference/objects/deposit-receipt).
 
 ## The credit
 

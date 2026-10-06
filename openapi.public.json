@@ -3358,8 +3358,8 @@
           "card_id": {
             "description": "The card on this Balance, or null. At most one.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "created_at": {
@@ -3383,10 +3383,7 @@
           },
           "id": {
             "description": "The Balance id.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "label": {
             "description": "The label given at creation. A root created by consent carries your integrator display name.",
@@ -3405,8 +3402,8 @@
           "parent_balance_id": {
             "description": "The parent's id, or null on a root.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "parent_imposed_limits": {
@@ -3499,7 +3496,10 @@
           },
           "parent_balance_id": {
             "description": "The root or sub-balance to create under. Required on a connection.",
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "parent_imposed_limits": {
             "description": "Rules you set on the new sub-balance as its parent, which it cannot change itself.",
@@ -3936,8 +3936,8 @@
           "card_id": {
             "description": "The card on this Balance, or null. At most one.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "created_at": {
@@ -3961,10 +3961,7 @@
           },
           "id": {
             "description": "The Balance id.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "label": {
             "description": "The label given at creation. A root created by consent carries your integrator display name.",
@@ -3983,8 +3980,8 @@
           "parent_balance_id": {
             "description": "The parent's id, or null on a root.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "parent_imposed_limits": {
@@ -4493,10 +4490,7 @@
           },
           "balance_id": {
             "description": "The Balance asked about.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "data": {
             "description": "Newest first.",
@@ -4544,10 +4538,7 @@
         "properties": {
           "balance_id": {
             "description": "Present only when the window is on your Balance.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "closed_at": {
             "description": "When it was closed early, when it was.",
@@ -4624,8 +4615,8 @@
           "balance_id": {
             "description": "The Balance it routed to, or null while unrouted.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "batch": {
@@ -4712,16 +4703,13 @@
           },
           "balance_id": {
             "description": "The Balance asked about.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "default_balance_id": {
             "description": "The account's default for this asset, or null when unset or not yours.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "is_default": {

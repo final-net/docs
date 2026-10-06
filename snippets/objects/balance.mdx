@@ -26,7 +26,7 @@ export const Balance = () => (
       pending as a decimal string, for display only.
     </ResponseField>
 
-    <ResponseField name="id" type="string | null">
+    <ResponseField name="id" type="string">
       The Balance id.
     </ResponseField>
 
@@ -35,7 +35,7 @@ export const Balance = () => (
     </ResponseField>
 
     <ResponseField name="limits" type="Limit rule[]">
-      Spending rules this Balance applies to itself. See [Limit rule](/reference/objects/limit-rule).
+      Spending rules this Balance applies to itself. See <a href="/reference/objects/limit-rule">Limit rule</a>.
     </ResponseField>
 
     <ResponseField name="parent_balance_id" type="string | null">
@@ -43,7 +43,7 @@ export const Balance = () => (
     </ResponseField>
 
     <ResponseField name="parent_imposed_limits" type="Limit rule[]">
-      Rules an ancestor set on this Balance, which it cannot change itself. See [Limit rule](/reference/objects/limit-rule).
+      Rules an ancestor set on this Balance, which it cannot change itself. See <a href="/reference/objects/limit-rule">Limit rule</a>.
     </ResponseField>
 
     <ResponseField name="pending" type="string | null">
@@ -51,7 +51,7 @@ export const Balance = () => (
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Whether the Balance can still hold and spend. One of `active`, `closed`.
+      Whether the Balance can still hold and spend. One of <code>active</code>, <code>closed</code>.
     </ResponseField>
   </>
 );

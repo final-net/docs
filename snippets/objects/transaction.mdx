@@ -19,7 +19,7 @@ export const Transaction = () => (
     </ResponseField>
 
     <ResponseField name="direction" type="string">
-      Which way the amount moved. One of `credit`, `debit`.
+      Which way the amount moved. One of <code>credit</code>, <code>debit</code>.
     </ResponseField>
 
     <ResponseField name="display_amount" type="string">
@@ -82,11 +82,11 @@ export const Transaction = () => (
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Always posted. The ledger is append-only. Always `posted`.
+      Always posted. The ledger is append-only. Always <code>posted</code>.
     </ResponseField>
 
     <ResponseField name="type" type="string">
-      deposit_credited for a credit that landed, card_auth for card spend charged at authorization. One of `deposit_credited`, `card_auth`.
+      deposit_credited for a credit that landed, card_auth for card spend charged at authorization. One of <code>deposit_credited</code>, <code>card_auth</code>.
     </ResponseField>
   </>
 );

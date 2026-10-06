@@ -7,9 +7,11 @@ Money lives on a root Balance, one per approved asset. Sub-balances bound spendi
 
 ## The Balance object
 
-import { Balance } from '/snippets/objects/balance.mdx';
+import BalanceShape from '/snippets/objects/balance-shape.mdx';
 
-<Balance />
+<BalanceShape />
+
+The full reference is [Balance](/reference/objects/balance).
 
 `available` and `pending` are `null` on a sub-balance, with their `display_*` siblings. `available` can lag a `deposit.credited` event by a short while, so a screen that reads the Balance on that event should re-read rather than assume.
 
@@ -47,9 +49,11 @@ Roots come only from approval. `POST /balances` creates a sub-balance under one 
 
 ## Limits
 
-import { LimitRule } from '/snippets/objects/limit-rule.mdx';
+import LimitRuleShape from '/snippets/objects/limit-rule-shape.mdx';
 
-<LimitRule />
+<LimitRuleShape />
+
+The full reference is [Limit rule](/reference/objects/limit-rule).
 
 `max.asset` is `iso4217:USD` or the Balance's own asset. A swipe carries both figures, so each rule consumes the one in its own denomination. A card swipe's recipient is `{ "kind": "merchant", "id": <merchant_name> }`.
 
@@ -57,9 +61,11 @@ import { LimitRule } from '/snippets/objects/limit-rule.mdx';
 
 `GET /balances/{id}/transactions` lists the ledger, newest first, with `?type=`, `?from=`, `?to=` and paging.
 
-import { Transaction } from '/snippets/objects/transaction.mdx';
+import TransactionShape from '/snippets/objects/transaction-shape.mdx';
 
-<Transaction />
+<TransactionShape />
+
+The full reference is [Transaction](/reference/objects/transaction).
 
 - A deposit credit carries `related.deposit_id`. A direct deposit also carries `related.deposit_receipt_id`, one entry per landing. Card spend carries no `related` block.
 - A reversed authorization is a `card_auth` credit for the same amount.
