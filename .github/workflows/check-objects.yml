@@ -1,0 +1,27 @@
+name: Object snippets
+
+# The object snippets under snippets/objects are generated from
+# openapi.public.json. A spec sync that lands without regenerating them leaves
+# the pages showing the previous shapes, so the check fails the pull request
+# until `node scripts/gen-objects.mjs` has been run and its output committed.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  objects:
+    name: snippets match the spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/gen-objects.mjs
+      - name: Fail on drift
+        run: git diff --exit-code -- snippets/objects || (echo "object snippets drift from openapi.public.json: run 'node scripts/gen-objects.mjs' and commit the result"; exit 1)

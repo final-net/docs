@@ -18,14 +18,9 @@ Every non-2xx body is this envelope. The fields sit under `error`, never at the 
 }
 ```
 
-| Field | |
-| --- | --- |
-| `type` | One of `invalid_request`, `authentication`, `permission`, `compliance`, `payment_required`, `not_found`, `conflict`, `gone`, `precondition`, `rate_limited`, `unavailable`, `upstream_failed`, `internal`. |
-| `code` | What to branch on. |
-| `message` | For logs, not for users. |
-| `param` | Only when a field is at fault. |
-| `detail` | Only on user-present gates. See [Gates](/money/gates). |
-| `request_id` | Always present. Echoes a client `X-Request-ID` when you send one; quote it to support. |
+import { ErrorObject } from '/snippets/objects/error.mdx';
+
+<ErrorObject />
 
 ## Every connection route
 

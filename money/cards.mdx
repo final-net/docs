@@ -39,27 +39,13 @@ The response is `{ "card": Card }` with `201`. One card per Balance: if one alre
 
 ## The Card object
 
-```json
-{
-  "id": "card_…",
-  "balance_id": "balance_…",
-  "status": "provisioning",
-  "network": null,
-  "last4": null,
-  "exp_month": null,
-  "exp_year": null,
-  "cardholder_info": {
-    "name": "A. Nakamoto",
-    "billing_address": { "line1": "1 Main St", "line2": null, "city": "Austin", "region": "TX", "postal_code": "78701", "country": "US" }
-  },
-  "created_at": "…",
-  "activated_at": null,
-  "frozen_at": null,
-  "closed_at": null
-}
-```
+import { Card } from '/snippets/objects/card.mdx';
 
-`status` is `provisioning`, `active`, `frozen` or `closed`. `network`, `last4`, `exp_month` and `exp_year` are `null` while provisioning. `cardholder_info` is `null` on a card issued in the user's verified name and address.
+<Card />
+
+<ResponseField name="cardholder_info" type="object | null">
+  The name on the card and its billing address, when one was sent at creation: `{ "name", "billing_address": { "line1", "line2", "city", "region", "postal_code", "country" } }`. Null on a card issued in the user's verified name and address.
+</ResponseField>
 
 ## Reuse a previous cardholder
 
@@ -103,9 +89,9 @@ Each change emits `card.frozen`, `card.unfrozen` or `card.closed`.
 
 `POST /cards/{id}/embed_url` mints a short-lived URL that renders the card number, expiry and CVC. It is the only place one is minted; no Balance or card read carries it.
 
-```json
-{ "embed_url": "https://final.com/cards/card_…/embed?expires=…&sig=…", "expires_at": "…" }
-```
+import { EmbedUrl } from '/snippets/objects/embed-url.mdx';
+
+<EmbedUrl />
 
 Open it top level in a web view. The URL expires after 15 minutes; mint again after that. The card details never pass through your code, which is what keeps your app out of PCI scope.
 

@@ -35,7 +35,7 @@ curl -s -X POST https://api.final.com/v1/intents \
   }'
 ```
 
-`reference` is your own id for the user, up to 256 printable characters. Final never reads it. It comes back on `GET /connections/{id}`, on `GET /intents/{id}`, and on every webhook envelope for that user's Balances, which is how a delivery is matched to a row in your database. On a publishable key it is refused with `400 reference_not_allowed`.
+`reference` is your own id for the user, up to 256 printable characters. The response is an [intent](/reference/objects/intent) and a [connection link](/reference/objects/connection-link). Final never reads it. It comes back on `GET /connections/{id}`, on `GET /intents/{id}`, and on every webhook envelope for that user's Balances, which is how a delivery is matched to a row in your database. On a publishable key it is refused with `400 reference_not_allowed`.
 
 The response is the same as the app's: `intent.approval_url` to send the user to, and `connection.id` to address from now on.
 

@@ -9,27 +9,14 @@ A user funds a Balance by sending the asset to their own Final address from any 
 
 `GET /balances/{id}/deposit_instructions` is a pure read. Money lives on the root, so asking any Balance in a tree answers for its root, and `balance_id` in the response is the root's.
 
-```json
-{
-  "balance_id": "balance_…",
-  "asset": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT",
-  "instructions": [
-    {
-      "type": "onchain_address",
-      "chain": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-      "address": "…",
-      "token_account": "…",
-      "mint": "DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT",
-      "memo": null,
-      "min_confirmations": 32,
-      "minimum_fiat": "100",
-      "fiat_currency": "iso4217:USD",
-      "fee_basis_points": 100
-    }
-  ],
-  "as_of": "…"
-}
-```
+import { DepositInstructions } from '/snippets/objects/deposit-instructions.mdx';
+import { OnchainAddressInstruction } from '/snippets/objects/onchain-address-instruction.mdx';
+
+<DepositInstructions />
+
+The `onchain_address` instruction:
+
+<OnchainAddressInstruction />
 
 - `address` is the user's own wallet, which is what a sender enters. `token_account` is where the asset lands; every Balance of that asset on the account shares it. Pasting `token_account` where `address` belongs sends funds somewhere unreachable.
 - `minimum_fiat` is the floor in the smallest unit of `fiat_currency`. A landing worth less waits and credits together with whatever lands beside it.
@@ -46,24 +33,9 @@ A user funds a Balance by sending the asset to their own Final address from any 
 
 A landing routes by the moment it landed: to the window covering that moment, else the account's default Balance for the asset, else its only Balance, else its oldest. `GET /balances/{id}/deposit_routing` reads which rule is in force:
 
-```json
-{
-  "balance_id": "balance_…",
-  "default_balance_id": "balance_…",
-  "is_default": true,
-  "routed_by": "override",
-  "override": {
-    "id": "deposit_routing_override_…",
-    "balance_id": "balance_…",
-    "starts_at": "…",
-    "ends_at": "…",
-    "status": "active",
-    "opened_by_caller": true
-  }
-}
-```
+import { DepositRouting } from '/snippets/objects/deposit-routing.mdx';
 
-`default_balance_id` is `null` when unset or when the default is not yours. `override` is `null` when no window is open; its `id` and `balance_id` are present only when the window is on your Balance. `routed_by` is `override`, `default`, `sole_balance` or `oldest_balance`.
+<DepositRouting />
 
 - `POST /balances/{id}/deposit_routing/default` makes this root the default for its asset. Replaces whatever the default was. Answers the routing, as the read does.
 - `POST /balances/{id}/deposit_routing/overrides` opens a window: `{ "ends_at": "…" }`, an hour from now by default and at most 24 hours. An account has one window at a time, shared with the user and every other app, so a second is `409 override_in_flight`. `{ "replace_active": true }` closes a window your own connection opened and opens the new one in its place. Send an `Idempotency-Key`.
@@ -82,39 +54,14 @@ Reading the address opens a window too, and reading it again inside that hour ex
 
 `GET /balances/{id}/deposit_receipts` lists every landing routed to this Balance, newest first, credited or still waiting.
 
-```json
-{
-  "balance_id": "balance_…",
-  "asset": "solana:…/token:…",
-  "address": "…",
-  "data": [
-    {
-      "id": "deposit_receipt_…",
-      "amount": "2857143000",
-      "display_amount": "2.857143000",
-      "status": "uncredited",
-      "tx_signature": "…",
-      "observed_at": "…",
-      "balance_id": "balance_…",
-      "routed_by": "override",
-      "waiting_reason": "below_minimum"
-    }
-  ],
-  "waiting_total": "2857143000",
-  "display_waiting_total": "2.857143000",
-  "waiting_total_fiat": "286",
-  "minimum_fiat": "100",
-  "fiat_currency": "iso4217:USD",
-  "fee_basis_points": 100,
-  "has_more": false,
-  "after_cursor": null
-}
-```
+import { DepositReceipts } from '/snippets/objects/deposit-receipts.mdx';
+import { DepositReceipt } from '/snippets/objects/deposit-receipt.mdx';
 
-- `status` is `uncredited`, `held`, `unbacked`, `rejected`, `pulling` or `credited`.
-- `balance_id` is `null` while the landing is unrouted.
-- `waiting_reason` is `unrouted`, `delegation_required` or `below_minimum`, and absent when nothing is in the way.
-- `batch` appears once the fee pull has started: `{ "id", "deposit_id", "gross_total", "fee_amount", "net_amount", "fee_basis_points", "status", … }`.
+<DepositReceipts />
+
+Each receipt:
+
+<DepositReceipt />
 
 ## The credit
 
@@ -128,7 +75,7 @@ Some assets can also be funded by sending a different asset, which a partner swa
 { "inbound_amount": "100000000" }
 ```
 
-Exactly one of `inbound_amount`, what the user will send, or `outbound_amount`, what they want credited, in smallest units. The response carries a `swap_via` instruction with `deposit_id`, `source_chain`, `source_address`, the pinned `inbound_amount` and `outbound_amount`, and `expires_at`. The user must send exactly the pinned inbound amount before it expires. Send an `Idempotency-Key`, since a retry must not allocate twice. The `display_*` figures on this response are the partner's; on the read they carry the asset's full decimals.
+Exactly one of `inbound_amount`, what the user will send, or `outbound_amount`, what they want credited, in smallest units. The response carries a [swap instruction](/reference/objects/swap-instruction) with the pinned amounts and `expires_at`. The user must send exactly the pinned inbound amount before it expires. Send an `Idempotency-Key`, since a retry must not allocate twice. The `display_*` figures on this response are the partner's; on the read they carry the asset's full decimals.
 
 USDe has no swap rail: `POST` on a USDe Balance answers `400 no_inflow_route`.
 
@@ -141,7 +88,7 @@ USDe has no swap rail: `POST` on a USDe Balance answers `400 no_inflow_route`.
 
 ## Exchange rate
 
-`GET /exchange_rate?base=<asset>&quote=iso4217:USD` answers `{ "base", "quote", "rate": "1.0004", "display_rate": "1.00" }`: the quote currency per one unit of the base, as a decimal string. It is a quote for display, not a promise: deposits pin their own amounts and card spend converts at authorization.
+`GET /exchange_rate?base=<asset>&quote=iso4217:USD` answers an [exchange rate](/reference/objects/exchange-rate): the quote currency per one unit of the base, as a decimal string. It is a quote for display, not a promise: deposits pin their own amounts and card spend converts at authorization.
 
 | Status | Code | Meaning |
 | --- | --- | --- |

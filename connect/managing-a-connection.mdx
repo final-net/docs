@@ -14,6 +14,12 @@ description: "What to do in each situation, and what a second approval changes"
 | `403 connection_revoked` on any call | The user disconnected you, the connection went dormant, or your integrator account was closed, locked or placed in review. Connect again; the same Balances come back. |
 | The user closed the browser without approving | Nothing expires. Connect again whenever you like. |
 
+## The Connection object
+
+import { Connection } from '/snippets/objects/connection.mdx';
+
+<Connection />
+
 ## A second approval replaces the grant
 
 One grant exists per integrator, user and mode. Every approval writes the proposal's asset set and its `direct_deposit` permission onto that grant, for every install on it, so always send the full current set:

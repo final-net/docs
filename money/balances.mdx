@@ -7,23 +7,9 @@ Money lives on a root Balance, one per approved asset. Sub-balances bound spendi
 
 ## The Balance object
 
-```json
-{
-  "id": "balance_…",
-  "parent_balance_id": null,
-  "label": "Groceries",
-  "asset": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT",
-  "status": "active",
-  "available": "1000000000",
-  "display_available": "1.000000000",
-  "pending": "0",
-  "display_pending": "0.000000000",
-  "limits": [],
-  "parent_imposed_limits": [],
-  "card_id": null,
-  "created_at": "2026-08-28T10:00:00Z"
-}
-```
+import { Balance } from '/snippets/objects/balance.mdx';
+
+<Balance />
 
 `available` and `pending` are `null` on a sub-balance, with their `display_*` siblings. `available` can lag a `deposit.credited` event by a short while, so a screen that reads the Balance on that event should re-read rather than assume.
 
@@ -61,48 +47,21 @@ Roots come only from approval. `POST /balances` creates a sub-balance under one 
 
 ## Limits
 
-```json
-{
-  "id": "…",
-  "type": "rolling_window",
-  "window": "P1D",
-  "max": { "asset": "iso4217:USD", "amount": "50000" }
-}
-```
+import { LimitRule } from '/snippets/objects/limit-rule.mdx';
 
-| `type` | Extra field | Meaning |
-| --- | --- | --- |
-| `rolling_window` | `window`, an ISO 8601 duration such as `P1D` or `PT1H` | At most `max` in any window of that length. |
-| `calendar_window` | `period`: `day`, `week`, `month`, `quarter` or `year` | At most `max` per calendar period. |
-| `lifetime` | | At most `max` ever. |
-| `per_recipient` | `recipient`: `{ "kind", "id" }` | At most `max` to one recipient. A card swipe's recipient is `{ "kind": "merchant", "id": <merchant_name> }`. |
+<LimitRule />
 
-`max.asset` is `iso4217:USD` or the Balance's own asset. A swipe carries both figures, so each rule consumes the one in its own denomination.
+`max.asset` is `iso4217:USD` or the Balance's own asset. A swipe carries both figures, so each rule consumes the one in its own denomination. A card swipe's recipient is `{ "kind": "merchant", "id": <merchant_name> }`.
 
 ## Transactions
 
 `GET /balances/{id}/transactions` lists the ledger, newest first, with `?type=`, `?from=`, `?to=` and paging.
 
-```json
-{
-  "id": "transaction_…",
-  "balance_id": "balance_…",
-  "type": "card_auth",
-  "direction": "debit",
-  "asset": "solana:…/token:…",
-  "amount": "18990000000",
-  "display_amount": "18.990000000",
-  "fiat": { "currency": "iso4217:USD", "amount": "1899", "display_amount": "18.99" },
-  "merchant": { "descriptor": "Blue Bottle", "mcc": "5812", "country": "US" },
-  "status": "posted",
-  "created_at": "…"
-}
-```
+import { Transaction } from '/snippets/objects/transaction.mdx';
 
-- `type` is `deposit_credited` or `card_auth`. The ledger is append-only, so `status` is always `posted`.
+<Transaction />
+
 - A deposit credit carries `related.deposit_id`. A direct deposit also carries `related.deposit_receipt_id`, one entry per landing. Card spend carries no `related` block.
-- `fiat` is present on card spend and on deposits Final could value at the time.
-- `merchant` is present on card spend only.
 - A reversed authorization is a `card_auth` credit for the same amount.
 
 `GET /transactions/export` downloads the same history as a CSV file, in live mode only.

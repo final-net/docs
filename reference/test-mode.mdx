@@ -47,7 +47,7 @@ The amount is in the asset's smallest unit. The response is `{ "deposit": { "id"
 
 `amount` is what the merchant charges, in the currency's smallest unit; `currency` defaults to `iso4217:USD`. `asset_amount` is what the swipe pulls from the Balance, in the asset's smallest unit. Final records no rate, so you send both. `merchant_name` is required, since limits match on it.
 
-The response is `{ "partner_auth_id", "status": "approved" | "declined", "decline_reason" }`, with `decline_reason` on declines only. Then `card_auth.approved` and `card_auth.settled` arrive, or `card_auth.declined` with nothing to settle. There is no way to force the answer: a decline comes from the card or the Balance declining, so freeze the card for `card_frozen` or ask for more than `available` for `insufficient_funds`.
+The response is a [test authorization](/reference/objects/test-authorization), with `decline_reason` on declines only. Then `card_auth.approved` and `card_auth.settled` arrive, or `card_auth.declined` with nothing to settle. There is no way to force the answer: a decline comes from the card or the Balance declining, so freeze the card for `card_frozen` or ask for more than `available` for `insufficient_funds`.
 
 | Status | Code | Meaning |
 | --- | --- | --- |
