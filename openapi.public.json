@@ -1172,6 +1172,122 @@
         "x-audience": "connection"
       }
     },
+    "/v1/balances/{balance_id}/test_deposits": {
+      "post": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Simulate a deposit landing on a simulated balance (test mode)",
+        "description": "Credit a simulated test-mode balance as if the asset had landed, which activates a provisioning card on its tree; nothing can be sent to a simulated balance's placeholder address.",
+        "operationId": "createBalanceTestDeposit",
+        "parameters": [
+          {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
+            "name": "balance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepositTestDepositRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepositResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
     "/v1/balances/{balance_id}/transactions": {
       "get": {
         "tags": [
@@ -4217,6 +4333,85 @@
           }
         },
         "title": "Connection",
+        "type": "object"
+      },
+      "DepositResponse": {
+        "properties": {
+          "deposit": {
+            "$ref": "#/components/schemas/DepositView",
+            "description": "The deposit."
+          }
+        },
+        "type": "object"
+      },
+      "DepositTestDepositRequest": {
+        "properties": {
+          "amount": {
+            "description": "What lands, in the Balance asset's smallest unit.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DepositView": {
+        "properties": {
+          "amount": {
+            "description": "The most authoritative figure known, in the asset's smallest unit: settled, else detected, else the pinned outbound amount.",
+            "type": "string"
+          },
+          "asset": {
+            "description": "CAIP-19 id of the asset credited.",
+            "type": "string"
+          },
+          "balance_id": {
+            "description": "The root Balance the deposit credits.",
+            "type": "string"
+          },
+          "credited_at": {
+            "description": "When the ledger entry was posted, or null.",
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "detected_at": {
+            "description": "When Final created the row.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "display_amount": {
+            "description": "amount as a decimal string, for display only.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The deposit id.",
+            "type": "string"
+          },
+          "partner_detected_at": {
+            "description": "When the partner saw the inbound transfer, or null.",
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "received_via": {
+            "description": "The instruction the funds arrived through, when one was published."
+          },
+          "status": {
+            "description": "Where the deposit is.",
+            "enum": [
+              "pending",
+              "confirmed",
+              "credited",
+              "failed",
+              "stranded"
+            ],
+            "type": "string"
+          }
+        },
+        "title": "Deposit",
         "type": "object"
       },
       "DirectdepositBatchDTO": {

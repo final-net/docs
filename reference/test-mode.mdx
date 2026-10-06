@@ -21,7 +21,7 @@ A simulated Balance has no swap rail, so `POST /balances/{id}/deposit_instructio
 { "amount": "1000000000" }
 ```
 
-The amount is in the asset's smallest unit. The response is `{ "deposit": { "id", "balance_id", "asset", "amount", "status": "credited", … } }` with `201`. Any Balance in the tree may be named; money lands on the root, and `deposit.credited` names the one you asked for as `requested_balance_id`. A provisioning card on the tree activates, `card.activated` follows, and `GET /balances/{id}` shows the new `available`. Send an `Idempotency-Key`.
+The amount is in the asset's smallest unit. The response is a [deposit](/reference/objects/deposit) with `status: "credited"` and `201`. Any Balance in the tree may be named; money lands on the root, and `deposit.credited` names the one you asked for as `requested_balance_id`. A provisioning card on the tree activates, `card.activated` follows, and `GET /balances/{id}` shows the new `available`. Send an `Idempotency-Key`.
 
 | Status | Code | Meaning |
 | --- | --- | --- |

@@ -20,6 +20,7 @@ const OBJECTS = {
   "deposit-instructions": "BalanceDepositInstructionsResponse",
   "onchain-address-instruction": "BalanceOnchainAddressInstruction",
   "swap-instruction": "BalanceSwapViaInstruction",
+  deposit: "DepositView",
   "deposit-receipt": "DirectdepositReceiptDTO",
   "deposit-receipts": "DirectdepositDepositReceiptsDTO",
   "deposit-routing": "DirectdepositRoutingDTO",

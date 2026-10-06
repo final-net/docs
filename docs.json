@@ -58,6 +58,7 @@
               "reference/objects/balance",
               "reference/objects/limit-rule",
               "reference/objects/transaction",
+              "reference/objects/deposit",
               "reference/objects/deposit-instructions",
               "reference/objects/deposit-instruction",
               "reference/objects/onchain-address-instruction",
