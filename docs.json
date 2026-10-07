@@ -18,7 +18,8 @@
         "pages": [
           "get-started/introduction",
           "get-started/quickstart-app",
-          "get-started/quickstart-server"
+          "get-started/quickstart-server",
+          "get-started/going-live"
         ]
       },
       {
@@ -51,9 +52,9 @@
           "reference/conventions",
           "reference/setup-page",
           "reference/errors",
-          "reference/idempotency-and-rate-limits",
+          "reference/idempotency",
+          "reference/rate-limits",
           "reference/test-mode",
-          "reference/going-live",
           {
             "group": "Objects",
             "pages": [
@@ -135,5 +136,15 @@
     "weight": 500,
     "source": "https://final.com/assets/fonts/GT-Mechanik-Semi-Medium.woff2",
     "format": "woff2"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/reference/going-live",
+      "destination": "/get-started/going-live"
+    },
+    {
+      "source": "/reference/idempotency-and-rate-limits",
+      "destination": "/reference/idempotency"
+    }
+  ]
 }

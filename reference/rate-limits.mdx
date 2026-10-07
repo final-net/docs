@@ -1,0 +1,14 @@
+---
+title: "Rate limits"
+description: "This page tells you how many requests you can send."
+---
+
+Above a limit, Final returns `429 rate_limited`. Wait for the number of seconds in `Retry-After`, then send the request again.
+
+| Requests | Counted against | Limit | `Retry-After` |
+| --- | --- | --- | --- |
+| Requests with a connection | The connection | 200 per second | 1 second |
+| Requests without a connection, such as proposals and activation | The key that sends them. All installs of your app share one publishable key. | 200 per second | 1 second |
+| `GET /assets/shortlist` | The IP address that sends the request. The route needs no credential. | 60 per minute and 600 per hour | 1 second or more |
+
+We do support bursts as long as they aren't sustained.

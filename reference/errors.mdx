@@ -36,7 +36,7 @@ Every route that accepts `Final-Connection` can return these errors before the r
 | 403 | `region_not_supported`, `region_unverified` | The error type is `compliance`. The cause is the region of the request. |
 | 400 | `connection_header_unexpected` | You sent `Final-Connection` to a route that does not accept it, such as `POST /intents` or activation. |
 | 403 | `origin_not_allowed` | The browser sent an `Origin` that is not registered for this publishable key. |
-| 429 | `rate_limited` | Wait for the time in `Retry-After` before you send the next request. |
+| 429 | `rate_limited` | Wait for the time in `Retry-After` before you send the next request. For more information, see [Rate limits](/reference/rate-limits). |
 
 If a Balance or a card is not in your grant, Final returns `404 not_found`. Final returns the same error for a Balance or a card that does not exist.
 
@@ -97,4 +97,4 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | 400 | `body_invalid` | Final cannot parse the JSON body. |
 | 400 | `id_invalid` | An id in the path is not in the correct format. |
 | 403 | `terms_unaccepted` | The user must accept new Final terms. A connection gets this error as `user_action_required`. |
-| 409 | `idempotency_key_reused`, `idempotency_in_flight` | For more information, see [Idempotency and rate limits](/reference/idempotency-and-rate-limits). |
+| 409 | `idempotency_key_reused`, `idempotency_in_flight` | For more information, see [Idempotency](/reference/idempotency). |

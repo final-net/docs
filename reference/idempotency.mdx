@@ -1,9 +1,7 @@
 ---
-title: "Idempotency and rate limits"
-description: "This page tells you how to retry a request safely and how many requests you can send."
+title: "Idempotency"
+description: "This page tells you how to retry a request safely."
 ---
-
-## Idempotency
 
 Send `Idempotency-Key: <uuid>` on each `POST` that you might retry. If you retry with the same key, Final returns the first response and does not run the request again.
 
@@ -15,9 +13,3 @@ Send `Idempotency-Key: <uuid>` on each `POST` that you might retry. If you retry
 - If Final returned a response and you want a new attempt, create a new key. The same key will replay the refusal.
 
 This is most important for activation. Final creates the `client_secret` only once. If you lose the response, retry with the same key. This is the only way to recover the response.
-
-## Rate limits
-
-Each credential can send 200 requests per second. Above that limit, Final returns `429 rate_limited` with `Retry-After: 1`. Wait for that time, then send requests again.
-
-Final counts proposals and activation against the publishable key. All installs of your app share this key. Final counts all requests after activation per connection.
