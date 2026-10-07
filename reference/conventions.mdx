@@ -5,13 +5,13 @@ description: "What every request and response follows."
 
 | | |
 | --- | --- |
-| **Base URL** | `https://api.final.com/v1`. JSON in and out. |
-| **Auth** | `Authorization: Bearer <key>`. A secret key (`final_live_…`, `final_test_…`) stays on your server. A publishable key (`final_publishable_…`) ships in your app. |
-| **Connection** | Calls for a user send `Final-Connection`: the `client_secret` from a publishable key, the bare connection id from a secret key. |
-| **Amounts** | Smallest-unit integer strings. USDe has 9 decimals: `"1000000000"` is 1 USDe. Each has a `display_*` sibling for showing. Compute with the integer. |
-| **Assets** | CAIP-19 ids. `GET /assets` lists them. Fiat is `iso4217:USD`. |
-| **Lists** | `{ "data", "has_more", "after_cursor" }`. Page with `?limit=` and `?after_cursor=`. |
-| **Retries** | Send `Idempotency-Key` on any POST you may retry. See [Idempotency and rate limits](/reference/idempotency-and-rate-limits). |
-| **Times** | RFC 3339, UTC. |
-| **Errors** | `{ "error": { "type", "code", "message", … } }`. Branch on `code`. See [Errors](/reference/errors). |
-| **Modes** | A test key sees test data only; a live key, live data only. See [Test mode](/reference/test-mode). |
+| **Base URL** | `https://api.final.com/v1`. Requests and responses use JSON. |
+| **Auth** | `Authorization: Bearer <key>`. A secret key (`final_live_…`, `final_test_…`) stays on your server. A publishable key (`final_publishable_…`) goes in your app. |
+| **Connection** | For calls for a user, send `Final-Connection`. With a publishable key, send the `client_secret`. With a secret key, send only the connection ID. |
+| **Amounts** | Amounts are integer strings in the smallest unit. USDe has 9 decimals: `"1000000000"` is 1 USDe. Each amount has a `display_*` sibling for display. Use the integer for calculations. |
+| **Assets** | Assets are CAIP-19 IDs. `GET /assets` lists them. The fiat asset is `iso4217:USD`. |
+| **Lists** | A list has the shape `{ "data", "has_more", "after_cursor" }`. To get more pages, use `?limit=` and `?after_cursor=`. |
+| **Retries** | Send `Idempotency-Key` on any `POST` that you may retry. See [Idempotency and rate limits](/reference/idempotency-and-rate-limits). |
+| **Times** | Times use RFC 3339, in UTC. |
+| **Errors** | An error has the shape `{ "error": { "type", "code", "message", … } }`. Use `code` to decide what to do. See [Errors](/reference/errors). |
+| **Modes** | A test key sees only test data. A live key sees only live data. See [Test mode](/reference/test-mode). |

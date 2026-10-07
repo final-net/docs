@@ -3,7 +3,9 @@ title: "Balances"
 description: "Roots, sub-balances, limits and the ledger"
 ---
 
-Money lives on a root Balance, one per approved asset. Sub-balances bound spending and share the root's funds; a card on a sub-balance spends the root's money within the sub-balance's limits.
+Funds are in a root Balance. There is one root Balance for each approved asset.
+
+A sub-balance sets limits on spend. It shares the funds of its root Balance. A card on a sub-balance spends the funds of the root Balance, within the limits of the sub-balance.
 
 ## The Balance object
 
@@ -13,15 +15,22 @@ import BalanceShape from '/snippets/objects/balance-shape.mdx';
 
 The full reference is [Balance](/reference/objects/balance).
 
-`available` and `pending` are `null` on a sub-balance, with their `display_*` siblings. `available` can lag a `deposit.credited` event by a short while, so a screen that reads the Balance on that event should re-read rather than assume.
+On a sub-balance, `available`, `pending` and their `display_*` siblings are `null`.
+
+The new `available` value can come a short time after a `deposit.credited` event. If you read the Balance when that event arrives, read it again. Do not assume that the value is current.
 
 ## List and read
 
-`GET /balances` lists the Balances your grant reaches. `?parent_balance_id=null` narrows to roots, an id to that parent's children; `?asset=` and `?status=active|closed|all` filter further. `GET /balances/{id}` reads one; a Balance outside your grant is `404 not_found`, the same as one that does not exist.
+- `GET /balances` lists the Balances that your grant can access.
+- To list only the root Balances, add `?parent_balance_id=null`.
+- To list the children of a parent, set `?parent_balance_id=` to the ID of the parent.
+- To filter the list more, add `?asset=` or `?status=active|closed|all`.
+- `GET /balances/{id}` returns one Balance.
+- If the Balance is outside your grant, Final returns `404 not_found`. Final returns the same error for a Balance that does not exist.
 
 ## Create a sub-balance
 
-Roots come only from approval. `POST /balances` creates a sub-balance under one of them, up to 7 levels deep:
+Only an approval creates a root Balance. `POST /balances` creates a sub-balance below a root Balance, up to 7 levels deep:
 
 ```json
 {
@@ -36,16 +45,18 @@ Roots come only from approval. `POST /balances` creates a sub-balance under one 
 }
 ```
 
-`limits` are rules the sub-balance applies to itself. `parent_imposed_limits` are rules you set on it as the parent, which a holder of the sub-balance alone cannot change. A sub-balance inherits its root's asset; sending `asset` is `400 parent_invalid`.
+- `limits` contains the rules that the sub-balance applies to itself.
+- `parent_imposed_limits` contains the rules that you set on it as the parent. A holder of only the sub-balance cannot change these rules.
+- A sub-balance gets the asset of its root Balance. If you send `asset`, Final returns `400 parent_invalid`.
 
-| Status | Code | Meaning |
+| Status | Code | Description |
 | --- | --- | --- |
-| 400 | `connection_root_not_allowed` | No `parent_balance_id`. Roots come from approval. |
-| 400 | `parent_invalid` | The parent is unknown, outside your grant, closed, or `asset` was sent. |
-| 400 | `depth_exceeded` | The tree would be deeper than 7 hops below the root. |
-| 400 | `limit_invalid` | A rule is malformed. |
+| 400 | `connection_root_not_allowed` | The request does not contain `parent_balance_id`. Only an approval creates a root Balance. |
+| 400 | `parent_invalid` | The parent is unknown, outside your grant or closed, or the request contains `asset`. |
+| 400 | `depth_exceeded` | The tree would be more than 7 levels deep below the root Balance. |
+| 400 | `limit_invalid` | A rule has an incorrect format. |
 | 403 | `user_action_required`, `verification_pending` | See [Gates](/money/gates). |
-| 503 | `asset_chain_unavailable` | The asset's chain is temporarily unavailable. Retry later. |
+| 503 | `asset_chain_unavailable` | The chain of the asset is temporarily not available. Send the request again later. |
 
 ## Limits
 
@@ -55,11 +66,13 @@ import LimitRuleShape from '/snippets/objects/limit-rule-shape.mdx';
 
 The full reference is [Limit rule](/reference/objects/limit-rule).
 
-`max.asset` is `iso4217:USD` or the Balance's own asset. A swipe carries both figures, so each rule consumes the one in its own denomination. A card swipe's recipient is `{ "kind": "merchant", "id": <merchant_name> }`.
+- `max.asset` is `iso4217:USD` or the asset of the Balance.
+- A card swipe contains the amount in both denominations. Each rule uses the amount in its own denomination.
+- The recipient of a card swipe is `{ "kind": "merchant", "id": <merchant_name> }`.
 
 ## Transactions
 
-`GET /balances/{id}/transactions` lists the ledger, newest first, with `?type=`, `?from=`, `?to=` and paging.
+`GET /balances/{id}/transactions` lists the ledger, newest first. To filter the list, use `?type=`, `?from=` and `?to=`. Final returns the list in pages.
 
 import TransactionShape from '/snippets/objects/transaction-shape.mdx';
 
@@ -67,7 +80,9 @@ import TransactionShape from '/snippets/objects/transaction-shape.mdx';
 
 The full reference is [Transaction](/reference/objects/transaction).
 
-- A deposit credit carries `related.deposit_id`. A direct deposit also carries `related.deposit_receipt_id`, one entry per landing. Card spend carries no `related` block.
-- A reversed authorization is a `card_auth` credit for the same amount.
+- A deposit credit contains `related.deposit_id`.
+- A direct deposit also contains `related.deposit_receipt_id`, with one entry for each landing.
+- A card spend does not contain a `related` block.
+- If a card authorization reverses, the ledger shows a `card_auth` credit for the same amount.
 
-`GET /transactions/export` downloads the same history as a CSV file, in live mode only.
+`GET /transactions/export` returns the same history as a CSV file. This route works only in live mode.

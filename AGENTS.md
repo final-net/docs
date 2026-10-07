@@ -20,9 +20,43 @@
 
 ## Style preferences
 
-- Least reading to get the job done. Cut any sentence the reader does not need to act. No lead-ins, no recaps, no "simply" or "just"
-- Short sentences in plain English, one fact each. Second person, present tense
-- Prefer a table, a list or a `<Steps>` block to a paragraph. A paragraph runs two or three sentences at most
+The prose follows the main rules of ASD-STE100 (Simplified Technical English).
+
+- Write only what the reader needs to act. No lead-ins, no recaps, no "simply" or "just"
+- Write full sentences, with a subject, a verb and the articles ("a", "the"). No fragments, also in table cells, except where the cell is a name or a value
+- One topic per sentence. An instruction has 20 words or fewer; a description has 25 words or fewer. Do not join two facts with a semicolon: write two sentences
+- Write instructions as commands, one action each. Put a condition first: "If the request fails, send it again"
+- Use the active voice. Name the actor (you, the user, Final). Not "the address is withheld", but "Final does not show the address"
+- Use only the simple tenses: present, past and future. Second person
+- Do not use a word that ends in -ing as a noun or a verb, except in a technical name ("routing window", "test mode"). Not "Reading the address opens a window", but "When you read the address, Final opens a routing window"
+- Use one word for one meaning, from the dictionary below. Use words in their literal meaning: no idioms and no metaphors ("money lives on", "gets a say", "a pure read")
+- Use noun clusters of three words or fewer
+- Prefer a table, a list or a `<Steps>` block to a paragraph. A paragraph has two or three sentences at most
+
+## Dictionary
+
+Technical names. Use these, and no synonym for them:
+
+- Final's resources: Balance, root Balance, sub-balance, grant, connection, intent, card, deposit, deposit instructions, routing window, routing default, receipt, landing (an arrival on chain before the credit), swap, event, webhook, gate
+- Credentials and modes: publishable key, secret key, key pair, test mode, live mode
+- UI labels, written as the UI shows them in bold: **Mint pair**, **Approve**
+
+Technical verbs, with their one meaning:
+
+| Use | Meaning | Not |
+| --- | --- | --- |
+| return | The API sends back a response or a status | answer, give back, hand |
+| create | Make a new resource | mint (except the **Mint pair** label), spawn, issue |
+| contain | A response or object has a field or value | carry, hold, include |
+| send | Make a request, or send funds | fire, hit, post (as a verb) |
+| read | Make a `GET` request | fetch, pull |
+| open, close | Start or stop a routing window or a stream, or show a URL or page | claim, release |
+| replace | Put a new value in place of the old one | overwrite |
+| revoke | End a connection or a grant | kill, sign out |
+| arrive | Funds come to an address on chain | land |
+| credit | Final adds funds to a Balance | |
+| be in | Funds are in a Balance | live on, sit on |
+| use | Operate a tool, key or field for a purpose | leverage, utilize |
 - Every quickstart step ends with a `<Check>` saying what the reader should see
 - Sentence case for headings
 - No em dashes. Use a comma, a colon, parentheses or a second sentence

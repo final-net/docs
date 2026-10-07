@@ -1,11 +1,11 @@
 ---
 title: "Cards"
-description: "Issue, freeze, close and show a card"
+description: "Create, freeze, close and show a card."
 ---
 
-## Issue a card
+## Create a card
 
-`POST /cards` issues a card on a Balance. It is born `provisioning` and activates once the Balance's tree has a credited deposit: a card on a sub-balance activates on a credit anywhere in its root's tree.
+`POST /cards` creates a card on a Balance. A new card has the status `provisioning`. The card activates when Final credits a deposit in the Balance tree. A card on a sub-balance activates when Final credits a deposit anywhere in the tree of its root Balance.
 
 ```json
 {
@@ -24,15 +24,20 @@ description: "Issue, freeze, close and show a card"
 }
 ```
 
-`cardholder_info` is the name on the card and the billing address a merchant checks, for this card only. `line1`, `city`, `postal_code` and `country` are required, `region` is required for US and CA, and `country` is ISO 3166-1 alpha-2. A partial object, a name without an address or the reverse, is `400 invalid_request` naming the missing field in `param`.
+`cardholder_info` contains the name on the card and the billing address that a merchant checks. It applies only to this card.
 
-Omitting `cardholder_info` issues the card in the user's verified name and address. If Final has no address on file for them, the call answers `403 user_action_required` with a URL; see [Gates](/money/gates). Sending `cardholder_info` skips that step.
+- `line1`, `city`, `postal_code` and `country` are required.
+- `region` is required for US and CA.
+- `country` is an ISO 3166-1 alpha-2 code.
+- If you send a partial object, Final returns `400 invalid_request`. A partial object is a name without an address, or an address without a name. The `param` field names the field that you did not send.
 
-The response is `{ "card": Card }` with `201`. One card per Balance: if one already exists you get it back with `200`.
+If you omit `cardholder_info`, Final creates the card with the verified name and address of the user. If Final has no address on file for the user, the call returns `403 user_action_required` with a URL. See [Gates](/money/gates). If you send `cardholder_info`, the user does not need that step.
 
-| Status | Code | Meaning |
+The response is `{ "card": Card }` with `201`. Each Balance can have one card. If a card already exists, Final returns it with `200`.
+
+| Status | Code | Description |
 | --- | --- | --- |
-| 400 | `balance_id_required` | No `balance_id`. |
+| 400 | `balance_id_required` | The request has no `balance_id`. |
 | 403 | `user_action_required`, `verification_pending` | See [Gates](/money/gates). |
 | 404 | `not_found` | The Balance is outside your grant. |
 | 409 | `balance_closed` | The Balance is closed. |
@@ -44,14 +49,14 @@ import CardShape from '/snippets/objects/card-shape.mdx';
 <CardShape />
 
 <ResponseField name="cardholder_info" type="object | null">
-  The name on the card and its billing address, when one was sent at creation: `{ "name", "billing_address": { "line1", "line2", "city", "region", "postal_code", "country" } }`. Null on a card issued in the user's verified name and address.
+  This field contains the name on the card and its billing address, if you sent them when you created the card: `{ "name", "billing_address": { "line1", "line2", "city", "region", "postal_code", "country" } }`. It is null on a card that Final created with the verified name and address of the user.
 </ResponseField>
 
 The full reference is [Card](/reference/objects/card).
 
 ## Reuse a previous cardholder
 
-`GET /cardholder_info` lists the distinct names and billing addresses the user has put on cards in your grant, most recently used first, for a picker:
+`GET /cardholder_info` lists the distinct names and billing addresses that the user put on cards in your grant. The most recently used entry is first. Use the list to show a picker.
 
 ```json
 {
@@ -68,28 +73,34 @@ The full reference is [Card](/reference/objects/card).
 }
 ```
 
-It is derived from non-closed cards, pages with `?limit=` (default 20) and `?after_cursor=`, and never includes the user's verified name and address.
+- Final makes the list from cards that are not closed.
+- Use `?limit=` (default 20) and `?after_cursor=` to page through the list.
+- The list never contains the verified name and address of the user.
 
 ## List and read
 
-`GET /cards` lists the cards on Balances in your grant, active ones by default. `?status=` takes `active`, `provisioning`, `frozen`, `closed` or `all`; anything else is `400 status_invalid`. `?balance_id=` narrows to one Balance. `GET /cards/{id}` reads one.
+`GET /cards` lists the cards on Balances in your grant. By default, it lists only active cards.
+
+- `?status=` accepts `active`, `provisioning`, `frozen`, `closed` or `all`. For any other value, Final returns `400 status_invalid`.
+- `?balance_id=` limits the list to one Balance.
+- `GET /cards/{id}` reads one card.
 
 ## Freeze, unfreeze, close
 
-- `POST /cards/{id}/freeze` pauses spend; authorizations decline with `card_frozen` until `POST /cards/{id}/unfreeze`. Both answer `{ "card": Card }` and are idempotent.
-- `DELETE /cards/{id}` closes the card for good and answers `204`. The Balance and its funds are untouched, and a new card can be issued on it. Closing a closed card is also `204`.
+- `POST /cards/{id}/freeze` pauses spend on the card. Final declines authorizations with `card_frozen` until you send `POST /cards/{id}/unfreeze`. Both routes return `{ "card": Card }` and are idempotent.
+- `DELETE /cards/{id}` closes the card permanently and returns `204`. The Balance and its funds do not change. You can create a new card on the Balance. If the card is already closed, Final also returns `204`.
 
-| Status | Code | Meaning |
+| Status | Code | Description |
 | --- | --- | --- |
 | 404 | `not_found` | The card is outside your grant. |
-| 409 | `card_provisioning` | Not active yet. |
-| 409 | `card_closed` | Closed cards cannot be frozen or unfrozen. |
+| 409 | `card_provisioning` | The card is not active yet. |
+| 409 | `card_closed` | You cannot freeze or unfreeze a closed card. |
 
-Each change emits `card.frozen`, `card.unfrozen` or `card.closed`.
+For each change, Final sends `card.frozen`, `card.unfrozen` or `card.closed`.
 
 ## Show the card
 
-`POST /cards/{id}/embed_url` mints a short-lived URL that renders the card number, expiry and CVC. It is the only place one is minted; no Balance or card read carries it.
+`POST /cards/{id}/embed_url` creates a short-lived URL. The URL shows the card number, expiry and CVC. Final creates this URL only on this route. No read of a Balance or a card returns it.
 
 import EmbedUrlShape from '/snippets/objects/embed-url-shape.mdx';
 
@@ -97,13 +108,13 @@ import EmbedUrlShape from '/snippets/objects/embed-url-shape.mdx';
 
 The full reference is [Embed URL](/reference/objects/embed-url).
 
-Open it top level in a web view. The URL expires after 15 minutes; mint again after that. The card details never pass through your code, which is what keeps your app out of PCI scope.
+Open the URL at the top level of a web view. The URL expires after 15 minutes. After that, create a new one. The card details never pass through your code. This keeps your app out of PCI scope.
 
-| Status | Code | Meaning |
+| Status | Code | Description |
 | --- | --- | --- |
-| 409 | `card_provisioning` | There is no face to show yet. |
+| 409 | `card_provisioning` | The card has no details to show yet. |
 | 409 | `card_closed` | The card is closed. |
 
 ## Simulate a purchase
 
-`POST /cards/{id}/test_authorizations` runs the real authorization decision on a test-mode card. See [Test mode](/reference/test-mode).
+`POST /cards/{id}/test_authorizations` runs the real authorization decision on a card in test mode. See [Test mode](/reference/test-mode).

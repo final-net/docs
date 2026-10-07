@@ -1,20 +1,22 @@
 ---
 title: "Quickstart: app"
-description: "Connect a test user from an iOS or Android app, fund a Balance, issue a card and make a purchase."
+description: "Connect a test user from an iOS or Android app, fund a Balance, create a card and make a purchase."
 ---
 
-Your app calls Final directly with a publishable key. You need a Final account; you approve as your own test user.
+Your app sends requests directly to Final with a publishable key.
 
 <Steps>
   <Step title="Get a test key">
     On the [setup page](https://final.com/temporary/integrator-setup):
 
     1. Save a profile.
-    2. Add `yourapp://final/return` under **Redirect URIs**.
-    3. Mint a pair in **test** mode. Keep the publishable key, `final_publishable_test_…`.
+    2. Under **Redirect URIs**, add `yourapp://final/return`.
+    3. Select **test** mode.
+    4. Click **Mint pair**.
+    5. Keep the publishable key (`final_publishable_test_…`).
   </Step>
   <Step title="Add the request helper">
-    Every later sample calls it.
+    Every sample after this step uses this helper.
 
     <CodeGroup>
 
@@ -70,7 +72,7 @@ Your app calls Final directly with a publishable key. You need a Final account; 
     </CodeGroup>
   </Step>
   <Step title="Connect">
-    Propose with a PKCE challenge, open the approval page, and exchange the returned code for the connection's secret.
+    Propose a connection with a PKCE challenge. Open the approval page. Exchange the code that Final returns for the secret of the connection.
 
     <CodeGroup>
 
@@ -140,16 +142,18 @@ Your app calls Final directly with a publishable key. You need a Final account; 
 
     </CodeGroup>
 
-    <Check>Activation answers `200` with a `client_secret`. The approval page said **Test mode**.</Check>
+    <Check>The activation request returns `200` with a `client_secret`. The approval page showed **Test mode**.</Check>
 
-    Every call for this user from now on sends the secret in `Final-Connection`.
+    From now on, send the secret in `Final-Connection` on every request for this user.
   </Step>
-  <Step title="Open the event stream">
-    Store the last `id:` you receive. Send it as `Last-Event-ID` when you reconnect, or the stream replays everything. The code is on [Event stream](/events/event-stream).
+  <Step title="Connect to the event stream">
+    Store the last `id:` that you receive. When you reconnect, send it as `Last-Event-ID`. If you do not send it, the stream sends all events again.
+
+    See [Event stream](/events/event-stream) for the code.
 
     <Check>The first frame is `connection.active`.</Check>
   </Step>
-  <Step title="Issue a card">
+  <Step title="Create a card">
     <CodeGroup>
 
     ```kotlin Kotlin
@@ -184,12 +188,12 @@ Your app calls Final directly with a publishable key. You need a Final account; 
 
     </CodeGroup>
 
-    <Check>`card.status` is `provisioning`. It activates when the Balance is funded.</Check>
+    <Check>`card.status` is `provisioning`. The card activates when Final credits the Balance.</Check>
 
-    A `403 user_action_required` means Final needs something from the user. Open `error.detail.url` the way you opened the approval, then call again. See [Gates](/money/gates).
+    A `403 user_action_required` means that Final needs something from the user. If you get this error, open `error.detail.url` the same way that you opened the approval page. Then send the request again. See [Gates](/money/gates).
   </Step>
   <Step title="Fund the Balance">
-    Test mode has no real deposit. This stands in for one: 25 USDe.
+    Test mode has no real deposits. Send this request to simulate a deposit of 25 USDe.
 
     <CodeGroup>
 
@@ -207,10 +211,10 @@ Your app calls Final directly with a publishable key. You need a Final account; 
 
     </CodeGroup>
 
-    <Check>The stream delivers `deposit.credited`, then `card.activated`.</Check>
+    <Check>The stream sends `deposit.credited`, then `card.activated`.</Check>
   </Step>
   <Step title="Make a purchase">
-    `amount` is what the merchant charges, in cents. `asset_amount` is what leaves the Balance.
+    `amount` is the amount that the merchant charges, in cents. `asset_amount` is the amount that goes out of the Balance.
 
     <CodeGroup>
 
@@ -231,7 +235,7 @@ Your app calls Final directly with a publishable key. You need a Final account; 
 
     </CodeGroup>
 
-    <Check>The stream delivers `card_auth.approved`, then `card_auth.settled`.</Check>
+    <Check>The stream sends `card_auth.approved`, then `card_auth.settled`.</Check>
   </Step>
 </Steps>
 
@@ -240,7 +244,7 @@ Your app calls Final directly with a publishable key. You need a Final account; 
 | To | Read |
 | --- | --- |
 | Show the user their card | [Cards](/money/cards) |
-| Show a real deposit address | [Deposits](/money/deposits), then [Going live](/reference/going-live) |
+| Show a real deposit address | [Deposits](/money/deposits), then [Go live](/reference/going-live) |
 | Handle `user_action_required` | [Gates](/money/gates) |
-| Use an App Link or universal link | [Connect from an app](/connect/from-an-app) |
-| Sign the user out, or reconnect | [Managing a connection](/connect/managing-a-connection) |
+| Use an App Link or a universal link | [Connect from an app](/connect/from-an-app) |
+| Revoke a connection, or connect again | [Manage a connection](/connect/managing-a-connection) |

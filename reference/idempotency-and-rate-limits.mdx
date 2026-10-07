@@ -1,21 +1,23 @@
 ---
 title: "Idempotency and rate limits"
-description: "Retrying safely, and how much you can send"
+description: "This page tells you how to retry a request safely and how many requests you can send."
 ---
 
 ## Idempotency
 
-Send `Idempotency-Key: <uuid>` on any POST you might retry. A retry under the same key returns the first response instead of running again.
+Send `Idempotency-Key: <uuid>` on each `POST` that you might retry. If you retry with the same key, Final returns the first response and does not run the request again.
 
-- A key is bound to its request body for 24 hours. The same key with a different body is `409 idempotency_key_reused`.
-- A retry that arrives while the first request is still running is `409 idempotency_in_flight`. Retry after it answers.
-- A replayed response carries `Idempotent-Replayed: true`.
-- Every answered response is recorded, 4xx included, and replayed as it was. So retry with the same key only when you do not know whether the request completed: a timeout, a dropped connection, the app suspended mid-flight. Mint a new key when the server answered and you want a fresh attempt, since the same key would replay the refusal.
+- Final binds a key to its request body for 24 hours. If you send the same key with a different body, Final returns `409 idempotency_key_reused`.
+- If you retry before the first request completes, Final returns `409 idempotency_in_flight`. Retry after Final returns a response to the first request.
+- A replayed response contains `Idempotent-Replayed: true`.
+- Final records every response that it returns, and 4xx responses also. Final replays each response unchanged.
+- Retry with the same key only if you do not know whether the request completed. Examples are a timeout, a lost connection, or an app that the system suspended during the request.
+- If Final returned a response and you want a new attempt, create a new key. The same key will replay the refusal.
 
-Activation is where this matters most: the `client_secret` is issued once, and a retry under the same key is the only way to recover a response you lost.
+This is most important for activation. Final creates the `client_secret` only once. If you lose the response, retry with the same key. This is the only way to recover the response.
 
 ## Rate limits
 
-Each credential may send 200 requests per second. Past that, a request answers `429 rate_limited` with `Retry-After: 1`. Back off for that long and resume.
+Each credential can send 200 requests per second. Above that limit, Final returns `429 rate_limited` with `Retry-After: 1`. Wait for that time, then send requests again.
 
-Proposals and activation are bucketed on the publishable key, which every install of your app shares. Everything after activation is bucketed per connection.
+Final counts proposals and activation against the publishable key. All installs of your app share this key. Final counts all requests after activation per connection.

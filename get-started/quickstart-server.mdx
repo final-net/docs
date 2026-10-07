@@ -1,13 +1,18 @@
 ---
 title: "Quickstart: server"
-description: "Connect a test user, fund a Balance, issue a card and make a purchase, with curl."
+description: "Connect a test user, fund a Balance, create a card and make a purchase with curl."
 ---
 
 You need a Final account. You approve as your own test user.
 
 <Steps>
   <Step title="Get a test key">
-    On the [setup page](https://final.com/temporary/integrator-setup), save a profile, then mint a pair in **test** mode. Keep the secret key.
+    On the [setup page](https://final.com/temporary/integrator-setup):
+
+    1. Save a profile.
+    2. Select **test** mode.
+    3. Click **Mint pair**.
+    4. Keep the secret key.
 
     ```bash
     export FINAL=https://api.final.com/v1
@@ -22,10 +27,12 @@ You need a Final account. You approve as your own test user.
       -d "{\"kind\":\"account.connect\",\"payload\":{\"assets\":[\"$USDE\"],\"direct_deposit\":true}}"
     ```
 
-    Save `intent.id` as `INTENT`, `connection.id` as `CONNECTION`, and open `intent.approval_url`.
+    1. Save `intent.id` as `INTENT`.
+    2. Save `connection.id` as `CONNECTION`.
+    3. Open `intent.approval_url`.
   </Step>
   <Step title="Approve">
-    Sign in to Final on the approval page and approve with your passkey. The page says **Test mode**.
+    On the approval page, sign in to Final. Approve with your passkey. The page shows **Test mode**.
 
     ```bash
     curl -s $FINAL/intents/$INTENT -H "Authorization: Bearer $KEY"
@@ -33,14 +40,14 @@ You need a Final account. You approve as your own test user.
 
     <Check>`intent.status` is `completed`.</Check>
   </Step>
-  <Step title="Issue a card">
-    Every call for this user from now on sends the connection id in `Final-Connection`.
+  <Step title="Create a card">
+    From now on, send the connection id in `Final-Connection` on every request for this user.
 
     ```bash
     curl -s "$FINAL/balances?parent_balance_id=null" -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION"
     ```
 
-    Save the root's `id` as `BALANCE`.
+    Save the `id` of the root Balance as `BALANCE`.
 
     ```bash
     curl -s -X POST $FINAL/cards \
@@ -50,12 +57,12 @@ You need a Final account. You approve as your own test user.
 
     Save `card.id` as `CARD`.
 
-    <Check>`card.status` is `provisioning`. It activates when the Balance is funded.</Check>
+    <Check>`card.status` is `provisioning`. The card activates when Final credits the Balance.</Check>
 
-    A `403 user_action_required` means Final needs something from you. Open `error.detail.url`, finish there, and call again.
+    A `403 user_action_required` means that Final needs something from you. If you get this error, open `error.detail.url`. Complete the steps on that page. Then send the request again.
   </Step>
   <Step title="Fund the Balance">
-    Test mode has no real deposit. This stands in for one: 25 USDe.
+    Test mode has no real deposits. Send this request to simulate a deposit of 25 USDe.
 
     ```bash
     curl -s -X POST $FINAL/balances/$BALANCE/test_deposits \
@@ -63,10 +70,10 @@ You need a Final account. You approve as your own test user.
       -d '{"amount":"25000000000"}'
     ```
 
-    <Check>`GET /balances/$BALANCE` shows `available` `"25000000000"`, and `GET /cards/$CARD` shows `status` `active`.</Check>
+    <Check>`GET /balances/$BALANCE` returns `available` `"25000000000"`. `GET /cards/$CARD` returns `status` `active`.</Check>
   </Step>
   <Step title="Make a purchase">
-    `amount` is what the merchant charges, in cents. `asset_amount` is what leaves the Balance.
+    `amount` is the amount that the merchant charges, in cents. `asset_amount` is the amount that goes out of the Balance.
 
     ```bash
     curl -s -X POST $FINAL/cards/$CARD/test_authorizations \
@@ -74,7 +81,7 @@ You need a Final account. You approve as your own test user.
       -d '{"amount":"1899","asset_amount":"18990000000","merchant_name":"Blue Bottle","merchant_category":"5812"}'
     ```
 
-    <Check>`status` is `approved`, and `GET /balances/$BALANCE/transactions` lists the deposit and the purchase.</Check>
+    <Check>`status` is `approved`. `GET /balances/$BALANCE/transactions` returns the deposit and the purchase.</Check>
   </Step>
 </Steps>
 
@@ -82,8 +89,8 @@ You need a Final account. You approve as your own test user.
 
 | To | Read |
 | --- | --- |
-| Get events instead of polling | [Webhooks](/events/webhooks) |
+| Get events without repeated `GET` requests | [Webhooks](/events/webhooks) |
 | Show the user their card | [Cards](/money/cards) |
-| Take real deposits | [Deposits](/money/deposits), then [Going live](/reference/going-live) |
+| Receive real deposits | [Deposits](/money/deposits), then [Go live](/reference/going-live) |
 | Handle `user_action_required` | [Gates](/money/gates) |
-| Know your user by your own id | [Connect from a server](/connect/from-a-server) |
+| Identify the user with your own id | [Connect from a server](/connect/from-a-server) |

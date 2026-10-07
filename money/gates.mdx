@@ -1,16 +1,18 @@
 ---
 title: "Gates"
-description: "When the user has to do something, and what a connection is told"
+description: "When the user must do something, and what Final returns to the connection"
 ---
 
-The approval is normally the only time the user leaves your app. Consent is sign in and a passkey, and that same passkey readies the user's wallet for every asset you asked for when it can, so money moves without a second trip. Identity and card terms are collected when the user signs up for Final and verified asynchronously; you never collect either.
+Usually, the user leaves your app only for the approval. To consent, the user signs in and uses a passkey. When possible, the same passkey prepares the user's wallet for each asset that you asked for. Then funds can move without a second visit to Final.
 
-When Final still needs something from the user, a money route answers `403` with one of two codes. Both carry `"type": "permission"`.
+Final collects identity and card terms when the user signs up for Final. Final verifies them asynchronously. You never collect identity or card terms.
 
-| Code | Meaning | What to do |
+If Final needs something more from the user, a money route returns `403` with one of two codes. Both codes contain `"type": "permission"`.
+
+| Code | Description | What to do |
 | --- | --- | --- |
-| `user_action_required` | The user has to finish something on Final before this can proceed. | Open `detail.url`; call again when they return. |
-| `verification_pending` | Final is verifying this account. Only Final can move it. | Show "verification in progress"; retry later. No URL. |
+| `user_action_required` | The user must finish a step on Final before the request can continue. | Open `detail.url`. When the user returns, send the request again. |
+| `verification_pending` | The verification of this account is not complete. Only Final can complete it. | Show "verification in progress". Send the request again later. This error does not contain a URL. |
 
 ```json
 {
@@ -24,11 +26,11 @@ When Final still needs something from the user, a money route answers `403` with
 }
 ```
 
-There is no readiness probe. The error is the signal, and a first money call after consent can still answer `user_action_required`.
+No route tells you in advance that the user is ready. Use the error as the signal. The first money call after consent can still return `user_action_required`.
 
 ## The return trip
 
-Open `detail.url` the way you opened the approval: a Custom Tab, or `ASWebAuthenticationSession`. The user finishes on Final and is returned to the same redirect your connection was proposed with, carrying `?balance_id=…`. Then call again.
+Open `detail.url` in the same way as the approval: in a Custom Tab or an `ASWebAuthenticationSession`. The user finishes the step on Final. Final then sends the user to the redirect that you proposed the connection with. The redirect contains `?balance_id=…`. Then send the request again.
 
 <CodeGroup>
 
@@ -67,12 +69,20 @@ curl -s -X POST $FINAL_API/cards -H "Authorization: Bearer $KEY" -H "Final-Conne
 
 ## Which routes gate
 
-- `POST /balances/{id}/deposit_instructions`, and `GET` once your grant has `direct_deposit`: the identity gate. Reads of the Balance itself never gate.
-- `POST /cards`: identity, the issuing terms, and an address on file when you send no `cardholder_info`.
-- A card swipe passes through no call of yours, so a gate there arrives as a `card_auth.declined` event with `reason: "user_action_required"` and the same `detail.url`.
+- `POST /balances/{id}/deposit_instructions` has the identity gate.
+- `GET /balances/{id}/deposit_instructions` also has the identity gate after your grant contains `direct_deposit`.
+- A read of the Balance itself never has a gate.
+- `POST /cards` has a gate for identity and a gate for the card terms.
+- If you send no `cardholder_info`, `POST /cards` also has a gate for an address on file.
+- A card swipe does not go through a call that you make. For a gate on a swipe, Final sends a `card_auth.declined` event. The event contains `reason: "user_action_required"` and the same `detail.url`.
 
-`verification_pending` blocks reads too, but only during an account review hold: while that holds, every call on the connection answers it before the route runs. During an identity check reads work and a card write answers `user_action_required`.
+`verification_pending` can also block reads, but only during an account review hold. During that hold, every call on the connection returns `verification_pending` before the route runs. During an identity check, reads work. A card write then returns `user_action_required`.
 
 ## Region
 
-Two more `403` codes can arrive before any route runs, with `"type": "compliance"`: `region_not_supported`, when the request comes from a region Final does not serve, and `region_unverified`, when the region could not be established. Neither is something the user can clear from your app.
+Final can return two more `403` codes before any route runs. Both codes contain `"type": "compliance"`.
+
+- `region_not_supported`: The request comes from a region that Final does not serve.
+- `region_unverified`: Final could not find the region of the request.
+
+The user cannot clear either code from your app.

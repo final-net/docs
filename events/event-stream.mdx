@@ -1,9 +1,9 @@
 ---
 title: "Event stream"
-description: "Server-Sent Events for an app with no server"
+description: "Use Server-Sent Events to receive events in an app that has no server."
 ---
 
-`GET /connections/{id}/events` is a Server-Sent Events stream scoped to one connection. It carries everything that happens on the Balances the grant reaches, and nothing outside it.
+`GET /connections/{id}/events` is a Server-Sent Events stream for one connection. It contains all events on the Balances that the grant reaches, and no other events.
 
 ```
 GET /v1/connections/{id}/events
@@ -13,12 +13,14 @@ Accept: text/event-stream
 Last-Event-ID: 8812
 ```
 
-- The first frame is `connection.active`, the current state of the connection, synthesized rather than stored. It carries no `id:`.
-- A stream opened without `Last-Event-ID` then replays the connection's whole history, `connection.created` included, before going live. Store the last `id:` you see from the first connect on, and send it on every reconnect.
-- `Last-Event-ID` is the integer `id:` of a frame this stream sent. A non-integer or negative value is `400 last_event_id_invalid`; any other number is accepted and replays what follows it.
-- A `: keep-alive` comment arrives every 20 seconds. An open stream closes within 20 seconds of a revoke, and the reconnect answers `403 connection_revoked`.
-- One stream per connection. Opening a second closes the first.
-- An error before the first frame is a JSON body with the status: `{ "error": { "code", "message" } }`, and nothing else.
+- The first frame is `connection.active`. It contains the current state of the connection. Final creates this frame for each stream and does not store it. The frame has no `id:`.
+- If you open a stream without `Last-Event-ID`, the stream replays the full history of the connection, and `connection.created` is part of it. After the history, the stream sends new events as they occur.
+- Store the last `id:` that you receive, from the first connection on. Send it each time you connect again.
+- `Last-Event-ID` is the integer `id:` of a frame that this stream sent. If the value is not an integer or is negative, Final returns `400 last_event_id_invalid`. Final accepts any other number and replays the events after it.
+- Final sends a `: keep-alive` comment every 20 seconds.
+- When someone revokes the connection, Final closes the open stream within 20 seconds. If you open the stream again, Final returns `403 connection_revoked`.
+- A connection can have one stream at a time. If you open a second stream, Final closes the first one.
+- If an error occurs before the first frame, Final returns a JSON body with the status: `{ "error": { "code", "message" } }`. The response contains nothing else.
 
 ## Frames
 
@@ -28,7 +30,7 @@ event: deposit.credited
 data: {"object":{"id":"deposit_…","balance_id":"balance_…","status":"credited","requested_balance_id":"balance_…"}}
 ```
 
-`object` is the bare resource, the same shape as inside the route's wrapper. The event types and their objects are on [Webhooks](/events/webhooks); both channels deliver the same set.
+`object` is the bare resource. It has the same shape as the resource inside the response wrapper of its route. [Webhooks](/events/webhooks) lists the event types and their objects. The stream and webhooks deliver the same set of events.
 
 ## Code
 
@@ -98,5 +100,5 @@ curl -N $FINAL_API/connections/$CONNECTION_ID/events \
 </CodeGroup>
 
 <Note>
-  Every other request in these pages works over Tor. The stream is one long-lived HTTP response, which a request-and-response Tor client cannot carry. When the user has Tor on, open the stream over clearnet or poll `GET /connections/{id}`, `GET /balances` and `GET /cards` instead.
+  Every other request in these pages works over Tor. The stream is one long-lived HTTP response. A Tor client that uses only single requests and responses cannot receive it. If the user has Tor on, open the stream over clearnet, or poll `GET /connections/{id}`, `GET /balances` and `GET /cards` instead.
 </Note>

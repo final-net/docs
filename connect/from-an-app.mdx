@@ -1,28 +1,35 @@
 ---
 title: "From an app"
-description: "PKCE, the return to your app, and activating the connection"
+description: "Connect from an app with PKCE, then activate the connection when the user comes back to your app."
 ---
 
-An app holds a publishable key, which is public. What makes the connection yours is PKCE: whoever proposed keeps the verifier, and only your registered redirect receives the code.
+An app uses a publishable key, which is public. PKCE makes sure that the connection is yours:
+
+- The app that proposes the connection keeps the verifier.
+- Only your registered redirect receives the code.
 
 <Steps>
   <Step title="Propose">
-    `POST /intents` with a `code_challenge`. The response names the connection id. No secret exists yet.
+    Send `POST /intents` with a `code_challenge`. The response contains the connection id. The connection has no secret yet.
   </Step>
   <Step title="Approve">
-    Open `approval_url` in the system browser. The user signs in to Final and approves with a passkey.
+    Open `approval_url` in the system browser. The user signs in to Final. Then the user approves with a passkey.
   </Step>
-  <Step title="Return">
-    Final returns to your `redirect_uri` with `?intent_id=…&code=…`.
+  <Step title="Redirect">
+    Final sends the user to your `redirect_uri` with `?intent_id=…&code=…`.
   </Step>
   <Step title="Activate">
-    `POST /connections/{id}/activate` with the code and the verifier returns the `client_secret`, once.
+    Send `POST /connections/{id}/activate` with the code and the verifier. The response contains the `client_secret`. Final returns the secret only once.
   </Step>
 </Steps>
 
 ## PKCE
 
-The verifier is 43 to 128 characters of base64url. The challenge is `base64url(sha256(verifier))`, and `S256` is the only method. A verifier outside that range, or one that does not hash to the challenge, is answered at activation with the same `404 connection_not_found` as a wrong code.
+- The verifier has 43 to 128 base64url characters.
+- The challenge is `base64url(sha256(verifier))`.
+- `S256` is the only method.
+
+Activation returns `404 connection_not_found` if the verifier is outside that range or does not hash to the challenge. A wrong code returns the same error.
 
 <CodeGroup>
 
@@ -68,12 +75,12 @@ CHALLENGE=$(printf '%s' "$VERIFIER" | openssl dgst -sha256 -binary | base64 | tr
 
 | Field | |
 | --- | --- |
-| `assets` | 1 to 8 CAIP-19 ids. The cap is checked before duplicates are removed. One root Balance each. |
-| `code_challenge` | Required on a publishable key. |
-| `redirect_uri` | Must exactly equal a registered redirect. Omitting it falls back to the primary, so an app on a custom scheme sends it every time. Required in live mode. |
-| `direct_deposit` | Ask to route the user's own deposits to your Balances. The approval page states the fee. Without it, deposit instructions carry no address. |
+| `assets` | The field contains 1 to 8 CAIP-19 ids. Final checks this limit before it removes duplicates. Each asset has one root Balance. |
+| `code_challenge` | You must send this field with a publishable key. |
+| `redirect_uri` | The value must exactly match a registered redirect. If you do not send it, Final uses the primary redirect. If your app uses a custom scheme, send it every time. You must send it in live mode. |
+| `direct_deposit` | Use this field to ask for permission to route the user's own deposits to your Balances. The approval page shows the fee. If you do not send it, deposit instructions contain no address. |
 
-The response:
+Final returns this response:
 
 ```json
 {
@@ -88,9 +95,12 @@ The response:
 }
 ```
 
-`approval_url` is opaque: open it as it is, top level, and never rebuild it. It does not expire.
+`approval_url` is opaque. It does not expire.
 
-## Opening the approval
+- Open it at the top level.
+- Do not change it or build it again.
+
+## Open the approval page
 
 <CodeGroup>
 
@@ -164,11 +174,13 @@ curl -s -X POST $FINAL_API/connections/$CONNECTION_ID/activate \
 </CodeGroup>
 
 <Note>
-  Prefer a verified App Link on Android. Register `https://app.example.com/final/return` with an `assetlinks.json` and use it as `redirect_uri`: Android verifies the domain, so no other app can claim the callback, where a custom scheme is first come, first served. iOS gets the same guarantee from 17.4 with `ASWebAuthenticationSession.Callback.https`.
+  On Android, a verified App Link is better than a custom scheme. Register `https://app.example.com/final/return` with an `assetlinks.json` file. Use this URL as `redirect_uri`.
+
+  Android verifies the domain, so no other app can receive the callback. A custom scheme goes to the first app that registers it. On iOS 17.4 and later, `ASWebAuthenticationSession.Callback.https` gives the same protection.
 </Note>
 
 <Note>
-  On iOS, a new user needs iOS 18 to create a Final account, since sign-up uses a passkey feature Safari supports from there. An existing user can sign in and approve on iOS 16 and 17.
+  On iOS, a new user needs iOS 18 to create a Final account. Sign-up uses a passkey feature that Safari supports from iOS 18. A user who already has an account can sign in and approve on iOS 16 and 17.
 </Note>
 
 ## Activation
@@ -179,21 +191,27 @@ curl -s -X POST $FINAL_API/connections/$CONNECTION_ID/activate \
 
 The code is valid for 10 minutes. The response is `{ "id": "connection_…", "client_secret": "connection_…_secret_…" }`.
 
-The secret is the connection id with a secret half appended, so you store one string. The id is everything before the literal `_secret_`, and neither half can contain that token. Store it in the Keychain or Keystore. From now on every request on the user's behalf carries it:
+The secret is the connection id with a secret half added at the end. You store only one string.
+
+The id is the part before the literal `_secret_`. Neither half can contain that token.
+
+Store the secret in the Keychain or the Keystore. From now on, send it on every request for the user:
 
 ```
 Final-Connection: connection_01j6b3v8x2q7k9m4n5p6r7s8t9_secret_a91c7e4d…
 ```
 
-| Status | Code | Meaning |
+| Status | Code | Description |
 | --- | --- | --- |
-| 404 | `connection_not_found` | Wrong code, wrong verifier, wrong key, wrong mode or already activated. One code on purpose. |
-| 409 | `activation_code_expired` | The code is older than 10 minutes. Propose again. |
+| 404 | `connection_not_found` | The code, the verifier, the key or the mode is wrong, or you already activated the connection. Final uses one error code for all of these on purpose. |
+| 409 | `activation_code_expired` | The code is older than 10 minutes. Propose the connection again. |
 
 <Warning>
-  Activation is the one response Final can never reissue. Send an `Idempotency-Key` and a retry under the same key hands the secret back; without one, a lost response means the user approves again.
+  Final creates the secret only once, in the activation response. Send an `Idempotency-Key` with the activation request. If you send the request again with the same key, Final returns the secret again. If you do not send a key and you lose the response, the user must approve again.
 </Warning>
 
-## Trying it from a terminal
+## Try it from a terminal
 
-In test mode, from a profile with no primary redirect, propose without `redirect_uri`. Final shows the user an approved screen instead of redirecting, and for 10 minutes `POST /connections/{id}/activate` accepts `{ "code_verifier" }` alone. This exists only for that; live mode always requires the redirect.
+If you use test mode and your profile has no primary redirect, propose without `redirect_uri`. Final shows the user an approved screen instead of a redirect. For 10 minutes, `POST /connections/{id}/activate` accepts `{ "code_verifier" }` alone.
+
+This option exists only for terminal tests. Live mode always requires the redirect.

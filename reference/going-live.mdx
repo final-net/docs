@@ -1,34 +1,46 @@
 ---
-title: "Going live"
-description: "What changes between test mode and production"
+title: "Go live"
+description: "This page shows what changes between test mode and production."
 ---
 
-The code does not change. The credential and the funding step do.
+Your code does not change. Only the credential and the way the user funds the Balance change.
 
 <Steps>
-  <Step title="Get verified">
-    Live mode needs Final to verify your integrator. Until then a live proposal answers `403 integrator_unverified`, and your origins do not back a live publishable key. Ask [support@final.com](mailto:support@final.com); the [setup page](/reference/setup-page) shows when it is done.
+  <Step title="Ask Final to verify you">
+    Final must verify your integrator before you can use live mode. Until then, a live proposal returns `403 integrator_unverified`. Your origins also do not authorize a live publishable key.
+
+    To ask for verification, contact [support@final.com](mailto:support@final.com). The [setup page](/reference/setup-page) shows when Final verified you.
   </Step>
   <Step title="Register the live redirect">
-    A live proposal must carry a `code_challenge` and a `redirect_uri` that exactly equals a registered one, or omit it and fall back to the primary. The terminal shortcut without a redirect is test mode only.
+    A live proposal must contain a `code_challenge`. It must also contain a `redirect_uri` that is equal to a registered one exactly. If you omit `redirect_uri`, Final uses the primary redirect URI.
+
+    You can activate from a terminal without a redirect only in test mode.
   </Step>
-  <Step title="Register origins, if a browser is involved">
-    A WebView or web layer that sends `Origin` needs that origin registered, `https://` on a public hostname. A native app sends none and needs nothing here.
+  <Step title="If you use a browser, register origins">
+    If a WebView or a web layer sends `Origin`, register that origin. The origin must use `https://` on a public hostname. A native app does not send `Origin`, so it does not need an origin.
   </Step>
-  <Step title="Mint the live pair">
-    On the setup page, mint a live key pair. Ship `final_publishable_live_…` in the app and keep `final_live_…` on the server.
+  <Step title="Create the live key pair">
+    On the setup page, create a live key pair with **Mint pair**. Ship `final_publishable_live_…` in the app. Keep `final_live_…` on the server.
   </Step>
   <Step title="Register a live webhook endpoint">
-    A server needs an endpoint in live mode: a test endpoint receives test events only.
+    Your server needs an endpoint in live mode. A test endpoint receives only test events.
   </Step>
-  <Step title="Swap the key and the funding step">
-    Replace the test key with the live one. The deposit screen now shows the user's real `onchain_address`; the user sends the asset to it, and `deposit.credited` arrives once the fee is taken. `test_deposits` and `test_authorizations` answer `400` and `404` on a live credential.
+  <Step title="Change the key and how the user funds the Balance">
+    Replace the test key with the live key. The deposit screen now shows the real `onchain_address` of the user. The user sends the asset to this address. After Final takes the fee, Final sends `deposit.credited`.
+
+    On a live credential, `test_deposits` returns `400` and `test_authorizations` returns `404`.
   </Step>
 </Steps>
 
 ## What a live first run looks like
 
-Connect, a real direct deposit, the card activating on the credit, a real purchase, and the events for each arriving on the stream or on a webhook. A first money call after consent can still answer `user_action_required`; [Gates](/money/gates) is the handling for that.
+1. You connect the user.
+2. The user makes a real direct deposit.
+3. The card activates when Final credits the deposit.
+4. The user makes a real purchase.
+5. Final sends the events for each step to the event stream or to a webhook.
+
+After the user approves, your first money call can still return `user_action_required`. To handle this error, see [Gates](/money/gates).
 
 ## Hosts
 

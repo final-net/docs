@@ -1,21 +1,23 @@
 ---
 title: "Webhooks"
-description: "The events Final emits, the envelope, and how to verify a delivery"
+description: "This page lists the events that Final sends, shows the envelope, and tells you how to verify a delivery."
 ---
 
-Final emits an event whenever something happens on a Balance your grant reaches, on a connection, or on an intent you proposed. The same event types are delivered on the [stream](/events/event-stream) and by webhook. A server registers an endpoint on the [setup page](/reference/setup-page); each endpoint has one mode and receives that mode's events alone.
+Final sends an event when something changes on a Balance that your grant reaches, on a connection, or on an intent that you proposed. Final sends the same event types on the [stream](/events/event-stream) and by webhook.
+
+Register an endpoint for your server on the [setup page](/reference/setup-page). Each endpoint has one mode and receives only the events of that mode.
 
 ## Events
 
 | Event | When | `object` |
 | --- | --- | --- |
-| `intent.pending_approval`, `intent.approved`, `intent.completed`, `intent.failed` | An intent you proposed moved. `intent.completed` carries the `connection` block. Webhooks only. | Intent |
-| `connection.created` | A user approved and minted a connection on your grant. | `{ "id", "reference", "grant": { "id", "assets" } }` |
-| `connection.active` | The first frame on every stream: the current state. Stream only. | Connection |
-| `deposit.detected` | A partner saw a swap deposit on its way in. `status` is `pending`, and `detected_amount` is the partner's provisional figure. | Deposit, below |
-| `deposit.confirmed`, `deposit.credited`, `deposit.failed`, `deposit.stranded` | The funds are real but not yet yours to spend; the ledger entry exists; failed; stuck and awaiting Final, with no further event coming. | Deposit, below |
-| `card.created`, `card.activated`, `card.frozen`, `card.unfrozen`, `card.closed` | Card lifecycle. | Card |
-| `card_auth.approved`, `card_auth.declined` | The card was just used at a merchant. | Authorization, below |
+| `intent.pending_approval`, `intent.approved`, `intent.completed`, `intent.failed` | An intent that you proposed changed status. The `intent.completed` event contains the `connection` block. Final sends these events only by webhook. | Intent |
+| `connection.created` | A user approved and created a connection on your grant. | `{ "id", "reference", "grant": { "id", "assets" } }` |
+| `connection.active` | This event is the first frame on every stream. It contains the current state. Final sends it only on the stream. | Connection |
+| `deposit.detected` | A partner detected a swap deposit before it arrived. The `status` is `pending`. The `detected_amount` is the provisional amount from the partner. | Deposit, below |
+| `deposit.confirmed`, `deposit.credited`, `deposit.failed`, `deposit.stranded` | `deposit.confirmed`: the funds are real, but you cannot spend them yet. `deposit.credited`: the ledger entry exists. `deposit.failed`: the deposit failed. `deposit.stranded`: the deposit stopped and waits for Final, and no further event will come. | Deposit, below |
+| `card.created`, `card.activated`, `card.frozen`, `card.unfrozen`, `card.closed` | The card moved to a new state in its lifecycle. | Card |
+| `card_auth.approved`, `card_auth.declined` | The user used the card at a merchant a moment ago. | Authorization, below |
 | `card_auth.settled` | The merchant's charge settled. | Settlement, below |
 
 The deposit object:
@@ -31,7 +33,12 @@ The deposit object:
 }
 ```
 
-`balance_id` is always the root's. `requested_balance_id` is the Balance you named when you asked for instructions, root included, so an integrator that funded a sub-balance can tell which. `detected_amount` is on `deposit.detected` only. A direct deposit emits only `deposit.credited` and `deposit.failed`, carries `batch_id`, and has no `requested_balance_id`. The event is not the deposit itself: read the Balance on `deposit.credited`, and expect `available` to lag it briefly.
+- `balance_id` is always the ID of the root Balance.
+- `requested_balance_id` is the Balance that you named when you asked for deposit instructions. It can be the root Balance. If you funded a sub-balance, this field tells you which sub-balance.
+- `detected_amount` is only on `deposit.detected`.
+- For a direct deposit, Final sends only `deposit.credited` and `deposit.failed`. A direct deposit contains `batch_id` and has no `requested_balance_id`.
+
+The event is not the deposit itself. When you receive `deposit.credited`, read the Balance. The `available` value can change a short time after the event.
 
 The authorization object, on `card_auth.approved` and `card_auth.declined`:
 
@@ -51,9 +58,14 @@ The authorization object, on `card_auth.approved` and `card_auth.declined`:
 }
 ```
 
-`amount` is in the held asset's smallest unit and `fiat_amount` in the merchant currency's. `reason` is on declines only, and `detail` only with `user_action_required`, where to send the user as on a `403`; see [Gates](/money/gates). The reasons: `insufficient_funds`, `limit_exceeded`, `card_frozen`, `card_closed`, `account_locked`, `balance_locked`, `policy_blocked`, `currency_unsupported`, `asset_mismatch`, `source_amount_required`, `amount_invalid`, `authorization_reversed`, `internal_error`, `user_action_required`.
+- `amount` is in the smallest unit of the asset in the Balance.
+- `fiat_amount` is in the smallest unit of the merchant currency.
+- `reason` is only on declines.
+- `detail` is only on `user_action_required`. It shows where to send the user, as on a `403`. See [Gates](/money/gates).
 
-The settlement object, on `card_auth.settled`, carries `card_id`, `balance_id`, `partner_auth_id`, `amount`, `merchant_name` and `merchant_category` only, and the merchant fields can be empty. `amount` is what was actually pulled.
+The reasons are `insufficient_funds`, `limit_exceeded`, `card_frozen`, `card_closed`, `account_locked`, `balance_locked`, `policy_blocked`, `currency_unsupported`, `asset_mismatch`, `source_amount_required`, `amount_invalid`, `authorization_reversed`, `internal_error`, `user_action_required`.
+
+The settlement object is on `card_auth.settled`. It contains only `card_id`, `balance_id`, `partner_auth_id`, `amount`, `merchant_name` and `merchant_category`. The merchant fields can be empty. The `amount` is the amount that Final actually took from the Balance.
 
 ## The envelope
 
@@ -71,33 +83,39 @@ The settlement object, on `card_auth.settled`, carries `card_id`, `balance_id`, 
 }
 ```
 
-`grant_id` and `reference` are present on an event for a Balance or connection your grant reaches; `reference` is what a secret-key proposal sent. `data.object` is a snapshot of the resource when the event fired. Treat it as the state to act on and re-fetch the resource if you need the latest.
+- `grant_id` and `reference` are on an event for a Balance or a connection that your grant reaches.
+- `reference` is the value that a secret-key proposal sent.
+- `data.object` is a snapshot of the resource at the time of the event. Use it as the state to act on. If you need the latest state, read the resource again.
 
-Deliveries are at least once and not ordered. Dedupe on `id`, and on the `Final-Event-Id` header, which retries reuse.
+Final delivers each event at least once, and not in order. Use `id` and the `Final-Event-Id` header to find duplicates. Retries use the same `Final-Event-Id`.
 
 ## Retries
 
-A delivery your endpoint does not answer with a 2xx is retried after 1 minute, then 5 minutes, 30 minutes, 2 hours, 6 hours and 12 hours, and abandoned after 24 hours. Retries reuse `Final-Event-Id` and carry a new `Final-Delivery-Id`. Repeated failures disable the endpoint; the setup page shows why, and re-enabling it resets the count.
+If your endpoint does not return a 2xx, Final sends the delivery again. Final retries after 1 minute, then after 5 minutes, 30 minutes, 2 hours, 6 hours and 12 hours. After 24 hours, Final stops the retries.
 
-## Verifying a delivery
+Retries use the same `Final-Event-Id` and contain a new `Final-Delivery-Id`. If deliveries fail repeatedly, Final disables the endpoint. The setup page shows the reason. When you enable the endpoint again, Final resets the failure count.
 
-Every delivery is signed. Verify the signature before trusting a payload, so you know it came from Final and was not altered in transit. The stream needs no equivalent step, since it is a direct response to your own authenticated request.
+## Verify a delivery
 
-Each delivery POST carries these headers:
+Final signs every delivery. Verify the signature before you trust a payload. The signature tells you that the payload came from Final and that nobody changed it in transit. The stream needs no equivalent step, because it is a direct response to your own authenticated request.
+
+Each delivery `POST` contains these headers:
 
 | Header | Description |
 | --- | --- |
-| `Final-Signature` | The signature, in the form `t=<unix>,v1=<hex>`. |
-| `Final-Event-Type` | The event type, for example `deposit.credited`. |
-| `Final-Event-Id` | Stable id for the event. Dedupe on this: retries reuse it. |
-| `Final-Delivery-Id` | Unique per delivery attempt. Useful for logging. |
+| `Final-Signature` | This header contains the signature, in the form `t=<unix>,v1=<hex>`. |
+| `Final-Event-Type` | This header contains the event type, for example `deposit.credited`. |
+| `Final-Event-Id` | This header contains a stable ID for the event. Retries use the same ID, so use it to find duplicates. |
+| `Final-Delivery-Id` | This header contains a unique ID for each delivery attempt. Use it in your logs. |
 
-The signature is an HMAC-SHA256 over the string `<t>.<raw_body>`, the `t` value from the header, a literal `.`, then the exact raw request body, keyed with the endpoint's signing secret: the `whsec_…` string, as shown on the setup page, used as the key bytes.
+The signature is an HMAC-SHA256 of the string `<t>.<raw_body>`. This string is the `t` value from the header, a literal `.`, and then the exact raw request body. The key is the signing secret of the endpoint. Use the `whsec_…` string from the setup page as the key bytes, exactly as the page shows it.
 
-1. Read the raw request body before parsing it as JSON. Re-serializing changes the bytes and breaks the signature.
+1. Read the raw request body before you parse it as JSON. If you serialize the body again, the bytes change and the signature does not match.
 2. Parse `t` and `v1` from `Final-Signature`.
-3. Compute `HMAC_SHA256(secret, "<t>.<raw_body>")` and compare it to `v1` with a constant-time comparison.
-4. Reject the request if the signature does not match, or if `t` is outside your window, say five minutes, to guard against replays.
+3. Compute `HMAC_SHA256(secret, "<t>.<raw_body>")`.
+4. Compare the result to `v1` with a constant-time comparison.
+5. If the signature does not match, reject the request.
+6. If `t` is outside your time window, reject the request. A window of five minutes, for example, protects you against replays.
 
 <CodeGroup>
 
@@ -151,5 +169,5 @@ function verifyWebhook(rawBody, signatureHeader, secret, toleranceSeconds = 300)
 </CodeGroup>
 
 <Note>
-  Final always signs deliveries but cannot enforce verification on your end. Treat it as required in your receiver and reject any request that fails the check.
+  Final always signs deliveries, but Final cannot make your receiver verify them. Make verification a requirement in your receiver. Reject any request that fails the check.
 </Note>

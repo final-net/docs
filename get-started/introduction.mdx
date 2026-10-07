@@ -11,16 +11,16 @@ the burden of building and maintaining a financial stack. You can focus on your 
 ```mermaid
 %%{init: {"sequence": {"mirrorActors": false, "actorMargin": 80}, "themeVariables": {"actorBkg": "#ff4e96", "actorBorder": "#ff4e96", "actorTextColor": "#ffffff", "actorLineColor": "#9ca3af2e", "signalColor": "#ff4e96", "lineColor": "#ff4e96"}}}%%
 sequenceDiagram
+  participant U as User
   participant P as Your product
   participant F as Final
-  participant U as User
   P->>F: Propose a connection
   P->>U: Send to the approval page
   U->>F: Approve with a passkey
   F-->>P: Approved
   P->>F: Issue a card
   P->>U: Show the deposit address
-  U->>F: Send funds
+  U->>U: Deposit to their Balance
   F-->>P: deposit.credited, card.activated
   U->>F: Pay with the card
   F-->>P: card_auth.approved
