@@ -3,9 +3,9 @@ title: "Webhooks"
 description: "This page lists the events that Final sends, shows the envelope, and tells you how to verify a delivery."
 ---
 
-Final sends an event when something changes on a Balance that your grant reaches, on a connection, or on an intent that you proposed. Final sends the same event types on the [stream](/events/event-stream) and by webhook.
+Final sends an event when something changes on a Balance that your grant reaches, on a connection, or on an intent that you proposed. The [stream](/events/event-stream) contains the same events, except the `intent.*` and `api_key.revoked` events. Final sends those only by webhook.
 
-To receive webhooks, register an endpoint for your server with Final. Each endpoint has one mode and receives only the events of that mode.
+To receive webhooks, register an endpoint for your server on the [setup page](/reference/setup-page#webhooks). Each endpoint has one mode and receives only the events of that mode.
 
 ## Events
 
@@ -19,6 +19,7 @@ To receive webhooks, register an endpoint for your server with Final. Each endpo
 | `card.created`, `card.activated`, `card.frozen`, `card.unfrozen`, `card.closed` | The card moved to a new state in its lifecycle. | Card |
 | `card_auth.approved`, `card_auth.declined` | The user used the card at a merchant a moment ago. | Authorization, below |
 | `card_auth.settled` | The merchant's charge settled. | Settlement, below |
+| `api_key.revoked` | Final revoked one of your keys. Final sends one event for each key that it revoked. Final sends these events only by webhook. | `{ "id", "revoked_reason" }` |
 
 The deposit object:
 
@@ -74,6 +75,7 @@ The settlement object is on `card_auth.settled`. It contains only `card_id`, `ba
   "id": "event_…",
   "type": "deposit.credited",
   "created_at": "2026-07-02T12:00:00Z",
+  "created_unix": 1782993600,
   "livemode": true,
   "grant_id": "grant_…",
   "reference": "user_8841",
@@ -83,6 +85,7 @@ The settlement object is on `card_auth.settled`. It contains only `card_id`, `ba
 }
 ```
 
+- `created_unix` is `created_at` in Unix seconds.
 - `grant_id` and `reference` are on an event for a Balance or a connection that your grant reaches.
 - `reference` is the value that a secret-key proposal sent.
 - `data.object` is a snapshot of the resource at the time of the event. Use it as the state to act on. If you need the latest state, read the resource again.
@@ -93,7 +96,7 @@ Final delivers each event at least once, and not in order. Use `id` and the `Fin
 
 If your endpoint does not return a 2xx, Final sends the delivery again. Final retries after 1 minute, then after 5 minutes, 30 minutes, 2 hours, 6 hours and 12 hours. After 24 hours, Final stops the retries.
 
-Retries use the same `Final-Event-Id` and contain a new `Final-Delivery-Id`. If deliveries fail repeatedly, Final disables the endpoint. When you enable the endpoint again, Final resets the failure count.
+Retries use the same `Final-Event-Id` and contain a new `Final-Delivery-Id`. If deliveries fail repeatedly, Final disables the endpoint. To enable it again, click **Enable** on the [setup page](/reference/setup-page#webhooks). Final then resets the failure count. Final also sends the events that occurred while the endpoint was disabled, up to 30 days back.
 
 ## Verify a delivery
 

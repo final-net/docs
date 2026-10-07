@@ -1,6 +1,6 @@
 ---
 title: "The setup page"
-description: "On the setup page, you set your profile, redirect URIs, origins and keys."
+description: "On the setup page, you set your profile, redirect URIs, origins, keys and webhook endpoints."
 ---
 
 The setup page is at [final.com/temporary/integrator-setup](https://final.com/temporary/integrator-setup). It has all the settings that an account needs to become an integrator.
@@ -44,6 +44,27 @@ When you click **Mint pair**, Final creates two keys. The page shows the plainte
 | Publishable key | `final_publishable_live_…` or `final_publishable_test_…` | Ship the key inside your app. |
 
 To build your integration, create a test key pair. When you are ready to [go live](/get-started/going-live), create a live key pair.
+
+## Webhooks
+
+A server receives [webhooks](/events/webhooks) at an endpoint that you register here.
+
+1. Enter the **URL**. It must use `https://`. A test-mode endpoint can also use `http://localhost`.
+2. Enter the **Events**, separated by commas. `*` subscribes the endpoint to every event.
+3. Select the **Mode**. The endpoint receives only the events of that mode.
+4. Click **Add endpoint**.
+
+The page shows the signing secret one time only. Copy it to your server before you click **Done**. You use the secret to [verify a delivery](/events/webhooks#verify-a-delivery).
+
+Each endpoint has these controls:
+
+| Control | Use |
+| --- | --- |
+| **Deliveries** | Show the recent deliveries, with the event, the outcome and the response status. |
+| **Edit** | Change the URL or the events. |
+| **Enable** | Enable an endpoint that Final disabled after repeated failures. |
+| **Rotate secret** | Create a new signing secret. The old secret stops at once. Put the new secret on your server immediately. |
+| **Delete** | Remove the endpoint. |
 
 ## Verification
 
