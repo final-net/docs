@@ -46,7 +46,8 @@ const exportName = (slug) =>
 function typeOf(prop) {
   if (prop.$ref) return schemas[refName(prop.$ref)].title ?? refName(prop.$ref);
   if (prop.items) return `${typeOf(prop.items)}[]`;
-  const types = Array.isArray(prop.type) ? prop.type : [prop.type];
+  // A Go `any` field has no `type` in the spec, which would otherwise render as type="".
+  const types = Array.isArray(prop.type) ? prop.type : prop.type ? [prop.type] : [];
   const named = types.filter((t) => t !== "null");
   const base = named.length ? named.join(" | ") : "object";
   return types.includes("null") ? `${base} | null` : base;
