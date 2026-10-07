@@ -9,29 +9,11 @@ description: "Create, freeze, close and show a card."
 
 ```json
 {
-  "balance_id": "balance_…",
-  "cardholder_info": {
-    "name": "A. Nakamoto",
-    "billing_address": {
-      "line1": "1 Main St",
-      "line2": null,
-      "city": "Austin",
-      "region": "TX",
-      "postal_code": "78701",
-      "country": "US"
-    }
-  }
+  "balance_id": "balance_…"
 }
 ```
 
-`cardholder_info` contains the name on the card and the billing address that a merchant checks. It applies only to this card.
-
-- `line1`, `city`, `postal_code` and `country` are required.
-- `region` is required for US and CA.
-- `country` is an ISO 3166-1 alpha-2 code.
-- If you send a partial object, Final returns `400 invalid_request`. A partial object is a name without an address, or an address without a name. The `param` field names the field that you did not send.
-
-If you omit `cardholder_info`, Final creates the card with the verified name and address of the user. If Final has no address on file for the user, the call returns `403 user_action_required` with a URL. See [Gates](/money/gates). If you send `cardholder_info`, the user does not need that step.
+Final creates the card in the verified name and address of the user. If the user has no full address on file, or has not accepted the card terms, the call returns `403 user_action_required` with a URL. See [Gates](/money/gates).
 
 The response is `{ "card": Card }` with `201`. Each Balance can have one card. If a card already exists, Final returns it with `200`.
 
@@ -48,40 +30,13 @@ import CardShape from '/snippets/objects/card-shape.mdx';
 
 <CardShape />
 
-<ResponseField name="cardholder_info" type="object | null">
-  This field contains the name on the card and its billing address, if you sent them when you created the card: `{ "name", "billing_address": { "line1", "line2", "city", "region", "postal_code", "country" } }`. It is null on a card that Final created with the verified name and address of the user.
-</ResponseField>
-
 The full reference is [Card](/reference/objects/card).
-
-## Reuse a previous cardholder
-
-`GET /cardholder_info` lists the distinct names and billing addresses that the user put on cards in your grant. The most recently used entry is first. Use the list to show a picker.
-
-```json
-{
-  "data": [
-    {
-      "name": "A. Nakamoto",
-      "billing_address": { "line1": "…", "line2": null, "city": "…", "region": "…", "postal_code": "…", "country": "…" },
-      "last_used_at": "…",
-      "card_ids": ["card_…"]
-    }
-  ],
-  "has_more": false,
-  "after_cursor": null
-}
-```
-
-- Final makes the list from cards that are not closed.
-- Use `?limit=` (default 20) and `?after_cursor=` to page through the list.
-- The list never contains the verified name and address of the user.
 
 ## List and read
 
-`GET /cards` lists the cards on Balances in your grant. By default, it lists only active cards.
+`GET /cards` lists the cards on Balances in your grant. By default, it lists every card that is not closed.
 
-- `?status=` accepts `active`, `provisioning`, `frozen`, `closed` or `all`. For any other value, Final returns `400 status_invalid`.
+- `?status=` accepts `provisioning`, `frozen`, `closed` or `all`. `active` gives the same list as the default. For any other value, Final returns `400 status_invalid`.
 - `?balance_id=` limits the list to one Balance.
 - `GET /cards/{id}` reads one card.
 

@@ -72,8 +72,7 @@ curl -s -X POST $FINAL_API/cards -H "Authorization: Bearer $KEY" -H "Final-Conne
 - `POST /balances/{id}/deposit_instructions` has the identity gate.
 - `GET /balances/{id}/deposit_instructions` also has the identity gate after your grant contains `direct_deposit`.
 - A read of the Balance itself never has a gate.
-- `POST /cards` has a gate for identity and a gate for the card terms.
-- If you send no `cardholder_info`, `POST /cards` also has a gate for an address on file.
+- `POST /cards` has a gate for identity, a gate for an address on file and a gate for the card terms.
 - A card swipe does not go through a call that you make. For a gate on a swipe, Final sends a `card_auth.declined` event. The event contains `reason: "user_action_required"` and the same `detail.url`.
 
 `verification_pending` can also block reads, but only during an account review hold. During that hold, every call on the connection returns `verification_pending` before the route runs. During an identity check, reads work. A card write then returns `user_action_required`.

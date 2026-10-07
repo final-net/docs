@@ -227,13 +227,6 @@ Your app sends requests directly to Final with a publishable key.
 
     val card = finalRequest("POST", "cards", connection = secret, body = buildJsonObject {
         put("balance_id", balanceId)
-        putJsonObject("cardholder_info") {
-            put("name", "A. Nakamoto")
-            putJsonObject("billing_address") {
-                put("line1", "1 Main St"); put("city", "Austin"); put("region", "TX")
-                put("postal_code", "78701"); put("country", "US")
-            }
-        }
     }, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString())).body!!["card"]!!.jsonObject
     ```
 
@@ -244,9 +237,6 @@ Your app sends requests directly to Final with a publishable key.
 
     let card = try await finalRequest("POST", "cards", body: [
         "balance_id": balanceId,
-        "cardholder_info": ["name": "A. Nakamoto",
-                            "billing_address": ["line1": "1 Main St", "city": "Austin", "region": "TX",
-                                                "postal_code": "78701", "country": "US"]],
     ], connection: secret, headers: ["Idempotency-Key": UUID().uuidString]).body!["card"] as! [String: Any]
     ```
 

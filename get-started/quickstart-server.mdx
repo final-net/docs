@@ -52,7 +52,7 @@ You need a Final account. You approve as your own test user.
     ```bash
     curl -s -X POST $FINAL/cards \
       -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION" -H "Content-Type: application/json" \
-      -d "{\"balance_id\":\"$BALANCE\",\"cardholder_info\":{\"name\":\"A. Nakamoto\",\"billing_address\":{\"line1\":\"1 Main St\",\"city\":\"Austin\",\"region\":\"TX\",\"postal_code\":\"78701\",\"country\":\"US\"}}}"
+      -d "{\"balance_id\":\"$BALANCE\"}"
     ```
 
     Save `card.id` as `CARD`.
