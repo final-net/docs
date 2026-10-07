@@ -71,7 +71,6 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | --- | --- | --- |
 | 400 | `invalid_amount` | Send exactly one amount, as a positive integer string. |
 | 400 | `no_inflow_route` | No swap into this asset is available in this mode. |
-| 400 | `test_behavior_not_allowed`, `test_behavior_invalid` | You sent `Final-Test-Behavior` with a live credential, or with an unknown value. |
 | 400 | `ends_at_out_of_range` | A routing window must end in the future and within 24 hours. |
 | 404 | `balance_not_found` | The Balance is not a root Balance in your grant, or the grant does not contain `direct_deposit`. |
 | 404 | `override_not_found` | You did not open this routing window, or the window is already closed. |
