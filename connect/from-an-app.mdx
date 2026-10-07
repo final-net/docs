@@ -77,7 +77,7 @@ CHALLENGE=$(printf '%s' "$VERIFIER" | openssl dgst -sha256 -binary | base64 | tr
 | --- | --- |
 | `assets` | The field contains 1 to 8 CAIP-19 ids. Final checks this limit before it removes duplicates. Each asset has one root Balance. |
 | `code_challenge` | You must send this field with a publishable key. |
-| `redirect_uri` | The value must exactly match a registered redirect. If you do not send it, Final uses the primary redirect. If your app uses a custom scheme, send it every time. You must send it in live mode. |
+| `redirect_uri` | The value must exactly match a registered redirect. If you do not send it, Final uses the primary redirect. If your app uses a custom scheme, send it every time. In live mode, if you send no `redirect_uri` and have no primary redirect, Final returns `400 redirect_uri_required`. |
 | `direct_deposit` | Use this field to ask for permission to route the user's own deposits to your Balances. The approval page shows the fee. If you do not send it, deposit instructions contain no address. |
 
 Final returns this response:

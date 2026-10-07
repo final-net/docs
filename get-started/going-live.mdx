@@ -12,7 +12,7 @@ Your code does not change. Only the credential and the way the user funds the Ba
     To ask for verification, contact [support@final.com](mailto:support@final.com).
   </Step>
   <Step title="Register the live redirect">
-    A live proposal must contain a `code_challenge`. It must also contain a `redirect_uri` that is equal to a registered one exactly. If you omit `redirect_uri`, Final uses the primary redirect URI.
+    In live mode, a proposal that contains a `code_challenge` needs a redirect, because Final sends the activation code only to the redirect. Send a `redirect_uri` that is equal to a registered one exactly. If you omit `redirect_uri`, Final uses the primary redirect URI. If you have neither, Final returns `400 redirect_uri_required`.
 
     You can activate from a terminal without a redirect only in test mode.
   </Step>

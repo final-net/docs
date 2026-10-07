@@ -47,6 +47,7 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | 400 | `code_challenge_required`, `code_challenge_invalid` | A request with a publishable key must contain an `S256` challenge. |
 | 400 | `intent_payload_invalid` | The request has no assets or more than 8 assets. Or a Balance cannot contain an asset, or the asset is not available in this mode. |
 | 400 | `redirect_uri_required` | A live proposal with a challenge must contain a redirect URI. |
+| 400 | `redirect_uri_invalid` | The redirect URI is not an absolute URL, contains a wildcard or userinfo, or uses `http://`. |
 | 400 | `redirect_uri_unregistered` | The redirect URI is not an exact match for one of your registered redirect URIs. |
 | 400 | `reference_not_allowed`, `reference_invalid` | Only a secret key can send `reference`. The value can have up to 256 printable characters. |
 | 400 | `intent_kind_unsupported` | The kind is not `account.connect`. |
