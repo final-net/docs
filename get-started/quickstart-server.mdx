@@ -78,7 +78,7 @@ You need a Final account. You approve as your own test user.
     ```bash
     curl -s -X POST $FINAL/cards/$CARD/test_authorizations \
       -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION" -H "Content-Type: application/json" \
-      -d '{"amount":"1899","asset_amount":"18990000000","merchant_name":"Blue Bottle","merchant_category":"5812"}'
+      -d '{"amount":"1899","asset_amount":"18990000000","merchant_name":"FinalTestCompany","merchant_category":"5812"}'
     ```
 
     <Check>`status` is `approved`. `GET /balances/$BALANCE/transactions` returns the deposit and the purchase.</Check>

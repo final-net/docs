@@ -286,14 +286,14 @@ Your app sends requests directly to Final with a publishable key.
     val cardId = card["id"]!!.jsonPrimitive.content
     finalRequest("POST", "cards/$cardId/test_authorizations", connection = secret, body = buildJsonObject {
         put("amount", "1899"); put("asset_amount", "18990000000")
-        put("merchant_name", "Blue Bottle"); put("merchant_category", "5812")
+        put("merchant_name", "FinalTestCompany"); put("merchant_category", "5812")
     }, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString()))
     ```
 
     ```swift Swift
     _ = try await finalRequest("POST", "cards/\(card["id"]!)/test_authorizations", body: [
         "amount": "1899", "asset_amount": "18990000000",
-        "merchant_name": "Blue Bottle", "merchant_category": "5812",
+        "merchant_name": "FinalTestCompany", "merchant_category": "5812",
     ], connection: secret, headers: ["Idempotency-Key": UUID().uuidString])
     ```
 
