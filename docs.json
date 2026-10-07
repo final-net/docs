@@ -60,28 +60,53 @@
       {
         "group": "Objects",
         "pages": [
-          "reference/objects/balance",
-          "reference/objects/limit-rule",
-          "reference/objects/transaction",
-          "reference/objects/deposit",
-          "reference/objects/deposit-instructions",
-          "reference/objects/deposit-instruction",
-          "reference/objects/onchain-address-instruction",
-          "reference/objects/swap-instruction",
-          "reference/objects/deposit-receipt",
-          "reference/objects/deposit-receipts",
-          "reference/objects/deposit-routing",
-          "reference/objects/routing-window",
-          "reference/objects/card",
-          "reference/objects/embed-url",
-          "reference/objects/test-authorization",
-          "reference/objects/connection",
-          "reference/objects/grant",
-          "reference/objects/intent",
-          "reference/objects/connection-link",
-          "reference/objects/exchange-rate",
-          "reference/objects/asset",
-          "reference/objects/error"
+          {
+            "group": "Balances",
+            "pages": [
+              "reference/objects/balance",
+              "reference/objects/limit-rule",
+              "reference/objects/transaction"
+            ]
+          },
+          {
+            "group": "Deposits",
+            "pages": [
+              "reference/objects/deposit",
+              "reference/objects/deposit-instructions",
+              "reference/objects/deposit-instruction",
+              "reference/objects/onchain-address-instruction",
+              "reference/objects/swap-instruction",
+              "reference/objects/deposit-receipts",
+              "reference/objects/deposit-receipt",
+              "reference/objects/deposit-routing",
+              "reference/objects/routing-window"
+            ]
+          },
+          {
+            "group": "Cards",
+            "pages": [
+              "reference/objects/card",
+              "reference/objects/embed-url",
+              "reference/objects/test-authorization"
+            ]
+          },
+          {
+            "group": "Connections",
+            "pages": [
+              "reference/objects/connection",
+              "reference/objects/grant",
+              "reference/objects/intent",
+              "reference/objects/connection-link"
+            ]
+          },
+          {
+            "group": "Shared",
+            "pages": [
+              "reference/objects/asset",
+              "reference/objects/exchange-rate",
+              "reference/objects/error"
+            ]
+          }
         ]
       },
       {
