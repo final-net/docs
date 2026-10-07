@@ -16,9 +16,9 @@
       {
         "group": "Get started",
         "pages": [
-          "get-started/overview",
-          "get-started/quickstart",
-          "get-started/setup"
+          "get-started/introduction",
+          "get-started/quickstart-app",
+          "get-started/quickstart-server"
         ]
       },
       {
@@ -48,6 +48,8 @@
       {
         "group": "Reference",
         "pages": [
+          "reference/conventions",
+          "reference/setup-page",
           "reference/errors",
           "reference/idempotency-and-rate-limits",
           "reference/test-mode",

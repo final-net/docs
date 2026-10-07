@@ -20,12 +20,14 @@
 
 ## Style preferences
 
-- Second person, present tense, short sentences
+- Least reading to get the job done. Cut any sentence the reader does not need to act. No lead-ins, no recaps, no "simply" or "just"
+- Short sentences in plain English, one fact each. Second person, present tense
+- Prefer a table, a list or a `<Steps>` block to a paragraph. A paragraph runs two or three sentences at most
+- Every quickstart step ends with a `<Check>` saying what the reader should see
 - Sentence case for headings
 - No em dashes. Use a comma, a colon, parentheses or a second sentence
-- A page says what to do and the one consequence that matters, and nothing about how Final works inside
-- Prefer Mintlify components (`<Steps>`, `<CodeGroup>`, `<Note>`, `<Warning>`) to prose
-- Every code sample is a `<CodeGroup>` of Kotlin, Swift and curl, in that order
+- Say what to do and the one consequence that matters, never how Final works inside
+- Code samples: the app quickstart and app-specific pages use a `<CodeGroup>` of Kotlin and Swift; the server quickstart uses curl; shared pages use Kotlin, Swift and curl, in that order
 - Amounts in samples are smallest-unit integer strings; USDe has 9 decimals, so `"1000000000"` is 1 USDe
 - Hosts: API `https://api.final.com/v1`, app `https://final.com`
 - Code formatting for routes, fields, error codes and headers

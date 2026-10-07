@@ -1,0 +1,89 @@
+---
+title: "Quickstart: server"
+description: "Connect a test user, fund a Balance, issue a card and make a purchase, with curl."
+---
+
+You need a Final account. You approve as your own test user.
+
+<Steps>
+  <Step title="Get a test key">
+    On the [setup page](https://final.com/temporary/integrator-setup), save a profile, then mint a pair in **test** mode. Keep the secret key.
+
+    ```bash
+    export FINAL=https://api.final.com/v1
+    export KEY=final_test_...
+    export USDE=solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT
+    ```
+  </Step>
+  <Step title="Propose a connection">
+    ```bash
+    curl -s -X POST $FINAL/intents \
+      -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+      -d "{\"kind\":\"account.connect\",\"payload\":{\"assets\":[\"$USDE\"],\"direct_deposit\":true}}"
+    ```
+
+    Save `intent.id` as `INTENT`, `connection.id` as `CONNECTION`, and open `intent.approval_url`.
+  </Step>
+  <Step title="Approve">
+    Sign in to Final on the approval page and approve with your passkey. The page says **Test mode**.
+
+    ```bash
+    curl -s $FINAL/intents/$INTENT -H "Authorization: Bearer $KEY"
+    ```
+
+    <Check>`intent.status` is `completed`.</Check>
+  </Step>
+  <Step title="Issue a card">
+    Every call for this user from now on sends the connection id in `Final-Connection`.
+
+    ```bash
+    curl -s "$FINAL/balances?parent_balance_id=null" -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION"
+    ```
+
+    Save the root's `id` as `BALANCE`.
+
+    ```bash
+    curl -s -X POST $FINAL/cards \
+      -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION" -H "Content-Type: application/json" \
+      -d "{\"balance_id\":\"$BALANCE\",\"cardholder_info\":{\"name\":\"A. Nakamoto\",\"billing_address\":{\"line1\":\"1 Main St\",\"city\":\"Austin\",\"region\":\"TX\",\"postal_code\":\"78701\",\"country\":\"US\"}}}"
+    ```
+
+    Save `card.id` as `CARD`.
+
+    <Check>`card.status` is `provisioning`. It activates when the Balance is funded.</Check>
+
+    A `403 user_action_required` means Final needs something from you. Open `error.detail.url`, finish there, and call again.
+  </Step>
+  <Step title="Fund the Balance">
+    Test mode has no real deposit. This stands in for one: 25 USDe.
+
+    ```bash
+    curl -s -X POST $FINAL/balances/$BALANCE/test_deposits \
+      -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION" -H "Content-Type: application/json" \
+      -d '{"amount":"25000000000"}'
+    ```
+
+    <Check>`GET /balances/$BALANCE` shows `available` `"25000000000"`, and `GET /cards/$CARD` shows `status` `active`.</Check>
+  </Step>
+  <Step title="Make a purchase">
+    `amount` is what the merchant charges, in cents. `asset_amount` is what leaves the Balance.
+
+    ```bash
+    curl -s -X POST $FINAL/cards/$CARD/test_authorizations \
+      -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION" -H "Content-Type: application/json" \
+      -d '{"amount":"1899","asset_amount":"18990000000","merchant_name":"Blue Bottle","merchant_category":"5812"}'
+    ```
+
+    <Check>`status` is `approved`, and `GET /balances/$BALANCE/transactions` lists the deposit and the purchase.</Check>
+  </Step>
+</Steps>
+
+## Next
+
+| To | Read |
+| --- | --- |
+| Get events instead of polling | [Webhooks](/events/webhooks) |
+| Show the user their card | [Cards](/money/cards) |
+| Take real deposits | [Deposits](/money/deposits), then [Going live](/reference/going-live) |
+| Handle `user_action_required` | [Gates](/money/gates) |
+| Know your user by your own id | [Connect from a server](/connect/from-a-server) |

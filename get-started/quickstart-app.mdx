@@ -1,0 +1,246 @@
+---
+title: "Quickstart: app"
+description: "Connect a test user from an iOS or Android app, fund a Balance, issue a card and make a purchase."
+---
+
+Your app calls Final directly with a publishable key. You need a Final account; you approve as your own test user.
+
+<Steps>
+  <Step title="Get a test key">
+    On the [setup page](https://final.com/temporary/integrator-setup):
+
+    1. Save a profile.
+    2. Add `yourapp://final/return` under **Redirect URIs**.
+    3. Mint a pair in **test** mode. Keep the publishable key, `final_publishable_test_…`.
+  </Step>
+  <Step title="Add the request helper">
+    Every later sample calls it.
+
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    // OkHttp + kotlinx.serialization.
+    const val FINAL_API = "https://api.final.com/v1"
+    const val USDE = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"
+    val http = OkHttpClient()
+    val json = Json { ignoreUnknownKeys = true }
+
+    class FinalResponse(val status: Int, val body: JsonObject?)
+
+    suspend fun finalRequest(
+        method: String, path: String, body: JsonObject? = null,
+        connection: String? = null, headers: Map<String, String> = emptyMap()
+    ): FinalResponse = withContext(Dispatchers.IO) {
+        val req = Request.Builder().url("$FINAL_API/$path")
+            .header("Authorization", "Bearer $PUBLISHABLE_KEY")
+            .apply {
+                connection?.let { header("Final-Connection", it) }
+                headers.forEach { (k, v) -> header(k, v) }
+            }
+            .method(method, body?.let { json.encodeToString(it).toRequestBody("application/json".toMediaType()) }
+                ?: if (method == "POST") ByteArray(0).toRequestBody() else null) // OkHttp refuses a bodiless POST
+            .build()
+        http.newCall(req).execute().use { resp ->
+            val text = resp.body?.string().orEmpty() // DELETE answers 204 with no body
+            FinalResponse(resp.code, if (text.isBlank()) null else json.parseToJsonElement(text).jsonObject)
+        }
+    }
+    ```
+
+    ```swift Swift
+    // URLSession.
+    let api = URL(string: "https://api.final.com/v1")!
+    let usde = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"
+
+    func finalRequest(_ method: String, _ path: String, body: [String: Any]? = nil, connection: String? = nil,
+                      headers: [String: String] = [:]) async throws -> (status: Int, body: [String: Any]?) {
+        var r = URLRequest(url: api.appending(path: path)); r.httpMethod = method
+        r.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
+        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let connection { r.setValue(connection, forHTTPHeaderField: "Final-Connection") }
+        headers.forEach { r.setValue($1, forHTTPHeaderField: $0) }
+        if let body { r.httpBody = try JSONSerialization.data(withJSONObject: body) }
+        let (data, resp) = try await URLSession.shared.data(for: r)
+        let status = (resp as! HTTPURLResponse).statusCode
+        let parsed = data.isEmpty ? nil : try JSONSerialization.jsonObject(with: data) as? [String: Any] // DELETE answers 204
+        return (status, parsed)
+    }
+    ```
+
+    </CodeGroup>
+  </Step>
+  <Step title="Connect">
+    Propose with a PKCE challenge, open the approval page, and exchange the returned code for the connection's secret.
+
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    val verifier = ByteArray(32).also { SecureRandom().nextBytes(it) }
+        .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
+    val challenge = Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(MessageDigest.getInstance("SHA-256").digest(verifier.toByteArray(Charsets.US_ASCII)))
+
+    val created = finalRequest("POST", "intents", body = buildJsonObject {
+        put("kind", "account.connect")
+        putJsonObject("payload") {
+            putJsonArray("assets") { add(USDE) }
+            put("code_challenge", challenge)
+            put("redirect_uri", "yourapp://final/return")
+            put("direct_deposit", true)
+        }
+    }).body!!
+    val connectionId = created["connection"]!!.jsonObject["id"]!!.jsonPrimitive.content
+    securePrefs.edit { putString("final_pending", "$connectionId|$verifier") }
+    CustomTabsIntent.Builder().build()
+        .launchUrl(this, Uri.parse(created["intent"]!!.jsonObject["approval_url"]!!.jsonPrimitive.content))
+
+    // In onNewIntent for yourapp://final/return?intent_id=…&code=…
+    val code = intent.data!!.getQueryParameter("code")!!
+    val (id, pending) = securePrefs.getString("final_pending", null)!!.split("|")
+    val activated = finalRequest("POST", "connections/$id/activate", body = buildJsonObject {
+        put("code", code); put("code_verifier", pending)
+    }, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString()))
+    keystore.put("final_connection", activated.body!!["client_secret"]!!.jsonPrimitive.content)
+    ```
+
+    ```swift Swift
+    import CryptoKit
+    let verifier = Data((0..<32).map { _ in UInt8.random(in: 0...255) }).base64URLEncoded()
+    let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncoded()
+
+    let created = try await finalRequest("POST", "intents", body: [
+        "kind": "account.connect",
+        "payload": ["assets": [usde], "code_challenge": challenge,
+                    "redirect_uri": "yourapp://final/return", "direct_deposit": true],
+    ]).body!
+    let connectionId = (created["connection"] as! [String: Any])["id"] as! String
+    let approvalURL = URL(string: (created["intent"] as! [String: Any])["approval_url"] as! String)!
+
+    let callback: URL = try await withCheckedThrowingContinuation { cont in
+        let session = ASWebAuthenticationSession(url: approvalURL, callbackURLScheme: "yourapp") { url, error in
+            if let url { cont.resume(returning: url) } else { cont.resume(throwing: error!) }
+        }
+        session.prefersEphemeralWebBrowserSession = false
+        session.presentationContextProvider = self
+        session.start()
+    }
+    let code = URLComponents(url: callback, resolvingAgainstBaseURL: false)!.queryItems!.first { $0.name == "code" }!.value!
+    let activated = try await finalRequest("POST", "connections/\(connectionId)/activate",
+                                           body: ["code": code, "code_verifier": verifier],
+                                           headers: ["Idempotency-Key": UUID().uuidString])
+    try keychain.set(activated.body!["client_secret"] as! String, for: "final_connection")
+
+    extension Data {
+        func base64URLEncoded() -> String {
+            base64EncodedString().replacingOccurrences(of: "+", with: "-")
+                .replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+    <Check>Activation answers `200` with a `client_secret`. The approval page said **Test mode**.</Check>
+
+    Every call for this user from now on sends the secret in `Final-Connection`.
+  </Step>
+  <Step title="Open the event stream">
+    Store the last `id:` you receive. Send it as `Last-Event-ID` when you reconnect, or the stream replays everything. The code is on [Event stream](/events/event-stream).
+
+    <Check>The first frame is `connection.active`.</Check>
+  </Step>
+  <Step title="Issue a card">
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    val secret = keystore.get("final_connection")
+    val balanceId = finalRequest("GET", "balances?parent_balance_id=null", connection = secret).body!!["data"]!!.jsonArray
+        .map { it.jsonObject }.first { it["asset"]!!.jsonPrimitive.content == USDE }["id"]!!.jsonPrimitive.content
+
+    val card = finalRequest("POST", "cards", connection = secret, body = buildJsonObject {
+        put("balance_id", balanceId)
+        putJsonObject("cardholder_info") {
+            put("name", "A. Nakamoto")
+            putJsonObject("billing_address") {
+                put("line1", "1 Main St"); put("city", "Austin"); put("region", "TX")
+                put("postal_code", "78701"); put("country", "US")
+            }
+        }
+    }, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString())).body!!["card"]!!.jsonObject
+    ```
+
+    ```swift Swift
+    let secret = try keychain.get("final_connection")
+    let roots = try await finalRequest("GET", "balances?parent_balance_id=null", connection: secret).body!["data"] as! [[String: Any]]
+    let balanceId = roots.first { $0["asset"] as? String == usde }!["id"] as! String
+
+    let card = try await finalRequest("POST", "cards", body: [
+        "balance_id": balanceId,
+        "cardholder_info": ["name": "A. Nakamoto",
+                            "billing_address": ["line1": "1 Main St", "city": "Austin", "region": "TX",
+                                                "postal_code": "78701", "country": "US"]],
+    ], connection: secret, headers: ["Idempotency-Key": UUID().uuidString]).body!["card"] as! [String: Any]
+    ```
+
+    </CodeGroup>
+
+    <Check>`card.status` is `provisioning`. It activates when the Balance is funded.</Check>
+
+    A `403 user_action_required` means Final needs something from the user. Open `error.detail.url` the way you opened the approval, then call again. See [Gates](/money/gates).
+  </Step>
+  <Step title="Fund the Balance">
+    Test mode has no real deposit. This stands in for one: 25 USDe.
+
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    finalRequest("POST", "balances/$balanceId/test_deposits", connection = secret,
+        body = buildJsonObject { put("amount", "25000000000") },
+        headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString()))
+    ```
+
+    ```swift Swift
+    _ = try await finalRequest("POST", "balances/\(balanceId)/test_deposits",
+                               body: ["amount": "25000000000"], connection: secret,
+                               headers: ["Idempotency-Key": UUID().uuidString])
+    ```
+
+    </CodeGroup>
+
+    <Check>The stream delivers `deposit.credited`, then `card.activated`.</Check>
+  </Step>
+  <Step title="Make a purchase">
+    `amount` is what the merchant charges, in cents. `asset_amount` is what leaves the Balance.
+
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    val cardId = card["id"]!!.jsonPrimitive.content
+    finalRequest("POST", "cards/$cardId/test_authorizations", connection = secret, body = buildJsonObject {
+        put("amount", "1899"); put("asset_amount", "18990000000")
+        put("merchant_name", "Blue Bottle"); put("merchant_category", "5812")
+    }, headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString()))
+    ```
+
+    ```swift Swift
+    _ = try await finalRequest("POST", "cards/\(card["id"]!)/test_authorizations", body: [
+        "amount": "1899", "asset_amount": "18990000000",
+        "merchant_name": "Blue Bottle", "merchant_category": "5812",
+    ], connection: secret, headers: ["Idempotency-Key": UUID().uuidString])
+    ```
+
+    </CodeGroup>
+
+    <Check>The stream delivers `card_auth.approved`, then `card_auth.settled`.</Check>
+  </Step>
+</Steps>
+
+## Next
+
+| To | Read |
+| --- | --- |
+| Show the user their card | [Cards](/money/cards) |
+| Show a real deposit address | [Deposits](/money/deposits), then [Going live](/reference/going-live) |
+| Handle `user_action_required` | [Gates](/money/gates) |
+| Use an App Link or universal link | [Connect from an app](/connect/from-an-app) |
+| Sign the user out, or reconnect | [Managing a connection](/connect/managing-a-connection) |
