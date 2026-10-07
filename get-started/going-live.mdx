@@ -22,8 +22,8 @@ Your code does not change. Only the credential and the way the user funds the Ba
   <Step title="Create the live key pair">
     On the setup page, create a live key pair with **Mint pair**. Ship `final_publishable_live_…` in the app. Keep `final_live_…` on the server.
   </Step>
-  <Step title="Register a live webhook endpoint">
-    Your server needs an endpoint in live mode. A test endpoint receives only test events.
+  <Step title="If you use webhooks, register a live endpoint">
+    Your server needs a webhook endpoint in live mode. A test endpoint receives only test events.
   </Step>
   <Step title="Change the key and how the user funds the Balance">
     Replace the test key with the live key. The deposit screen now shows the real `onchain_address` of the user. The user sends the asset to this address. After Final takes the fee, Final sends `deposit.credited`.

@@ -103,7 +103,7 @@ After Final takes the fee, Final sends `deposit.credited` on the stream or by we
 
 ## Swaps from other assets
 
-For some assets, the user can also fund the Balance with a different asset. A partner swaps it into the asset of the Balance. For these assets, `GET /assets` lists a `swap_via` shape.
+For some assets, the user can also fund the Balance with a different asset. Final swaps it into the asset of the Balance. For these assets, `GET /assets` lists a `swap_via` shape.
 
 To fix the exact amounts of a swap, send `POST /balances/{id}/deposit_instructions`:
 
@@ -115,9 +115,12 @@ To fix the exact amounts of a swap, send `POST /balances/{id}/deposit_instructio
 - `inbound_amount` is the amount that the user will send.
 - `outbound_amount` is the amount that the user wants Final to credit.
 - The response contains a [swap instruction](/reference/objects/swap-instruction) with the fixed amounts and `expires_at`.
-- The user must send exactly the fixed inbound amount before `expires_at`.
+- If the user sends exactly `inbound_amount` before `expires_at`, Final credits `outbound_amount` on this deposit.
+- If the user sends later, or sends a different amount, Final can still swap and credit the funds, but not at the fixed amounts. Final credits the funds as a new deposit, and this deposit fails.
+- The address is for this swap only. For each swap, send a new `POST` and show the new address.
+- A `GET` can return an instruction after its `expires_at`. Check `expires_at` before you show it.
 - Send an `Idempotency-Key`. A retry must not allocate a second swap.
-- In this response, the `display_*` values come from the partner. In the `GET` response, the `display_*` values contain all the decimals of the asset.
+- In this response, the number of decimals in the `display_*` values can vary. In the `GET` response, the `display_*` values contain all the decimals of the asset.
 
 You cannot fund a USDe Balance with a swap. A `POST` on a USDe Balance returns `400 no_inflow_route`.
 

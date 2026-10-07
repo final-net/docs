@@ -5,7 +5,7 @@ description: "This page lists the events that Final sends, shows the envelope, a
 
 Final sends an event when something changes on a Balance that your grant reaches, on a connection, or on an intent that you proposed. Final sends the same event types on the [stream](/events/event-stream) and by webhook.
 
-Register an endpoint for your server on the [setup page](/reference/setup-page). Each endpoint has one mode and receives only the events of that mode.
+To receive webhooks, register an endpoint for your server with Final. Each endpoint has one mode and receives only the events of that mode.
 
 ## Events
 
@@ -14,7 +14,7 @@ Register an endpoint for your server on the [setup page](/reference/setup-page).
 | `intent.pending_approval`, `intent.approved`, `intent.completed`, `intent.failed` | An intent that you proposed changed status. The `intent.completed` event contains the `connection` block. Final sends these events only by webhook. | Intent |
 | `connection.created` | A user approved and created a connection on your grant. | `{ "id", "reference", "grant": { "id", "assets" } }` |
 | `connection.active` | This event is the first frame on every stream. It contains the current state. Final sends it only on the stream. | Connection |
-| `deposit.detected` | A partner detected a swap deposit before it arrived. The `status` is `pending`. The `detected_amount` is the provisional amount from the partner. | Deposit, below |
+| `deposit.detected` | Final detected a swap deposit on the source chain. The `status` is `pending`. The `detected_amount` is a provisional amount. | Deposit, below |
 | `deposit.confirmed`, `deposit.credited`, `deposit.failed`, `deposit.stranded` | `deposit.confirmed`: the funds are real, but you cannot spend them yet. `deposit.credited`: the ledger entry exists. `deposit.failed`: the deposit failed. `deposit.stranded`: the deposit stopped and waits for Final, and no further event will come. | Deposit, below |
 | `card.created`, `card.activated`, `card.frozen`, `card.unfrozen`, `card.closed` | The card moved to a new state in its lifecycle. | Card |
 | `card_auth.approved`, `card_auth.declined` | The user used the card at a merchant a moment ago. | Authorization, below |
@@ -93,7 +93,7 @@ Final delivers each event at least once, and not in order. Use `id` and the `Fin
 
 If your endpoint does not return a 2xx, Final sends the delivery again. Final retries after 1 minute, then after 5 minutes, 30 minutes, 2 hours, 6 hours and 12 hours. After 24 hours, Final stops the retries.
 
-Retries use the same `Final-Event-Id` and contain a new `Final-Delivery-Id`. If deliveries fail repeatedly, Final disables the endpoint. The setup page shows the reason. When you enable the endpoint again, Final resets the failure count.
+Retries use the same `Final-Event-Id` and contain a new `Final-Delivery-Id`. If deliveries fail repeatedly, Final disables the endpoint. When you enable the endpoint again, Final resets the failure count.
 
 ## Verify a delivery
 
@@ -108,7 +108,9 @@ Each delivery `POST` contains these headers:
 | `Final-Event-Id` | This header contains a stable ID for the event. Retries use the same ID, so use it to find duplicates. |
 | `Final-Delivery-Id` | This header contains a unique ID for each delivery attempt. Use it in your logs. |
 
-The signature is an HMAC-SHA256 of the string `<t>.<raw_body>`. This string is the `t` value from the header, a literal `.`, and then the exact raw request body. The key is the signing secret of the endpoint. Use the `whsec_…` string from the setup page as the key bytes, exactly as the page shows it.
+The signature is an HMAC-SHA256 of the string `<t>.<raw_body>`. This string is the `t` value from the header, a literal `.`, and then the exact raw request body. The key is the signing secret of the endpoint, `whsec_…`. Use the whole string as the key bytes, exactly as Final gives it to you.
+
+Final gives you the secret when you register the endpoint. If you rotate the secret, Final signs new deliveries with the new secret only. Put the new secret on your server at the same time.
 
 1. Read the raw request body before you parse it as JSON. If you serialize the body again, the bytes change and the signature does not match.
 2. Parse `t` and `v1` from `Final-Signature`.

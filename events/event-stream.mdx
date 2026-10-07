@@ -14,7 +14,7 @@ Last-Event-ID: 8812
 ```
 
 - The first frame is `connection.active`. It contains the current state of the connection. Final creates this frame for each stream and does not store it. The frame has no `id:`.
-- If you open a stream without `Last-Event-ID`, the stream replays the full history of the connection, and `connection.created` is part of it. After the history, the stream sends new events as they occur.
+- If you open a stream without `Last-Event-ID`, the stream first sends past events of the connection. Then it sends new events as they occur. Do not use the stream as a full history.
 - Store the last `id:` that you receive, from the first connection on. Send it each time you connect again.
 - `Last-Event-ID` is the integer `id:` of a frame that this stream sent. If the value is not an integer or is negative, Final returns `400 last_event_id_invalid`. Final accepts any other number and replays the events after it.
 - Final sends a `: keep-alive` comment every 20 seconds.
@@ -37,13 +37,14 @@ data: {"object":{"id":"deposit_…","balance_id":"balance_…","status":"credite
 <CodeGroup>
 
 ```kotlin Kotlin
-// OkHttp's EventSource.
+// OkHttp's EventSource. The read timeout must be longer than the 20-second keep-alive.
+val streamHttp = http.newBuilder().readTimeout(60, TimeUnit.SECONDS).build()
 val req = Request.Builder().url("$FINAL_API/connections/$connectionId/events")
     .header("Authorization", "Bearer $PUBLISHABLE_KEY")
     .header("Final-Connection", secret)
     .apply { lastEventId?.let { header("Last-Event-ID", it) } }
     .build()
-EventSources.createFactory(http).newEventSource(req, object : EventSourceListener() {
+EventSources.createFactory(streamHttp).newEventSource(req, object : EventSourceListener() {
     override fun onEvent(es: EventSource, id: String?, type: String?, data: String) {
         id?.let { lastEventId = it }
         val obj = json.parseToJsonElement(data).jsonObject["object"]!!.jsonObject
@@ -61,7 +62,7 @@ EventSources.createFactory(http).newEventSource(req, object : EventSourceListene
 ```
 
 ```swift Swift
-// URLSession.bytes. SSE is three line prefixes and a blank line.
+// URLSession.bytes. Each frame ends with one data: line. bytes.lines skips blank lines.
 var stream = URLRequest(url: api.appending(path: "connections/\(connectionId)/events"))
 stream.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
 stream.setValue("text/event-stream", forHTTPHeaderField: "Accept")
@@ -70,14 +71,13 @@ if let last = lastEventId { stream.setValue(last, forHTTPHeaderField: "Last-Even
 
 do {
     let (bytes, _) = try await URLSession.shared.bytes(for: stream)
-    var event = "", data = ""
+    var event = ""
     for try await line in bytes.lines {
         if line.hasPrefix("id:")         { lastEventId = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces) }
         else if line.hasPrefix("event:") { event = String(line.dropFirst(6)).trimmingCharacters(in: .whitespaces) }
-        else if line.hasPrefix("data:")  { data += line.dropFirst(5) }
-        else if line.hasPrefix(":")      { continue } // keep-alive
-        else if line.isEmpty, !data.isEmpty {
-            let object = (try JSONSerialization.jsonObject(with: Data(data.utf8)) as! [String: Any])["object"] as! [String: Any]
+        else if line.hasPrefix("data:")  {
+            let data = Data(line.dropFirst(5).utf8)
+            let object = (try JSONSerialization.jsonObject(with: data) as! [String: Any])["object"] as! [String: Any]
             switch event {
             case "connection.active":  await refreshBalances()
             case "deposit.credited":   await refreshBalances() // re-read: available can lag the event briefly
@@ -85,7 +85,7 @@ do {
             case "card_auth.approved": toast("Card used at \(object["merchant_name"]!)")
             default: break
             }
-            (event, data) = ("", "")
+            event = ""
         }
     }
 } catch { /* 403 connection_revoked: connect again. Otherwise reopen with Last-Event-ID. */ }

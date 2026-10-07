@@ -54,34 +54,34 @@
           "reference/errors",
           "reference/idempotency",
           "reference/rate-limits",
-          "reference/test-mode",
-          {
-            "group": "Objects",
-            "pages": [
-              "reference/objects/balance",
-              "reference/objects/limit-rule",
-              "reference/objects/transaction",
-              "reference/objects/deposit",
-              "reference/objects/deposit-instructions",
-              "reference/objects/deposit-instruction",
-              "reference/objects/onchain-address-instruction",
-              "reference/objects/swap-instruction",
-              "reference/objects/deposit-receipt",
-              "reference/objects/deposit-receipts",
-              "reference/objects/deposit-routing",
-              "reference/objects/routing-window",
-              "reference/objects/card",
-              "reference/objects/embed-url",
-              "reference/objects/test-authorization",
-              "reference/objects/connection",
-              "reference/objects/grant",
-              "reference/objects/intent",
-              "reference/objects/connection-link",
-              "reference/objects/exchange-rate",
-              "reference/objects/asset",
-              "reference/objects/error"
-            ]
-          }
+          "reference/test-mode"
+        ]
+      },
+      {
+        "group": "Objects",
+        "pages": [
+          "reference/objects/balance",
+          "reference/objects/limit-rule",
+          "reference/objects/transaction",
+          "reference/objects/deposit",
+          "reference/objects/deposit-instructions",
+          "reference/objects/deposit-instruction",
+          "reference/objects/onchain-address-instruction",
+          "reference/objects/swap-instruction",
+          "reference/objects/deposit-receipt",
+          "reference/objects/deposit-receipts",
+          "reference/objects/deposit-routing",
+          "reference/objects/routing-window",
+          "reference/objects/card",
+          "reference/objects/embed-url",
+          "reference/objects/test-authorization",
+          "reference/objects/connection",
+          "reference/objects/grant",
+          "reference/objects/intent",
+          "reference/objects/connection-link",
+          "reference/objects/exchange-rate",
+          "reference/objects/asset",
+          "reference/objects/error"
         ]
       },
       {

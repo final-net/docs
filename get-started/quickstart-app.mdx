@@ -147,9 +147,73 @@ Your app sends requests directly to Final with a publishable key.
     From now on, send the secret in `Final-Connection` on every request for this user.
   </Step>
   <Step title="Connect to the event stream">
-    Store the last `id:` that you receive. When you reconnect, send it as `Last-Event-ID`. If you do not send it, the stream sends all events again.
+    Store the last `id:` that you receive. When you reconnect, send it as `Last-Event-ID`. If you do not send it, the stream first sends past events again.
 
-    See [Event stream](/events/event-stream) for the code.
+    <CodeGroup>
+
+    ```kotlin Kotlin
+    // Run this in its own coroutine. The read timeout is longer than the 20-second keep-alive.
+    val streamHttp = http.newBuilder().readTimeout(60, TimeUnit.SECONDS).build()
+    var lastEventId: String? = null
+
+    while (true) {
+        val req = Request.Builder().url("$FINAL_API/connections/$connectionId/events")
+            .header("Authorization", "Bearer $PUBLISHABLE_KEY")
+            .header("Final-Connection", keystore.get("final_connection"))
+            .header("Accept", "text/event-stream")
+            .apply { lastEventId?.let { header("Last-Event-ID", it) } }
+            .build()
+        val revoked = runCatching {
+            withContext(Dispatchers.IO) {
+                streamHttp.newCall(req).execute().use { resp ->
+                    if (resp.code == 403) return@use true // connection_revoked
+                    val source = resp.body!!.source()
+                    var event = ""
+                    while (true) {
+                        val line = source.readUtf8Line() ?: break
+                        when {
+                            line.startsWith("id:") -> lastEventId = line.drop(3).trim()
+                            line.startsWith("event:") -> event = line.drop(6).trim()
+                            line.startsWith("data:") -> println(event) // data is the last line of a frame
+                        }
+                    }
+                    false
+                }
+            }
+        }.getOrDefault(false)
+        if (revoked) break // Connect again.
+        delay(1_000) // Reconnect with Last-Event-ID.
+    }
+    ```
+
+    ```swift Swift
+    // Run this in its own Task.
+    var lastEventId: String?
+
+    while true {
+        var r = URLRequest(url: api.appending(path: "connections/\(connectionId)/events"))
+        r.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
+        r.setValue(try keychain.get("final_connection"), forHTTPHeaderField: "Final-Connection")
+        r.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+        if let lastEventId { r.setValue(lastEventId, forHTTPHeaderField: "Last-Event-ID") }
+        r.timeoutInterval = 60 // longer than the 20-second keep-alive
+        do {
+            let (bytes, resp) = try await URLSession.shared.bytes(for: r)
+            if (resp as! HTTPURLResponse).statusCode == 403 { break } // connection_revoked: connect again
+            var event = ""
+            for try await line in bytes.lines {
+                if line.hasPrefix("id:") { lastEventId = line.dropFirst(3).trimmingCharacters(in: .whitespaces) }
+                else if line.hasPrefix("event:") { event = line.dropFirst(6).trimmingCharacters(in: .whitespaces) }
+                else if line.hasPrefix("data:") { print(event) } // data is the last line of a frame
+            }
+        } catch {}
+        try await Task.sleep(for: .seconds(1)) // Reconnect with Last-Event-ID.
+    }
+    ```
+
+    </CodeGroup>
+
+    For more information, see [Event stream](/events/event-stream).
 
     <Check>The first frame is `connection.active`.</Check>
   </Step>

@@ -1,6 +1,6 @@
 ---
 title: "The setup page"
-description: "On the setup page, you set your profile, redirect URIs, origins, keys and webhook endpoints."
+description: "On the setup page, you set your profile, redirect URIs, origins and keys."
 ---
 
 The setup page is at [final.com/temporary/integrator-setup](https://final.com/temporary/integrator-setup). It has all the settings that an account needs to become an integrator.
@@ -44,17 +44,6 @@ When you click **Mint pair**, Final creates two keys. The page shows the plainte
 | Publishable key | `final_publishable_live_…` or `final_publishable_test_…` | Ship the key inside your app. |
 
 To build your integration, create a test key pair. When you are ready to [go live](/get-started/going-live), create a live key pair.
-
-## Webhooks
-
-To receive events on a server, register a webhook endpoint here. Each endpoint has one mode, live or test. An endpoint receives only the events of its mode.
-
-- The URL must use `https://` on a named host.
-- The default value of `subscribed_events` is `*`. This value also matches event types that Final adds later. To receive fewer events, set an exact type such as `deposit.credited` or a prefix such as `card_auth.*`.
-- The endpoint has a secret, `whsec_…`, that signs deliveries. The page shows the secret one time, when you create the endpoint. It shows the secret again only when you rotate it. After you rotate the secret, you cannot verify a delivery with the old secret.
-- For each endpoint, the page lists recent deliveries with the event type, the outcome, the response code and the time.
-
-To verify a delivery, see [Webhooks](/events/webhooks). If your app has no server, you do not need an endpoint. Read the [event stream](/events/event-stream) instead.
 
 ## Verification
 

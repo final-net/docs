@@ -11,4 +11,4 @@ Above a limit, Final returns `429 rate_limited`. Wait for the number of seconds 
 | Requests without a connection, such as proposals and activation | The key that sends them. All installs of your app share one publishable key. | 200 per second | 1 second |
 | `GET /assets/shortlist` | The IP address that sends the request. The route needs no credential. | 60 per minute and 600 per hour | 1 second or more |
 
-We do support bursts as long as they aren't sustained.
+Final accepts short bursts above the limit. Final refuses only a sustained rate above it.
