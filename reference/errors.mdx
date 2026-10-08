@@ -96,5 +96,6 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | --- | --- | --- |
 | 400 | `body_invalid` | Final cannot parse the JSON body. |
 | 400 | `id_invalid` | An id in the path is not in the correct format. |
+| 400 | `version_invalid` | `Final-Version` is not one date in `YYYY-MM-DD` form. See [Versioning](/reference/versioning). |
 | 403 | `terms_unaccepted` | The user must accept new Final terms. A connection gets this error as `user_action_required`. |
 | 409 | `idempotency_key_reused`, `idempotency_in_flight` | For more information, see [Idempotency](/reference/idempotency). |

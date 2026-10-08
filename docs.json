@@ -50,6 +50,7 @@
         "group": "Reference",
         "pages": [
           "reference/conventions",
+          "reference/versioning",
           "reference/setup-page",
           "reference/errors",
           "reference/idempotency",

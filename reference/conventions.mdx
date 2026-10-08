@@ -5,7 +5,8 @@ description: "What every request and response follows."
 
 | | |
 | --- | --- |
-| **Base URL** | `https://api.final.com/v1`. Requests and responses use JSON. |
+| **Base URL** | `https://api.final.com`. Requests and responses use JSON. |
+| **Version** | To name an API version, send `Final-Version: YYYY-MM-DD`. See [Versioning](/reference/versioning). |
 | **Auth** | `Authorization: Bearer <key>`. A secret key (`final_live_…`, `final_test_…`) stays on your server. A publishable key (`final_publishable_…`) goes in your app. |
 | **Connection** | For calls for a user, send `Final-Connection`. With a publishable key, send the `client_secret`. With a secret key, send only the connection ID. |
 | **Amounts** | Amounts are integer strings in the smallest unit. USDe has 9 decimals: `"1000000000"` is 1 USDe. Each amount has a `display_*` sibling for display. Use the integer for calculations. |
