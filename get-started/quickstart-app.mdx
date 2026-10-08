@@ -22,7 +22,7 @@ Your app sends requests directly to Final with a publishable key.
 
     ```kotlin Kotlin
     // OkHttp + kotlinx.serialization.
-    const val FINAL_API = "https://api.final.com/v1"
+    const val FINAL_API = "https://api.final.com"
     const val USDE = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"
     val http = OkHttpClient()
     val json = Json { ignoreUnknownKeys = true }
@@ -51,7 +51,7 @@ Your app sends requests directly to Final with a publishable key.
 
     ```swift Swift
     // URLSession.
-    let api = URL(string: "https://api.final.com/v1")!
+    let api = URL(string: "https://api.final.com")!
     let usde = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"
 
     func finalRequest(_ method: String, _ path: String, body: [String: Any]? = nil, connection: String? = nil,

@@ -20,7 +20,7 @@ A server uses a secret key (`final_live_…` or `final_test_…`). The key alrea
 ## The proposal
 
 ```bash
-curl -s -X POST https://api.final.com/v1/intents \
+curl -s -X POST https://api.final.com/intents \
   -H "Authorization: Bearer final_test_..." \
   -H "Content-Type: application/json" \
   -H "Idempotency-Key: $(uuidgen)" \
@@ -56,7 +56,7 @@ Each of these two methods gives you the connection id:
 ## Send requests for the user
 
 ```bash
-curl -s https://api.final.com/v1/balances \
+curl -s https://api.final.com/balances \
   -H "Authorization: Bearer final_test_..." \
   -H "Final-Connection: connection_01j6b3v8x2q7k9m4n5p6r7s8t9"
 ```

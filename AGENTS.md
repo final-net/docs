@@ -65,5 +65,5 @@ Technical verbs, with their one meaning:
 - Every quickstart step ends with a `<Check>` saying what the reader should see
 - Code samples: the app quickstart and app-specific pages use a `<CodeGroup>` of Kotlin and Swift; the server quickstart uses curl; shared pages use Kotlin, Swift and curl, in that order
 - Amounts in samples are smallest-unit integer strings; USDe has 9 decimals, so `"1000000000"` is 1 USDe
-- Hosts: API `https://api.final.com/v1`, app `https://final.com`
+- Hosts: API `https://api.final.com`, app `https://final.com`. Paths have no version prefix: the version goes in the `Final-Version` header
 - Code formatting for routes, fields, error codes and headers
