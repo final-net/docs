@@ -3,7 +3,7 @@ title: "Event stream"
 description: "Use Server-Sent Events to receive events in an app that has no server."
 ---
 
-`GET /connections/{id}/events` is a Server-Sent Events stream for one connection. It contains all events on the Balances that the grant reaches, and no other events.
+`GET /connections/{id}/events` is a Server-Sent Events stream for one connection. It contains the events on the connection and on the Balances that the grant reaches.
 
 ```
 GET /connections/{id}/events
@@ -19,7 +19,7 @@ Last-Event-ID: 8812
 - `Last-Event-ID` is the integer `id:` of a frame that this stream sent. If the value is not an integer or is negative, Final returns `400 last_event_id_invalid`. Final accepts any other number and replays the events after it.
 - Final sends a `: keep-alive` comment every 20 seconds.
 - When someone revokes the connection, Final closes the open stream within 20 seconds. If you open the stream again, Final returns `403 connection_revoked`.
-- A connection can have one stream at a time. If you open a second stream, Final closes the first one.
+- Open one stream for each connection.
 - If the stream itself refuses the request, Final returns `{ "error": { "code", "message" } }` and nothing else. An example is `400 last_event_id_invalid`.
 - If your key or `Final-Connection` fails, Final returns the full [error object](/reference/errors). An example is `403 connection_revoked`.
 
@@ -31,7 +31,7 @@ event: deposit.credited
 data: {"object":{"id":"deposit_…","balance_id":"balance_…","status":"credited","requested_balance_id":"balance_…"}}
 ```
 
-`object` is the bare resource. It has the same shape as the resource inside the response wrapper of its route. [Webhooks](/events/webhooks) lists the event types and their objects. The stream does not contain `intent.*` or `api_key.revoked` events. Final sends those events only by webhook.
+`object` is the same object that a webhook delivery contains. [Webhooks](/events/webhooks#events) lists the event types and their objects. The stream does not contain `intent.*` or `api_key.revoked` events. Final sends those events only by webhook.
 
 ## Code
 
@@ -71,7 +71,13 @@ stream.setValue(secret, forHTTPHeaderField: "Final-Connection")
 if let last = lastEventId { stream.setValue(last, forHTTPHeaderField: "Last-Event-ID") }
 
 do {
-    let (bytes, _) = try await URLSession.shared.bytes(for: stream)
+    let (bytes, resp) = try await URLSession.shared.bytes(for: stream)
+    // bytes(for:) does not throw on an error status, so read the status first.
+    switch (resp as! HTTPURLResponse).statusCode {
+    case 200: break
+    case 403: return // connection_revoked: connect again.
+    default: throw URLError(.badServerResponse)
+    }
     var event = ""
     for try await line in bytes.lines {
         if line.hasPrefix("id:")         { lastEventId = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces) }
@@ -89,7 +95,7 @@ do {
             event = ""
         }
     }
-} catch { /* 403 connection_revoked: connect again. Otherwise reopen with Last-Event-ID. */ }
+} catch { /* Reopen with Last-Event-ID. */ }
 ```
 
 ```bash curl

@@ -24,6 +24,17 @@ import ErrorObjectShape from '/snippets/objects/error-shape.mdx';
 
 For the full reference, see [Error](/reference/objects/error).
 
+## Authentication
+
+Every route can return these errors before the route runs.
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 401 | `unauthenticated` | The request does not contain a key. |
+| 401 | `authorization_malformed` | The `Authorization` header does not use the `Bearer` scheme, or the key is empty. |
+| 401 | `key_invalid` | Final does not know the key. |
+| 401 | `key_revoked`, `key_expired` | The key is revoked or expired. Create a new key pair on the [setup page](/reference/setup-page). |
+
 ## Every connection route
 
 Every route that accepts `Final-Connection` can return these errors before the route runs.
@@ -32,11 +43,13 @@ Every route that accepts `Final-Connection` can return these errors before the r
 | --- | --- | --- |
 | 404 | `connection_not_found` | The id is unknown, the key or the mode is wrong, the secret is wrong, or the connection is not active yet. Final uses one code for all of these on purpose. |
 | 403 | `connection_revoked` | The user revoked the connection, the connection became dormant, or your integrator account is closed, locked or in review. Connect again. |
+| 403 | `user_action_required` | Final needs the user to do a step on Final. Send the user to `error.detail.url`. See [Gates](/money/gates). |
 | 403 | `verification_pending` | The user's account is in review. Every call returns this error until the review ends. |
 | 403 | `region_not_supported`, `region_unverified` | The error type is `compliance`. The cause is the region of the request. |
 | 400 | `connection_header_unexpected` | You sent `Final-Connection` to a route that does not accept it, such as `POST /intents` or activation. |
 | 403 | `origin_not_allowed` | The browser sent an `Origin` that is not registered for this publishable key. |
 | 429 | `rate_limited` | Wait for the time in `Retry-After` before you send the next request. For more information, see [Rate limits](/reference/rate-limits). |
+| 503 | `connection_unavailable` | Final cannot check the connection now. Send the request again soon. |
 
 If a Balance or a card is not in your grant, Final returns `404 not_found`. Final returns the same error for a Balance or a card that does not exist.
 
@@ -46,7 +59,7 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | --- | --- | --- |
 | 400 | `code_challenge_required`, `code_challenge_invalid` | A request with a publishable key must contain an `S256` challenge. |
 | 400 | `intent_payload_invalid` | The request has no assets or more than 8 assets. Or a Balance cannot contain an asset, or the asset is not available in this mode. |
-| 400 | `redirect_uri_required` | A live proposal with a challenge must contain a redirect URI. |
+| 400 | `redirect_uri_required` | A live proposal with a challenge contains no redirect URI, and your profile has no primary redirect. |
 | 400 | `redirect_uri_invalid` | The redirect URI is not an absolute URL, contains a wildcard or userinfo, or uses `http://`. |
 | 400 | `redirect_uri_unregistered` | The redirect URI is not an exact match for one of your registered redirect URIs. |
 | 400 | `reference_not_allowed`, `reference_invalid` | Only a secret key can send `reference`. The value can have up to 256 printable characters. |
@@ -63,7 +76,6 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | --- | --- | --- |
 | 400 | `connection_root_not_allowed` | You sent `POST /balances` without `parent_balance_id`. Final creates a root Balance only when the user approves. |
 | 400 | `parent_invalid`, `depth_exceeded`, `limit_invalid` | The sub-balance request is not valid. |
-| 503 | `asset_chain_unavailable` | The chain of the asset is temporarily unavailable. |
 
 ## Deposits
 
@@ -97,5 +109,7 @@ If a Balance or a card is not in your grant, Final returns `404 not_found`. Fina
 | 400 | `body_invalid` | Final cannot parse the JSON body. |
 | 400 | `id_invalid` | An id in the path is not in the correct format. |
 | 400 | `version_invalid` | `Final-Version` is not one date in `YYYY-MM-DD` form. See [Versioning](/reference/versioning). |
-| 403 | `terms_unaccepted` | The user must accept new Final terms. A connection gets this error as `user_action_required`. |
+| 400 | `idempotency_key_too_long` | `Idempotency-Key` has more than 255 characters. |
+| 403 | `terms_unaccepted` | Your account has not accepted the new Final terms. Sign in to Final and accept them. If the user has not accepted them, a connection request returns `user_action_required`. |
 | 409 | `idempotency_key_reused`, `idempotency_in_flight` | For more information, see [Idempotency](/reference/idempotency). |
+| 500 | `internal_error` | Final could not complete the request. A retry with the same `Idempotency-Key` returns this error again. Read the resource to find out if the request had an effect. Then send it again with a new key. |

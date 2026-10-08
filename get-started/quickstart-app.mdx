@@ -56,7 +56,7 @@ Your app sends requests directly to Final with a publishable key.
 
     func finalRequest(_ method: String, _ path: String, body: [String: Any]? = nil, connection: String? = nil,
                       headers: [String: String] = [:]) async throws -> (status: Int, body: [String: Any]?) {
-        var r = URLRequest(url: api.appending(path: path)); r.httpMethod = method
+        var r = URLRequest(url: URL(string: path, relativeTo: api)!); r.httpMethod = method // keeps a ?query
         r.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
         r.setValue("application/json", forHTTPHeaderField: "Content-Type")
         if let connection { r.setValue(connection, forHTTPHeaderField: "Final-Connection") }
@@ -64,7 +64,7 @@ Your app sends requests directly to Final with a publishable key.
         if let body { r.httpBody = try JSONSerialization.data(withJSONObject: body) }
         let (data, resp) = try await URLSession.shared.data(for: r)
         let status = (resp as! HTTPURLResponse).statusCode
-        let parsed = data.isEmpty ? nil : try JSONSerialization.jsonObject(with: data) as? [String: Any] // DELETE answers 204
+        let parsed = try data.isEmpty ? nil : JSONSerialization.jsonObject(with: data) as? [String: Any] // DELETE answers 204
         return (status, parsed)
     }
     ```

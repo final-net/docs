@@ -6,7 +6,8 @@ description: "This page tells you how to retry a request safely."
 Send `Idempotency-Key: <uuid>` on each `POST` that you might retry. If you retry with the same key, Final returns the first response and does not run the request again.
 
 - Final binds a key to its request body for 24 hours. If you send the same key with a different body, Final returns `409 idempotency_key_reused`.
-- If you retry before the first request completes, Final returns `409 idempotency_in_flight`. Retry after Final returns a response to the first request.
+- If you retry before the first request completes, Final waits up to 30 seconds and then returns the response of the first request. If the first request is still not complete, Final returns `409 idempotency_in_flight`. Retry later with the same key.
+- `Idempotency-Key` can have up to 255 characters.
 - A replayed response contains `Idempotent-Replayed: true`.
 - Final records every response that it returns, and 4xx responses also. Final replays each response unchanged.
 - Retry with the same key only if you do not know whether the request completed. Examples are a timeout, a lost connection, or an app that the system suspended during the request.

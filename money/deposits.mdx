@@ -33,7 +33,7 @@ The full reference is [Onchain address instruction](/reference/objects/onchain-a
 - If a sender enters `token_account` in place of `address`, nobody can reach the funds.
 - `minimum_fiat` is the minimum value, in the smallest unit of `fiat_currency`. If a landing has a lower value, Final does not credit it yet. Final credits it later, together with other landings.
 - `fee_basis_points` is the Final fee. Final takes the fee from the amount that arrived.
-- If an optional field has no value, the response does not contain it. The value is never `null`.
+- `memo` is always in the response. If the deposit needs no memo, the value is `null`.
 - The response can contain two more fields next to the list of instructions.
   - `delegation_required: true` tells you that the user must finish a step on Final. Until the user finishes it, nobody can use the address.
   - `deposit_in_progress: { "ends_at", "balance_id"? }` tells you that a routing window for another Balance is open on the account. Final does not show the address until that window ends.

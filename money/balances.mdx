@@ -56,7 +56,6 @@ Only an approval creates a root Balance. `POST /balances` creates a sub-balance 
 | 400 | `depth_exceeded` | The tree would be more than 7 levels deep below the root Balance. |
 | 400 | `limit_invalid` | A rule has an incorrect format. |
 | 403 | `user_action_required`, `verification_pending` | See [Gates](/money/gates). |
-| 503 | `asset_chain_unavailable` | The chain of the asset is temporarily not available. Send the request again later. |
 
 ## Limits
 
