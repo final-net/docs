@@ -5,7 +5,7 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/v1/assets": {
+    "/assets": {
       "get": {
         "tags": [
           "Assets"
@@ -27,7 +27,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/assets/shortlist": {
+    "/assets/shortlist": {
       "get": {
         "tags": [
           "Assets"
@@ -59,7 +59,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/balances": {
+    "/balances": {
       "get": {
         "tags": [
           "Balances"
@@ -217,7 +217,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}": {
+    "/balances/{balance_id}": {
       "get": {
         "tags": [
           "Balances"
@@ -284,7 +284,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_instructions": {
+    "/balances/{balance_id}/deposit_instructions": {
       "get": {
         "tags": [
           "Balances"
@@ -465,7 +465,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_receipts": {
+    "/balances/{balance_id}/deposit_receipts": {
       "get": {
         "tags": [
           "Balances"
@@ -556,7 +556,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing": {
+    "/balances/{balance_id}/deposit_routing": {
       "get": {
         "tags": [
           "Balances"
@@ -633,7 +633,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing/default": {
+    "/balances/{balance_id}/deposit_routing/default": {
       "post": {
         "tags": [
           "Balances"
@@ -710,7 +710,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing/overrides": {
+    "/balances/{balance_id}/deposit_routing/overrides": {
       "post": {
         "tags": [
           "Balances"
@@ -806,7 +806,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing/overrides/{override_id}": {
+    "/balances/{balance_id}/deposit_routing/overrides/{override_id}": {
       "delete": {
         "tags": [
           "Balances"
@@ -884,7 +884,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/transactions": {
+    "/balances/{balance_id}/transactions": {
       "get": {
         "tags": [
           "Balances"
@@ -988,7 +988,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/card_art/{card_art_key}.webp": {
+    "/card_art/{card_art_key}.webp": {
       "get": {
         "tags": [
           "Accounts"
@@ -1030,7 +1030,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/cards": {
+    "/cards": {
       "get": {
         "tags": [
           "Cards"
@@ -1201,7 +1201,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}": {
+    "/cards/{card_id}": {
       "get": {
         "tags": [
           "Cards"
@@ -1326,7 +1326,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/embed_url": {
+    "/cards/{card_id}/embed_url": {
       "post": {
         "tags": [
           "Cards"
@@ -1413,7 +1413,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/freeze": {
+    "/cards/{card_id}/freeze": {
       "post": {
         "tags": [
           "Cards"
@@ -1490,7 +1490,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/test_authorizations": {
+    "/cards/{card_id}/test_authorizations": {
       "post": {
         "tags": [
           "Cards"
@@ -1576,7 +1576,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/unfreeze": {
+    "/cards/{card_id}/unfreeze": {
       "post": {
         "tags": [
           "Cards"
@@ -1653,7 +1653,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/connections/{connection_id}": {
+    "/connections/{connection_id}": {
       "get": {
         "tags": [
           "Connections"
@@ -1798,7 +1798,7 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/connections/{connection_id}/activate": {
+    "/connections/{connection_id}/activate": {
       "post": {
         "tags": [
           "Connections"
@@ -1884,7 +1884,7 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/connections/{connection_id}/events": {
+    "/connections/{connection_id}/events": {
       "get": {
         "tags": [
           "Connections"
@@ -1961,7 +1961,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/exchange_rate": {
+    "/exchange_rate": {
       "get": {
         "tags": [
           "Assets"
@@ -2034,7 +2034,7 @@
         "x-audience": "shared"
       }
     },
-    "/v1/inflow_assets": {
+    "/inflow_assets": {
       "get": {
         "tags": [
           "Assets"
@@ -2056,7 +2056,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/intents": {
+    "/intents": {
       "get": {
         "tags": [
           "Intents"
@@ -2197,7 +2197,7 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/intents/{intent_id}": {
+    "/intents/{intent_id}": {
       "get": {
         "tags": [
           "Intents"
@@ -2274,7 +2274,7 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/logos/{logo_key}.webp": {
+    "/logos/{logo_key}.webp": {
       "get": {
         "tags": [
           "Accounts"
@@ -2316,7 +2316,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/members/email_verifications": {
+    "/members/email_verifications": {
       "post": {
         "tags": [
           "Members"
@@ -2397,7 +2397,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/transactions/export": {
+    "/transactions/export": {
       "get": {
         "tags": [
           "Balances"
