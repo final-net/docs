@@ -15,7 +15,11 @@ The deposit instructions of a simulated Balance have the same fields as in live 
 
 `address` contains one fixed placeholder. The placeholder is not a valid address, so no wallet accepts it. Nobody can send funds to it. Use the test deposit below in place of a sender.
 
-`delegation_required` and `deposit_in_progress` never occur on a simulated Balance. Final does not simulate routing windows and receipts. Those routes return `404 balance_not_found`.
+`delegation_required` and `deposit_in_progress` never occur on a simulated Balance.
+
+- `GET /balances/{id}/deposit_routing` returns the placeholder address with `routed_by: "sole_balance"`.
+- `GET /balances/{id}/deposit_receipts` shows each test deposit as a credited receipt.
+- Final does not simulate routing windows or a routing default. The routes that change them return `404 balance_not_found`.
 
 A simulated Balance cannot receive swaps from other assets. `POST /balances/{id}/deposit_instructions` returns `400 no_inflow_route`.
 
@@ -27,7 +31,12 @@ To credit a simulated Balance as if the asset arrived, send `POST /balances/{id}
 { "amount": "1000000000" }
 ```
 
-The amount is in the smallest unit of the asset. Final returns `201` and a [deposit](/reference/objects/deposit) with `status: "credited"`.
+The amount is in the smallest unit of the asset. Final applies the live direct deposit terms of the asset to it:
+
+- Final finds the value of the amount at the current rate. The value must be at least `minimum_fiat`.
+- Final takes the `fee_basis_points` fee from the amount and credits the remainder.
+
+Final returns `201` and a [deposit](/reference/objects/deposit) with `status: "credited"`. Its `amount` is the credited amount, after the fee.
 
 - You can name any Balance in the tree. The funds go to the root Balance.
 - `deposit.credited` contains the Balance that you named, as `requested_balance_id`.
@@ -40,8 +49,12 @@ Send an `Idempotency-Key` with the request.
 | --- | --- | --- |
 | 400 | `test_behavior_not_allowed` | You used a live credential. |
 | 400 | `balance_not_simulated` | The Balance is a test-mode Balance on a test asset. A test asset has a real chain. |
-| 400 | `invalid_amount` | The amount is not a positive integer string. |
+| 400 | `invalid_amount` | The amount is not a positive integer string, or it has more than 38 digits. |
+| 400 | `acceptance_below_minimum` | The value of the amount is less than `minimum_fiat`. `detail` contains `valued_fiat` and `minimum_fiat`. |
+| 400 | `acceptance_fee_zero` | The amount is too small for a fee. Send a larger amount. |
+| 404 | `not_found` | The Balance does not exist or is not in your grant. |
 | 409 | `balance_closed` | The Balance is closed. |
+| 503 | `rate_unavailable` | Final cannot find the value of the amount now. Send the request again soon. |
 
 ## Simulate a card authorization
 

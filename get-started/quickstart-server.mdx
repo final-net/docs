@@ -70,7 +70,7 @@ You need a Final account. You approve as your own test user.
       -d '{"amount":"25000000000"}'
     ```
 
-    <Check>`GET /balances/$BALANCE` returns `available` `"25000000000"`. `GET /cards/$CARD` returns `status` `active`.</Check>
+    <Check>The response `amount` is 25 USDe minus the fee. `GET /balances/$BALANCE` returns that value as `available`. `GET /cards/$CARD` returns `status` `active`.</Check>
   </Step>
   <Step title="Make a purchase">
     `amount` is the amount that the merchant charges, in cents. `asset_amount` is the amount that goes out of the Balance.
