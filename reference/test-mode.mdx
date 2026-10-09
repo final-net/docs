@@ -1,0 +1,97 @@
+---
+title: "Test mode"
+description: "This page shows simulated Balances, test deposits and test authorizations."
+---
+
+Use your `final_publishable_test_…` or `final_test_…` key. Every route and event operates as in live mode, but on test-mode data. Test mode has no real funds and no card network.
+
+Two outside events do not occur on their own in test mode: a landing and a card purchase. You start them with the routes below.
+
+## Simulated Balances
+
+A test credential gets a Balance in the same asset ids as a live credential. This Balance is simulated. It has no address on any chain, and its funds are only ledger entries. With a test key, `GET /assets` returns the live assets and the test assets.
+
+The deposit instructions of a simulated Balance have the same fields as in live mode. They contain the real `mint`, `minimum_fiat`, `fiat_currency` and `fee_basis_points` of the asset. Thus your deposit screen shows them with no change.
+
+`address` contains one fixed placeholder. The placeholder is not a valid address, so no wallet accepts it. Nobody can send funds to it. Use the test deposit below in place of a sender.
+
+`delegation_required` and `deposit_in_progress` never occur on a simulated Balance.
+
+- `GET /balances/{id}/deposit_routing` returns the placeholder address with `routed_by: "sole_balance"`.
+- `GET /balances/{id}/deposit_receipts` shows each test deposit as a credited receipt.
+- Final does not simulate routing windows or a routing default. The routes that change them return `404 balance_not_found`.
+
+A simulated Balance cannot receive swaps from other assets. `POST /balances/{id}/deposit_instructions` returns `400 no_inflow_route`.
+
+## Simulate a landing
+
+To credit a simulated Balance as if the asset arrived, send `POST /balances/{id}/test_deposits`:
+
+```json
+{ "amount": "1000000000" }
+```
+
+The amount is in the smallest unit of the asset. Final applies the live direct deposit terms of the asset to it:
+
+- Final finds the value of the amount at the current rate. The value must be at least `minimum_fiat`.
+- Final takes the `fee_basis_points` fee from the amount and credits the remainder.
+
+Final returns `201` and a [deposit](/reference/objects/deposit) with `status: "credited"`. Its `amount` is the credited amount, after the fee.
+
+- You can name any Balance in the tree. The funds go to the root Balance.
+- `deposit.credited` contains the Balance that you named, as `requested_balance_id`.
+- If a card on the tree has the status `provisioning`, the card activates. Then Final sends `card.activated`.
+- `GET /balances/{id}` returns the new `available`.
+
+Send an `Idempotency-Key` with the request.
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 400 | `test_behavior_not_allowed` | You used a live credential. |
+| 400 | `balance_not_simulated` | The Balance is a test-mode Balance on a test asset. A test asset has a real chain. |
+| 400 | `invalid_amount` | The amount is not a positive integer string, or it has more than 38 digits. |
+| 400 | `acceptance_below_minimum` | The value of the amount is less than `minimum_fiat`. `detail` contains `valued_fiat` and `minimum_fiat`. |
+| 400 | `acceptance_fee_zero` | The amount is too small for a fee. Send a larger amount. |
+| 404 | `not_found` | The Balance does not exist or is not in your grant. |
+| 409 | `balance_closed` | The Balance is closed. |
+| 503 | `rate_unavailable` | Final cannot find the value of the amount now. Send the request again soon. |
+
+## Simulate a card authorization
+
+To simulate a purchase on a test-mode card, send `POST /cards/{id}/test_authorizations`. Final uses the real authorization decision and settlement:
+
+```json
+{
+  "amount": "1899",
+  "currency": "iso4217:USD",
+  "asset_amount": "18990000000",
+  "merchant_name": "FinalTestCompany",
+  "merchant_category": "5812",
+  "merchant_country": "US"
+}
+```
+
+- `amount` is the amount that the merchant charges, in the smallest unit of the currency.
+- If you do not send `currency`, Final uses `iso4217:USD`.
+- `asset_amount` is the amount that the purchase takes from the Balance, in the smallest unit of the asset.
+- Final does not record a rate, so you must send both amounts.
+- You must send `merchant_name`, because limit rules match on it.
+
+Final returns a [test authorization](/reference/objects/test-authorization). It contains `decline_reason` only on a decline. Then Final sends `card_auth.approved` and `card_auth.settled`. If Final declines the purchase, it sends only `card_auth.declined`, and there is no settlement.
+
+You cannot set the decision directly. A decline occurs only because of the state of the card or the Balance.
+
+- To get `card_frozen`, freeze the card.
+- To get `insufficient_funds`, send an `asset_amount` that is more than `available`.
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 400 | `invalid_amount`, `merchant_name_required` | The request body is not valid. |
+| 404 | `not_found` | The card is a live-mode card, or the card is closed. |
+| 409 | `card_provisioning` | The card is not active yet. Fund the Balance first. |
+
+## Everything else
+
+The passkey approval, the activation, the event stream, the gates and the errors use the real code path. A test-mode key cannot read live data. A live key cannot read test-mode data.
+
+In test mode, you can also activate from a terminal without a redirect. For more information, see [Try it from a terminal](/connect/from-an-app#try-it-from-a-terminal).

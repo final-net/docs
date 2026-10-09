@@ -1,0 +1,68 @@
+---
+title: "From a server"
+description: "Connect with a secret key. A server can send a reference, has no activation step and uses the bare connection id."
+---
+
+A server uses a secret key (`final_live_…` or `final_test_…`). The key already proves who you are, so you do not activate the connection or store a secret. The flow is the app flow without two of its steps.
+
+<Steps>
+  <Step title="Propose">
+    Send `POST /intents` with the secret key. `code_challenge` is optional. You can send `reference`.
+  </Step>
+  <Step title="Approve">
+    Send the user to `approval_url`. The user signs in to Final and approves with a passkey. Then Final sends the user to your `redirect_uri`, or to the primary redirect on your profile.
+  </Step>
+  <Step title="Send requests">
+    Send the bare connection id in `Final-Connection` on every request for that user.
+  </Step>
+</Steps>
+
+## The proposal
+
+```bash
+curl -s -X POST https://api.final.com/intents \
+  -H "Authorization: Bearer final_test_..." \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{
+    "kind": "account.connect",
+    "payload": {
+      "assets": ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT"],
+      "reference": "user_8841",
+      "redirect_uri": "https://app.example.com/final/return",
+      "direct_deposit": true
+    }
+  }'
+```
+
+`reference` is your own id for the user. It has up to 256 printable characters. Final never interprets it.
+
+Final returns `reference` on `GET /connections/{id}` and on `GET /intents/{id}`. Every webhook envelope for the Balances of that user also contains it. Use it to match a delivery to a row in your database.
+
+If you send `reference` with a publishable key, Final returns `400 reference_not_allowed`.
+
+The response contains an [intent](/reference/objects/intent) and a [connection link](/reference/objects/connection-link), the same as for an app:
+
+- Send the user to `intent.approval_url`.
+- From now on, send `connection.id` on requests for this user.
+
+## Find out when the user approves
+
+Each of these two methods gives you the connection id:
+
+- Webhooks: subscribe to `intent.*` and `connection.created`. `intent.completed` contains the intent with its `connection` block. `connection.created` contains `{ "id", "reference", "grant" }`. Register an endpoint on the setup page. [Webhooks](/events/webhooks) shows the envelope and the signature.
+- Repeated requests: after the user approves, `GET /intents/{intent_id}` returns `status: "completed"` with the same `connection` block. `GET /intents` returns the intents that you proposed, newest first. It accepts `?kind=`, `?status=` and the usual pagination parameters.
+
+## Send requests for the user
+
+```bash
+curl -s https://api.final.com/balances \
+  -H "Authorization: Bearer final_test_..." \
+  -H "Final-Connection: connection_01j6b3v8x2q7k9m4n5p6r7s8t9"
+```
+
+Every money route on the next pages accepts the same two headers. For a revoked connection, Final returns `403 connection_revoked`. Final returns `404 connection_not_found` if the connection does not exist, belongs to another integrator, or is in the other mode.
+
+## Events
+
+A server receives [webhooks](/events/webhooks). The event stream is for a client that has no server. A secret key can also connect to the stream, with the bare id in `Final-Connection`.

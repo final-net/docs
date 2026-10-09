@@ -1,0 +1,111 @@
+---
+title: "Event stream"
+description: "Use Server-Sent Events to receive events in an app that has no server."
+---
+
+`GET /connections/{id}/events` is a Server-Sent Events stream for one connection. It contains the events on the connection and on the Balances that the grant reaches.
+
+```
+GET /connections/{id}/events
+Authorization: Bearer final_publishable_…
+Final-Connection: connection_…_secret_…
+Accept: text/event-stream
+Last-Event-ID: 8812
+```
+
+- The first frame is `connection.active`. It contains the current state of the connection. Final creates this frame for each stream and does not store it. The frame has no `id:`.
+- If you open a stream without `Last-Event-ID`, the stream first sends past events of the connection. Then it sends new events as they occur. Do not use the stream as a full history.
+- Store the last `id:` that you receive, from the first connection on. Send it each time you connect again.
+- `Last-Event-ID` is the integer `id:` of a frame that this stream sent. If the value is not an integer or is negative, Final returns `400 last_event_id_invalid`. Final accepts any other number and replays the events after it.
+- Final sends a `: keep-alive` comment every 20 seconds.
+- When someone revokes the connection, Final closes the open stream within 20 seconds. If you open the stream again, Final returns `403 connection_revoked`.
+- Open one stream for each connection.
+- If the stream itself refuses the request, Final returns `{ "error": { "code", "message" } }` and nothing else. An example is `400 last_event_id_invalid`.
+- If your key or `Final-Connection` fails, Final returns the full [error object](/reference/errors). An example is `403 connection_revoked`.
+
+## Frames
+
+```
+id: 8812
+event: deposit.credited
+data: {"object":{"id":"deposit_…","balance_id":"balance_…","status":"credited","requested_balance_id":"balance_…"}}
+```
+
+`object` is the same object that a webhook delivery contains. [Webhooks](/events/webhooks#events) lists the event types and their objects. The stream does not contain `intent.*` or `api_key.revoked` events. Final sends those events only by webhook.
+
+## Code
+
+<CodeGroup>
+
+```kotlin Kotlin
+// OkHttp's EventSource. The read timeout must be longer than the 20-second keep-alive.
+val streamHttp = http.newBuilder().readTimeout(60, TimeUnit.SECONDS).build()
+val req = Request.Builder().url("$FINAL_API/connections/$connectionId/events")
+    .header("Authorization", "Bearer $PUBLISHABLE_KEY")
+    .header("Final-Connection", secret)
+    .apply { lastEventId?.let { header("Last-Event-ID", it) } }
+    .build()
+EventSources.createFactory(streamHttp).newEventSource(req, object : EventSourceListener() {
+    override fun onEvent(es: EventSource, id: String?, type: String?, data: String) {
+        id?.let { lastEventId = it }
+        val obj = json.parseToJsonElement(data).jsonObject["object"]!!.jsonObject
+        when (type) {
+            "connection.active"  -> refreshBalances()
+            "deposit.credited"   -> refreshBalances() // re-read: available can lag the event briefly
+            "card.activated"     -> showCard(obj)
+            "card_auth.approved" -> toast("Card used at ${obj["merchant_name"]}")
+        }
+    }
+    override fun onFailure(es: EventSource, t: Throwable?, r: Response?) {
+        // 403 connection_revoked: connect again. Otherwise reconnect with Last-Event-ID.
+    }
+})
+```
+
+```swift Swift
+// URLSession.bytes. Each frame ends with one data: line. bytes.lines skips blank lines.
+var stream = URLRequest(url: api.appending(path: "connections/\(connectionId)/events"))
+stream.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
+stream.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+stream.setValue(secret, forHTTPHeaderField: "Final-Connection")
+if let last = lastEventId { stream.setValue(last, forHTTPHeaderField: "Last-Event-ID") }
+
+do {
+    let (bytes, resp) = try await URLSession.shared.bytes(for: stream)
+    // bytes(for:) does not throw on an error status, so read the status first.
+    switch (resp as! HTTPURLResponse).statusCode {
+    case 200: break
+    case 403: return // connection_revoked: connect again.
+    default: throw URLError(.badServerResponse)
+    }
+    var event = ""
+    for try await line in bytes.lines {
+        if line.hasPrefix("id:")         { lastEventId = String(line.dropFirst(3)).trimmingCharacters(in: .whitespaces) }
+        else if line.hasPrefix("event:") { event = String(line.dropFirst(6)).trimmingCharacters(in: .whitespaces) }
+        else if line.hasPrefix("data:")  {
+            let data = Data(line.dropFirst(5).utf8)
+            let object = (try JSONSerialization.jsonObject(with: data) as! [String: Any])["object"] as! [String: Any]
+            switch event {
+            case "connection.active":  await refreshBalances()
+            case "deposit.credited":   await refreshBalances() // re-read: available can lag the event briefly
+            case "card.activated":     showCard(object)
+            case "card_auth.approved": toast("Card used at \(object["merchant_name"]!)")
+            default: break
+            }
+            event = ""
+        }
+    }
+} catch { /* Reopen with Last-Event-ID. */ }
+```
+
+```bash curl
+curl -N $FINAL_API/connections/$CONNECTION_ID/events \
+  -H "Authorization: Bearer $KEY" -H "Final-Connection: $SECRET" \
+  -H "Accept: text/event-stream" -H "Last-Event-ID: 8812"
+```
+
+</CodeGroup>
+
+<Note>
+  Every other request in these pages works over Tor. The stream is one long-lived HTTP response. A Tor client that uses only single requests and responses cannot receive it. If the user has Tor on, open the stream over clearnet, or poll `GET /connections/{id}`, `GET /balances` and `GET /cards` instead.
+</Note>

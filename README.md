@@ -1,55 +1,29 @@
-# Mintlify Starter Kit
+# docs.final.com
 
-Use the starter kit to get your docs deployed and ready to customize.
+The integrator documentation for Final, built on [Mintlify](https://mintlify.com). Pages are MDX files with YAML frontmatter; navigation and theme live in `docs.json`.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Run it locally
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+Install the Mintlify CLI once:
 
 ```
 npm i -g mint
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Then, from this directory:
 
 ```
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+The preview is at `http://localhost:3000`. If a page loads as a 404, check that you are running where `docs.json` is. If the CLI misbehaves, `mint update` brings it to the current release.
 
-## Publishing changes
+## Where the API reference comes from
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+`openapi.public.json` is generated, not written here. It is produced by `make genspec` in `apps/api` of `final-net/Final` and published to this repository by that repository's `docs-sync` workflow on every merge to `main`, as a pull request onto the `sync/openapi-spec` branch. Edit the Go operation table there; never edit the JSON here, since the next sync overwrites it.
 
-## Need help?
+The prose pages are written here, against the code on `main` of `final-net/Final`. A page claim that drifts from the code is a bug in this repository.
 
-### Troubleshooting
+## Publishing
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+The site deploys from the default branch on every push. Files under `drafts/` and any `*.draft.mdx` are kept out of the build by `.mintignore`.

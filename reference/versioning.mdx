@@ -1,0 +1,22 @@
+---
+title: "Versioning"
+description: "Name the API version that your code uses with the Final-Version header."
+---
+
+The API version is not in the URL. You name it in the `Final-Version` request header, as a date in `YYYY-MM-DD` form.
+
+```
+GET /balances
+Authorization: Bearer final_test_…
+Final-Version: 2026-10-08
+```
+
+## Rules
+
+- The header is optional. If you do not send it, Final uses the latest version.
+- If you send a valid date, Final returns the same value in the `Final-Version` response header. Use it to confirm that Final read your header.
+- If the value is not a date in `YYYY-MM-DD` form, Final returns `400 version_invalid`. Final also returns this error if you send the header two times.
+
+## From a browser
+
+Final accepts `Final-Version` on a cross-origin request and lets your code read it on the response. You do not need to change your setup.

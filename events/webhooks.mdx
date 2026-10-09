@@ -1,0 +1,179 @@
+---
+title: "Webhooks"
+description: "This page lists the events that Final sends, shows the envelope, and tells you how to verify a delivery."
+---
+
+Final sends an event when something changes on a Balance that your grant reaches, on a connection, or on an intent that you proposed. The [stream](/events/event-stream) contains the same events, except the `intent.*` and `api_key.revoked` events. Final sends those only by webhook.
+
+To receive webhooks, register an endpoint for your server on the [setup page](/reference/setup-page#webhooks). Each endpoint has one mode and receives only the events of that mode.
+
+## Events
+
+| Event | When | `object` |
+| --- | --- | --- |
+| `intent.pending_approval`, `intent.approved`, `intent.completed`, `intent.failed` | An intent that you proposed changed status. The `intent.completed` event contains the `connection` block. Final sends these events only by webhook. | Intent |
+| `connection.created` | A user approved and created a connection on your grant. | `{ "id", "reference", "grant": { "id", "assets" } }` |
+| `connection.active` | This event is the first frame on every stream. It contains the current state. Final sends it only on the stream. | Connection |
+| `deposit.detected` | Final detected a swap deposit on the source chain. The `status` is `pending`. The `detected_amount` is a provisional amount. | Deposit, below |
+| `deposit.confirmed`, `deposit.credited`, `deposit.failed`, `deposit.stranded` | `deposit.confirmed`: the funds are real, but you cannot spend them yet. `deposit.credited`: the ledger entry exists. `deposit.failed`: the deposit failed. `deposit.stranded`: the deposit stopped and waits for Final, and no further event will come. | Deposit, below |
+| `card.created`, `card.activated`, `card.frozen`, `card.unfrozen`, `card.closed` | The card moved to a new state in its lifecycle. | Card |
+| `card_auth.approved`, `card_auth.declined` | The user used the card at a merchant a moment ago. | Authorization, below |
+| `card_auth.settled` | The merchant's charge settled. | Settlement, below |
+| `api_key.revoked` | Final revoked one of your keys. Final sends one event for each key that it revoked. Final sends these events only by webhook. | `{ "id", "revoked_reason" }` |
+
+The deposit object:
+
+```json
+{
+  "id": "deposit_…",
+  "balance_id": "balance_…",
+  "status": "credited",
+  "requested_balance_id": "balance_…",
+  "detected_amount": "100000000",
+  "batch_id": "deposit_batch_…"
+}
+```
+
+- `balance_id` is always the ID of the root Balance.
+- `requested_balance_id` is the Balance that you named when you asked for deposit instructions. It can be the root Balance. If you funded a sub-balance, this field tells you which sub-balance.
+- `detected_amount` is only on `deposit.detected`.
+- For a direct deposit, Final sends only `deposit.credited` and `deposit.failed`. A direct deposit contains `batch_id` and has no `requested_balance_id`.
+
+The event is not the deposit itself. When you receive `deposit.credited`, read the Balance. The `available` value can change a short time after the event.
+
+The authorization object, on `card_auth.approved` and `card_auth.declined`:
+
+```json
+{
+  "card_id": "card_…",
+  "balance_id": "balance_…",
+  "partner_auth_id": "…",
+  "amount": "18990000000",
+  "currency": "iso4217:USD",
+  "fiat_amount": "1899",
+  "merchant_name": "FinalTestCompany",
+  "merchant_category": "5812",
+  "merchant_country": "US",
+  "reason": "insufficient_funds",
+  "detail": { "url": "https://final.com/balance/balance_…/activate" }
+}
+```
+
+- `amount` is in the smallest unit of the asset in the Balance.
+- `fiat_amount` is in the smallest unit of the merchant currency.
+- `reason` is only on declines.
+- `detail` is only on `user_action_required`. It shows where to send the user, as on a `403`. See [Gates](/money/gates).
+
+The reasons are `insufficient_funds`, `limit_exceeded`, `card_frozen`, `card_closed`, `account_locked`, `balance_locked`, `policy_blocked`, `currency_unsupported`, `asset_mismatch`, `source_amount_required`, `amount_invalid`, `authorization_reversed`, `internal_error`, `user_action_required`.
+
+The settlement object is on `card_auth.settled`. It contains only `card_id`, `balance_id`, `partner_auth_id`, `amount`, `merchant_name` and `merchant_category`. The merchant fields can be empty. The `amount` is the amount that Final actually took from the Balance.
+
+## The envelope
+
+```json
+{
+  "id": "event_…",
+  "type": "deposit.credited",
+  "created_at": "2026-07-02T12:00:00Z",
+  "created_unix": 1782993600,
+  "livemode": true,
+  "grant_id": "grant_…",
+  "reference": "user_8841",
+  "data": {
+    "object": { "id": "deposit_…", "balance_id": "balance_…", "status": "credited" }
+  }
+}
+```
+
+- `created_unix` is `created_at` in Unix seconds.
+- `grant_id` and `reference` are on an event for a Balance or a connection that your grant reaches.
+- `reference` is the value that a secret-key proposal sent.
+- `data.object` is a snapshot of the resource at the time of the event. Use it as the state to act on. If you need the latest state, read the resource again.
+
+Final delivers each event at least once, and not in order. Use `id` and the `Final-Event-Id` header to find duplicates. Retries use the same `Final-Event-Id`.
+
+## Retries
+
+If your endpoint does not return a 2xx, Final sends the delivery again. Final retries after 1 minute, then after 5 minutes, 30 minutes, 2 hours, 6 hours and 12 hours. After 24 hours, Final stops the retries.
+
+Retries use the same `Final-Event-Id` and contain a new `Final-Delivery-Id`. If deliveries fail repeatedly, Final disables the endpoint. To enable it again, click **Enable** on the [setup page](/reference/setup-page#webhooks). Final then resets the failure count. Final also sends the events that occurred while the endpoint was disabled, up to 30 days back.
+
+## Verify a delivery
+
+Final signs every delivery. Verify the signature before you trust a payload. The signature tells you that the payload came from Final and that nobody changed it in transit. The stream needs no equivalent step, because it is a direct response to your own authenticated request.
+
+Each delivery `POST` contains these headers:
+
+| Header | Description |
+| --- | --- |
+| `Final-Signature` | This header contains the signature, in the form `t=<unix>,v1=<hex>`. |
+| `Final-Event-Type` | This header contains the event type, for example `deposit.credited`. |
+| `Final-Event-Id` | This header contains a stable ID for the event. Retries use the same ID, so use it to find duplicates. |
+| `Final-Delivery-Id` | This header contains a unique ID for each delivery attempt. Use it in your logs. |
+
+The signature is an HMAC-SHA256 of the string `<t>.<raw_body>`. This string is the `t` value from the header, a literal `.`, and then the exact raw request body. The key is the signing secret of the endpoint, `whsec_…`. Use the whole string as the key bytes, exactly as Final gives it to you.
+
+Final gives you the secret when you register the endpoint. If you rotate the secret, Final signs new deliveries with the new secret only. Put the new secret on your server at the same time.
+
+1. Read the raw request body before you parse it as JSON. If you serialize the body again, the bytes change and the signature does not match.
+2. Parse `t` and `v1` from `Final-Signature`.
+3. Compute `HMAC_SHA256(secret, "<t>.<raw_body>")`.
+4. Compare the result to `v1` with a constant-time comparison.
+5. If the signature does not match, reject the request.
+6. If `t` is outside your time window, reject the request. A window of five minutes, for example, protects you against replays.
+
+<CodeGroup>
+
+```kotlin Kotlin
+import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+
+fun verifyWebhook(rawBody: ByteArray, signatureHeader: String, secret: String, toleranceSeconds: Long = 300): Boolean {
+    val parts = signatureHeader.split(",").associate { it.substringBefore("=") to it.substringAfter("=", "") }
+    val t = parts["t"]?.toLongOrNull() ?: return false
+    if (kotlin.math.abs(System.currentTimeMillis() / 1000 - t) > toleranceSeconds) return false
+    val mac = Mac.getInstance("HmacSHA256").apply { init(SecretKeySpec(secret.toByteArray(), "HmacSHA256")) }
+    mac.update("$t.".toByteArray())
+    val expected = mac.doFinal(rawBody).joinToString("") { "%02x".format(it) }
+    return MessageDigest.isEqual(expected.toByteArray(), (parts["v1"] ?: "").toByteArray())
+}
+```
+
+```swift Swift
+import CryptoKit
+
+func verifyWebhook(rawBody: Data, signatureHeader: String, secret: String, toleranceSeconds: Double = 300) -> Bool {
+    var t: Int64?, v1: String?
+    for part in signatureHeader.split(separator: ",") {
+        let kv = part.split(separator: "=", maxSplits: 1).map(String.init)
+        if kv.count == 2 && kv[0] == "t" { t = Int64(kv[1]) }
+        if kv.count == 2 && kv[0] == "v1" { v1 = kv[1] }
+    }
+    guard let t, let v1, abs(Date().timeIntervalSince1970 - Double(t)) <= toleranceSeconds else { return false }
+    var signed = Data("\(t).".utf8); signed.append(rawBody)
+    let mac = HMAC<SHA256>.authenticationCode(for: signed, using: SymmetricKey(data: Data(secret.utf8)))
+    let expected = mac.map { String(format: "%02x", $0) }.joined()
+    return expected.count == v1.count && zip(expected.utf8, v1.utf8).reduce(0) { $0 | Int($1.0 ^ $1.1) } == 0
+}
+```
+
+```javascript Node.js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function verifyWebhook(rawBody, signatureHeader, secret, toleranceSeconds = 300) {
+  const parts = Object.fromEntries(signatureHeader.split(",").map((kv) => kv.split("=")));
+  const t = Number(parts.t);
+  if (!t || Math.abs(Date.now() / 1000 - t) > toleranceSeconds) return false;
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  const a = Buffer.from(expected);
+  const b = Buffer.from(parts.v1 ?? "");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+```
+
+</CodeGroup>
+
+<Note>
+  Final always signs deliveries, but Final cannot make your receiver verify them. Make verification a requirement in your receiver. Reject any request that fails the check.
+</Note>

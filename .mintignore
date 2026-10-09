@@ -5,3 +5,7 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Contributor instructions
+AGENTS.md
+CLAUDE.md

@@ -1,0 +1,38 @@
+---
+title: "Manage a connection"
+description: "What to do in each situation, and what a second approval changes"
+---
+
+| Situation | What to do |
+| --- | --- |
+| Which Balances do I have? | Send `GET /balances`. Final limits the list to your grant. To list only the root Balances, add `?parent_balance_id=null`. `GET /connections/{id}` returns `status` and `grant.assets`. These fields tell you if you are still connected, and for which assets. |
+| Need another asset | Propose the connection again with the full set of assets that you want. The user and the grant stay the same. Final creates a new root Balance for the new asset. |
+| Second device or reinstall | Propose the connection again with the full current set of assets. Each approval creates a new connection on the same grant. Old connections work until someone revokes them, or until nobody uses them for 30 days. |
+| Sign this install out | Send `DELETE /connections/{id}`. The user keeps their Balances. Final closes the routing windows that this connection opened. |
+| Suspect the secret leaked | Send `DELETE /connections/{id}`. Then connect again. The `DELETE` ends the connection for you and for anyone who has a copy of the secret. |
+| Lost the activate response | If you sent an `Idempotency-Key`, send the request again with the same key. Final then returns the secret again. If you did not send an `Idempotency-Key`, connect again. |
+| `403 connection_revoked` on any call | The user disconnected you, or the connection became dormant, or your integrator account is closed, locked or in review. Connect again. The new connection has the same Balances. |
+| The user closed the browser and did not approve | Nothing expires. Connect again at any time. |
+
+## The Connection object
+
+import ConnectionShape from '/snippets/objects/connection-shape.mdx';
+
+<ConnectionShape />
+
+The full reference is [Connection](/reference/objects/connection).
+
+## A second approval replaces the grant
+
+There is one grant for each integrator, user and mode. Each approval writes the set of assets and the `direct_deposit` permission from the proposal onto that grant. The change applies to every install on the grant. Always send the full current set of assets:
+
+- If you leave out an asset, Final removes it from the grant. You lose access to its Balance. Final closes the routing windows that you opened in that asset. Final also clears a routing default that names your Balance.
+- If you leave out `direct_deposit`, Final closes every routing window that the grant has open. Final also clears your routing defaults.
+
+Each new approval asks the user for their passkey. This is intentional.
+
+## Revoke a connection
+
+`DELETE /connections/{id}` returns `204`. If you send it again with the same secret, Final returns `403 connection_revoked`. Other installs on the grant continue to work. Final does not change the Balances, cards and funds of the user.
+
+The user can revoke the whole grant from Final. Then every connection on the grant returns `403 connection_revoked`. Final closes every routing window and clears a routing default that names your Balance. Final still credits your Balance with landings that arrived in a routing window before the revoke.

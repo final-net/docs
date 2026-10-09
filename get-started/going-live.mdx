@@ -1,0 +1,51 @@
+---
+title: "Go live"
+description: "This page shows what changes between test mode and production."
+---
+
+Your code does not change. Only the credential and the way the user funds the Balance change.
+
+<Steps>
+  <Step title="Ask Final to verify you">
+    Final must verify your integrator before you can use live mode. Until then, a live proposal returns `403 integrator_unverified`. Your origins also do not authorize a live publishable key.
+
+    To ask for verification, contact [support@final.com](mailto:support@final.com).
+  </Step>
+  <Step title="Register the live redirect">
+    In live mode, a proposal that contains a `code_challenge` needs a redirect, because Final sends the activation code only to the redirect. Send a `redirect_uri` that is equal to a registered one exactly. If you omit `redirect_uri`, Final uses the primary redirect URI. If you have neither, Final returns `400 redirect_uri_required`.
+
+    You can activate from a terminal without a redirect only in test mode.
+  </Step>
+  <Step title="If you use a browser, register origins">
+    If a WebView or a web layer sends `Origin`, register that origin. The origin must use `https://` on a public hostname. A native app does not send `Origin`, so it does not need an origin.
+  </Step>
+  <Step title="Create the live key pair">
+    On the setup page, create a live key pair with **Mint pair**. Ship `final_publishable_live_…` in the app. Keep `final_live_…` on the server.
+  </Step>
+  <Step title="If you use webhooks, register a live endpoint">
+    Your server needs a webhook endpoint in live mode. A test endpoint receives only test events.
+  </Step>
+  <Step title="Change the key and how the user funds the Balance">
+    Replace the test key with the live key. The deposit screen now shows the real `onchain_address` of the user. The user sends the asset to this address. After Final takes the fee, Final sends `deposit.credited`.
+
+    On a live credential, `test_deposits` returns `400` and `test_authorizations` returns `404`.
+  </Step>
+</Steps>
+
+## What a live first run looks like
+
+1. You connect the user.
+2. The user makes a real direct deposit.
+3. The card activates when Final credits the deposit.
+4. The user makes a real purchase.
+5. Final sends the events for each step to the event stream or to a webhook.
+
+After the user approves, your first money call can still return `user_action_required`. To handle this error, see [Gates](/money/gates).
+
+## Hosts
+
+| | |
+| --- | --- |
+| API | `https://api.final.com` |
+| App | `https://final.com` |
+| Docs | `https://docs.final.com` |

@@ -14,14 +14,104 @@
   "navigation": {
     "pages": [
       {
-        "group": "Getting Started",
+        "group": "Get started",
         "pages": [
-          "quickstart",
-          "events"
+          "get-started/introduction",
+          "get-started/quickstart-app",
+          "get-started/quickstart-server",
+          "get-started/going-live"
         ]
       },
       {
-        "group": "API Reference",
+        "group": "Connect a user",
+        "pages": [
+          "connect/from-an-app",
+          "connect/from-a-server",
+          "connect/managing-a-connection"
+        ]
+      },
+      {
+        "group": "Move money",
+        "pages": [
+          "money/balances",
+          "money/deposits",
+          "money/cards",
+          "money/gates"
+        ]
+      },
+      {
+        "group": "Events",
+        "pages": [
+          "events/event-stream",
+          "events/webhooks"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/conventions",
+          "reference/versioning",
+          "reference/setup-page",
+          "reference/errors",
+          "reference/idempotency",
+          "reference/rate-limits",
+          "reference/test-mode"
+        ]
+      },
+      {
+        "group": "Objects",
+        "pages": [
+          {
+            "group": "Balances",
+            "pages": [
+              "reference/objects/balance",
+              "reference/objects/limit-rule",
+              "reference/objects/transaction"
+            ]
+          },
+          {
+            "group": "Deposits",
+            "pages": [
+              "reference/objects/deposit",
+              "reference/objects/deposit-instructions",
+              "reference/objects/deposit-instruction",
+              "reference/objects/onchain-address-instruction",
+              "reference/objects/swap-instruction",
+              "reference/objects/deposit-receipts",
+              "reference/objects/deposit-receipt",
+              "reference/objects/deposit-routing",
+              "reference/objects/routing-window"
+            ]
+          },
+          {
+            "group": "Cards",
+            "pages": [
+              "reference/objects/card",
+              "reference/objects/embed-url",
+              "reference/objects/test-authorization"
+            ]
+          },
+          {
+            "group": "Connections",
+            "pages": [
+              "reference/objects/connection",
+              "reference/objects/grant",
+              "reference/objects/intent",
+              "reference/objects/connection-link"
+            ]
+          },
+          {
+            "group": "Shared",
+            "pages": [
+              "reference/objects/asset",
+              "reference/objects/exchange-rate",
+              "reference/objects/error"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "API reference",
         "openapi": "/openapi.public.json"
       }
     ]
@@ -29,19 +119,19 @@
   "logo": {
     "light": "/images/final-light.svg",
     "dark": "/images/final-dark.svg",
-    "href": "https://final.net"
+    "href": "https://final.com"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:support@final.net"
+        "href": "mailto:support@final.com"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "href": "https://final.com/temporary/integrator-setup"
     }
   },
   "contextual": {
@@ -70,7 +160,17 @@
   "fonts": {
     "family": "GT Mechanik Semi",
     "weight": 500,
-    "source": "https://final.net/assets/fonts/GT-Mechanik-Semi-Medium.woff2",
+    "source": "https://final.com/assets/fonts/GT-Mechanik-Semi-Medium.woff2",
     "format": "woff2"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/reference/going-live",
+      "destination": "/get-started/going-live"
+    },
+    {
+      "source": "/reference/idempotency-and-rate-limits",
+      "destination": "/reference/idempotency"
+    }
+  ]
 }

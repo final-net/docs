@@ -1,0 +1,88 @@
+---
+title: "Gates"
+description: "When the user must do something, and what Final returns to the connection"
+---
+
+Usually, the user leaves your app only for the approval. To consent, the user signs in and uses a passkey. When possible, the same passkey prepares the user's wallet for each asset that you asked for. Then funds can move without a second visit to Final.
+
+Final collects identity and card terms when the user signs up for Final. Final verifies them asynchronously. You never collect identity or card terms.
+
+If Final needs something more from the user, a money route returns `403` with one of two codes. Both codes contain `"type": "permission"`.
+
+| Code | Description | What to do |
+| --- | --- | --- |
+| `user_action_required` | The user must finish a step on Final before the request can continue. | Open `detail.url`. When the user returns, send the request again. |
+| `verification_pending` | The verification of this account is not complete. Only Final can complete it. | Show "verification in progress". Send the request again later. This error does not contain a URL. |
+
+```json
+{
+  "error": {
+    "type": "permission",
+    "code": "user_action_required",
+    "message": "…",
+    "detail": { "url": "https://final.com/balance/balance_…/activate?connection_id=…" },
+    "request_id": "req_…"
+  }
+}
+```
+
+No route tells you in advance that the user is ready. Use the error as the signal. The first money call after consent can still return `user_action_required`.
+
+## The return trip
+
+Open `detail.url` in the same way as the approval: in a Custom Tab or an `ASWebAuthenticationSession`. The user finishes the step on Final. Final then sends the user to the redirect that you proposed the connection with. The redirect contains `?balance_id=…`. Then send the request again.
+
+<CodeGroup>
+
+```kotlin Kotlin
+val res = finalRequest("POST", "cards", connection = secret, body = body,
+    headers = mapOf("Idempotency-Key" to UUID.randomUUID().toString()))
+val err = res.body?.get("error")?.jsonObject
+when {
+    res.status == 201 || res.status == 200 -> showCard(res.body!!["card"]!!.jsonObject)
+    err?.get("code")?.jsonPrimitive?.content == "user_action_required" ->
+        openOnFinal(err["detail"]!!.jsonObject["url"]!!.jsonPrimitive.content) // returns on yourapp://final/return?balance_id=…; call again
+    err?.get("code")?.jsonPrimitive?.content == "verification_pending" -> banner("Verification in progress")
+}
+```
+
+```swift Swift
+let res = try await finalRequest("POST", "cards", body: body, connection: secret,
+                                 headers: ["Idempotency-Key": UUID().uuidString])
+if res.status == 201 || res.status == 200 {
+    showCard(res.body!["card"] as! [String: Any])
+} else if let err = res.body?["error"] as? [String: Any], err["code"] as? String == "user_action_required",
+          let url = (err["detail"] as? [String: Any])?["url"] as? String {
+    try await openOnFinal(URL(string: url)!) // returns on yourapp://final/return?balance_id=…; call again
+} else if (res.body?["error"] as? [String: Any])?["code"] as? String == "verification_pending" {
+    banner("Verification in progress")
+}
+```
+
+```bash curl
+# A server sends the user to detail.url and calls again when they return.
+curl -s -X POST $FINAL_API/cards -H "Authorization: Bearer $KEY" -H "Final-Connection: $CONNECTION_ID" \
+  -H "Content-Type: application/json" -d "{\"balance_id\":\"$BALANCE_ID\"}"
+```
+
+</CodeGroup>
+
+## Which routes gate
+
+- `POST /balances/{id}/deposit_instructions` has the identity gate.
+- `GET /balances/{id}/deposit_instructions` also has the identity gate after your grant contains `direct_deposit`.
+- A read of the Balance itself never has a gate.
+- `POST /cards` has a gate for identity and a gate for the card terms.
+- If you send no `cardholder_info`, `POST /cards` also has a gate for an address on file.
+- A card swipe does not go through a call that you make. For a gate on a swipe, Final sends a `card_auth.declined` event. The event contains `reason: "user_action_required"` and a `detail.url`. After the step, this URL sends the user to your primary redirect, not to the redirect of the connection.
+
+`verification_pending` can also block reads, but only during an account review hold. During that hold, every call on the connection returns `verification_pending` before the route runs. During an identity check, reads work. A card write then returns `user_action_required`.
+
+## Region
+
+Final can return two more `403` codes before any route runs. Both codes contain `"type": "compliance"`.
+
+- `region_not_supported`: The request comes from a region that Final does not serve.
+- `region_unverified`: Final could not find the region of the request.
+
+The user cannot clear either code from your app.

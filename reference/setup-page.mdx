@@ -1,0 +1,73 @@
+---
+title: "The setup page"
+description: "On the setup page, you set your profile, redirect URIs, origins, keys and webhook endpoints."
+---
+
+The setup page is at [final.com/temporary/integrator-setup](https://final.com/temporary/integrator-setup). It has all the settings that an account needs to become an integrator.
+
+- Sign in to Final first. Every control on the page changes the account that is signed in.
+- The page is temporary. Final will replace it with a designed settings screen.
+- The app does not link to the page.
+
+## Profile
+
+The profile is what the user sees on the approval page. It has a display name, a support URL, a terms URL, a privacy URL, an optional brand colour and a logo.
+
+Save the profile first. If you click **Mint pair** before you save a profile, Final returns `403 integrator_profile_required`.
+
+## Redirect URIs
+
+After the user approves, Final sends the user back to a redirect URI.
+
+- The primary `redirect_uri` must use `https://` and have a host. If a proposal does not contain `redirect_uri`, Final uses the primary one.
+- `redirect_uris` contains up to 8 more URIs. Register a custom scheme such as `yourapp://final/return` here.
+- Final does not accept an `http://` URI, a wildcard, a fragment or userinfo in any of these fields.
+- The `redirect_uri` of a proposal must be equal to one registered entry exactly. Final compares the scheme and the host without case sensitivity. The path and the query must match as written.
+
+If your app uses a custom scheme, send `redirect_uri` in every proposal. If your web app registered its callback as the primary, you can omit `redirect_uri`.
+
+## Origins
+
+An origin is a browser origin from which you can present a publishable key, such as `https://app.example.com`. Final checks origins only for a browser.
+
+A native app does not send an `Origin` header or a preflight request. If you ship only an app, you do not need an origin. Register an origin only for a WebView or a web layer that sends `Origin`.
+
+For a live publishable key, the origin must also use `https://` on a public hostname. Final must also verify the integrator.
+
+## API keys
+
+When you click **Mint pair**, Final creates two keys. The page shows the plaintext of both keys one time only, when Final creates them.
+
+| Key | Prefix | Use |
+| --- | --- | --- |
+| Secret key | `final_live_…` or `final_test_…` | Send proposals from a server. Keep the key on the server. |
+| Publishable key | `final_publishable_live_…` or `final_publishable_test_…` | Ship the key inside your app. |
+
+To build your integration, create a test key pair. When you are ready to [go live](/get-started/going-live), create a live key pair.
+
+## Webhooks
+
+A server receives [webhooks](/events/webhooks) at an endpoint that you register here.
+
+1. Enter the **URL**. It must use `https://`. To receive deliveries on your own computer, use an HTTPS tunnel to it.
+2. Enter the **Events**, separated by commas. `*` subscribes the endpoint to every event.
+3. Select the **Mode**. The endpoint receives only the events of that mode.
+4. Click **Add endpoint**.
+
+The page shows the signing secret one time only. Copy it to your server before you click **Done**. You use the secret to [verify a delivery](/events/webhooks#verify-a-delivery).
+
+Each endpoint has these controls:
+
+| Control | Use |
+| --- | --- |
+| **Deliveries** | Show the recent deliveries, with the event, the outcome and the response status. |
+| **Edit** | Change the URL or the events. |
+| **Enable** | Enable an endpoint that Final disabled after repeated failures. |
+| **Rotate secret** | Create a new signing secret. The old secret stops at once. Put the new secret on your server immediately. |
+| **Delete** | Remove the endpoint. |
+
+## Verification
+
+Final must verify your integrator before you can use live mode. The page shows whether Final verified your integrator. Only Final can change this status.
+
+Until Final verifies you, a live proposal returns `403 integrator_unverified`. Until then, your origins also do not authorize a live publishable key. Test mode works before and after verification.

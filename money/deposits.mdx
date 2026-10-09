@@ -1,0 +1,142 @@
+---
+title: "Deposits"
+description: "Direct deposit, routing windows, receipts, and swaps from other assets"
+---
+
+To fund a Balance, the user sends the asset to their own Final address. The user can send from any wallet or exchange.
+
+To control which Balance receives a deposit, propose the connection with `"direct_deposit": true`. The user must approve it. The approval page asks the user for this permission and shows the fee.
+
+If the grant does not contain `direct_deposit`, the deposit instructions contain no address. Every `deposit_routing` and `deposit_receipts` route then returns `404 balance_not_found`.
+
+## Deposit instructions
+
+`GET /balances/{id}/deposit_instructions` never creates a swap address. Only the `POST` creates one.
+
+Funds are in the root Balance. If you read the instructions for any Balance in a tree, Final returns them for the root Balance. The `balance_id` in the response is the ID of the root Balance.
+
+import DepositInstructionsShape from '/snippets/objects/deposit-instructions-shape.mdx';
+import OnchainAddressInstructionShape from '/snippets/objects/onchain-address-instruction-shape.mdx';
+
+<DepositInstructionsShape />
+
+The full reference is [Deposit instructions](/reference/objects/deposit-instructions).
+
+The `onchain_address` instruction:
+
+<OnchainAddressInstructionShape />
+
+The full reference is [Onchain address instruction](/reference/objects/onchain-address-instruction).
+
+- `address` is the user's own wallet. A sender enters this value. All Balances of that asset on the account share it.
+- `minimum_fiat` is the minimum value, in the smallest unit of `fiat_currency`. If a landing has a lower value, Final does not credit it yet. Final credits it later, together with other landings.
+- `fee_basis_points` is the Final fee. Final takes the fee from the amount that arrived.
+- `memo` is always in the response. If the deposit needs no memo, the value is `null`.
+- The response can contain two more fields next to the list of instructions.
+  - `delegation_required: true` tells you that the user must finish a step on Final. Until the user finishes it, nobody can use the address.
+  - `deposit_in_progress: { "ends_at", "balance_id"? }` tells you that a routing window for another Balance is open on the account. Final does not show the address until that window ends.
+  - The `balance_id` in `deposit_in_progress` is present only if your own connection opened that window.
+- When you read the address, Final opens a routing window for your Balance for the next hour. See [Where a landing goes](#where-a-landing-goes).
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 403 | `user_action_required`, `verification_pending` | The identity gate applies. See [Gates](/money/gates). |
+| 404 | `not_found` | The Balance is outside your grant. |
+
+## Where a landing goes
+
+Final sends each landing to a Balance by the time that it arrived. Final uses the first rule that applies:
+
+1. If a routing window was open at that time, the landing goes to the Balance of that window.
+2. If the account has a routing default for the asset, the landing goes to that Balance.
+3. If the account has only one Balance of the asset, the landing goes to that Balance.
+4. If no other rule applies, the landing goes to the oldest Balance of the asset on the account.
+
+`GET /balances/{id}/deposit_routing` returns the rule that applies now:
+
+import DepositRoutingShape from '/snippets/objects/deposit-routing-shape.mdx';
+
+<DepositRoutingShape />
+
+The full reference is [Deposit routing](/reference/objects/deposit-routing).
+
+- `POST /balances/{id}/deposit_routing/default` makes this root Balance the routing default for its asset. It replaces the previous routing default. It returns the same response as the `GET`.
+- `POST /balances/{id}/deposit_routing/overrides` opens a routing window. Send `{ "ends_at": "…" }` to set the end of the window.
+  - By default, the window ends one hour from now. The maximum is 24 hours.
+  - An account has one routing window at a time. The user and all other apps share it.
+  - If a window is already open, Final returns `409 override_in_flight`.
+  - To replace a window that your own connection opened, send `{ "replace_active": true }`. Final closes the old window and opens the new one.
+  - Send an `Idempotency-Key`.
+- `DELETE /balances/{id}/deposit_routing/overrides/{override_id}` closes your routing window now. Landings that arrived while it was open still go to your Balance. If you did not open the window, Final returns `404 override_not_found`.
+
+When you read the address, Final also opens a routing window. If you read the address again in that hour, Final extends the window. A read of the address never makes your Balance the routing default.
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 400 | `ends_at_out_of_range` | The `ends_at` value is in the past, or more than 24 hours from now. |
+| 404 | `balance_not_found` | The Balance is not a root Balance in your grant, or the grant does not contain `direct_deposit`. |
+| 409 | `override_in_flight` | A routing window is already open. Wait until its `ends_at`. If the window is yours, send `replace_active`. |
+| 503 | `direct_deposit_unavailable` | Direct deposit is paused. Send the request again after a short time. |
+
+## Receipts
+
+`GET /balances/{id}/deposit_receipts` lists every landing that Final sent to this Balance, newest first. The list contains landings that Final credited and landings that Final did not credit yet.
+
+import DepositReceiptsShape from '/snippets/objects/deposit-receipts-shape.mdx';
+import DepositReceiptShape from '/snippets/objects/deposit-receipt-shape.mdx';
+
+<DepositReceiptsShape />
+
+The full reference is [Deposit receipts](/reference/objects/deposit-receipts).
+
+Each receipt:
+
+<DepositReceiptShape />
+
+The full reference is [Deposit receipt](/reference/objects/deposit-receipt).
+
+## The credit
+
+After Final takes the fee, Final sends `deposit.credited` on the stream or by webhook. The event contains `batch_id`. Then `GET /balances/{id}` shows the new `available`. The new value can come a short time after the event.
+
+## Swaps from other assets
+
+For some assets, the user can also fund the Balance with a different asset. Final swaps it into the asset of the Balance. For these assets, `GET /assets` lists a `swap_via` shape.
+
+To fix the exact amounts of a swap, send `POST /balances/{id}/deposit_instructions`:
+
+```json
+{ "inbound_amount": "100000000" }
+```
+
+- Send exactly one of `inbound_amount` or `outbound_amount`, in the smallest unit.
+- `inbound_amount` is the amount that the user will send.
+- `outbound_amount` is the amount that the user wants Final to credit.
+- The response contains a [swap instruction](/reference/objects/swap-instruction) with the fixed amounts and `expires_at`.
+- If the user sends exactly `inbound_amount` before `expires_at`, Final credits `outbound_amount` on this deposit.
+- If the user sends later, or sends a different amount, Final can still swap and credit the funds, but not at the fixed amounts. Final credits the funds as a new deposit, and this deposit fails.
+- The address is for this swap only. For each swap, send a new `POST` and show the new address.
+- A `GET` can return an instruction after its `expires_at`. Check `expires_at` before you show it.
+- Send an `Idempotency-Key`. A retry must not allocate a second swap.
+- In this response, the number of decimals in the `display_*` values can vary. In the `GET` response, the `display_*` values contain all the decimals of the asset.
+
+You cannot fund a USDe Balance with a swap. A `POST` on a USDe Balance returns `400 no_inflow_route`.
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 400 | `invalid_amount` | The request contains neither amount, or both amounts, or an amount that is not a positive integer string. |
+| 400 | `no_inflow_route` | No asset swaps into this asset in this mode. |
+| 403 | `user_action_required`, `verification_pending` | See [Gates](/money/gates). |
+
+## Exchange rate
+
+`GET /exchange_rate?base=<asset>&quote=iso4217:USD` returns an [exchange rate](/reference/objects/exchange-rate). The rate is the amount of the quote currency for one unit of the base, as a decimal string.
+
+Use the rate for display only. Final does not guarantee it. A deposit fixes its own amounts. Final converts card spend at authorization.
+
+| Status | Code | Description |
+| --- | --- | --- |
+| 400 | `base_required`, `quote_required` | The request does not contain `base` or `quote`. |
+| 400 | `asset_unknown` | The value is not a fiat unit or an asset that Final knows. |
+| 400 | `pair_unpriceable` | Final has no rate for this pair, or Final could not read the rate from its source. |
+| 503 | `rates_unavailable` | Final has no configured rate source. |
