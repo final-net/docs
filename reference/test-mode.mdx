@@ -13,7 +13,7 @@ A test credential gets a Balance in the same asset ids as a live credential. Thi
 
 The deposit instructions of a simulated Balance have the same fields as in live mode. They contain the real `mint`, `minimum_fiat`, `fiat_currency` and `fee_basis_points` of the asset. Thus your deposit screen shows them with no change.
 
-`address` and `token_account` contain one fixed placeholder. The placeholder is not a valid address, so no wallet accepts it. Nobody can send funds to it. Use the test deposit below in place of a sender.
+`address` contains one fixed placeholder. The placeholder is not a valid address, so no wallet accepts it. Nobody can send funds to it. Use the test deposit below in place of a sender.
 
 `delegation_required` and `deposit_in_progress` never occur on a simulated Balance. Final does not simulate routing windows and receipts. Those routes return `404 balance_not_found`.
 

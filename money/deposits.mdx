@@ -28,9 +28,7 @@ The `onchain_address` instruction:
 
 The full reference is [Onchain address instruction](/reference/objects/onchain-address-instruction).
 
-- `address` is the user's own wallet. A sender enters this value.
-- `token_account` is the account where the asset arrives. All Balances of that asset on the account share it.
-- If a sender enters `token_account` in place of `address`, nobody can reach the funds.
+- `address` is the user's own wallet. A sender enters this value. All Balances of that asset on the account share it.
 - `minimum_fiat` is the minimum value, in the smallest unit of `fiat_currency`. If a landing has a lower value, Final does not credit it yet. Final credits it later, together with other landings.
 - `fee_basis_points` is the Final fee. Final takes the fee from the amount that arrived.
 - `memo` is always in the response. If the deposit needs no memo, the value is `null`.
