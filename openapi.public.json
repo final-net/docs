@@ -4,6 +4,11 @@
     "title": "Final API",
     "version": "0.1.0"
   },
+  "servers": [
+    {
+      "url": "https://api.final.com"
+    }
+  ],
   "paths": {
     "/assets": {
       "get": {
@@ -11,6 +16,7 @@
           "Assets"
         ],
         "summary": "List holdable assets",
+        "description": "List the assets a balance can hold in this credential's mode, with the deposit instruction shapes each supports.",
         "operationId": "listAssets",
         "responses": {
           "200": {
@@ -32,7 +38,8 @@
         "tags": [
           "Assets"
         ],
-        "summary": "List assets a Balance can be opened with",
+        "summary": "List the asset shortlist",
+        "description": "List the assets a balance can be opened with, before there is an account to ask on behalf of.",
         "operationId": "listAssetShortlist",
         "responses": {
           "200": {
@@ -64,41 +71,66 @@
         "tags": [
           "Balances"
         ],
-        "summary": "List balances",
+        "summary": "List Balances",
+        "description": "List the balances this credential reaches, with their ledger-derived available and pending amounts.",
         "operationId": "listBalances",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "asset",
             "in": "query",
+            "description": "Narrow to one CAIP-19 asset.",
             "schema": {
+              "description": "Narrow to one CAIP-19 asset.",
               "type": "string"
             }
           },
           {
             "name": "status",
             "in": "query",
+            "description": "Default active.",
             "schema": {
+              "description": "Default active.",
+              "enum": [
+                "active",
+                "closed",
+                "all"
+              ],
               "type": "string"
             }
           },
           {
             "name": "parent_balance_id",
             "in": "query",
+            "description": "Send null to list root Balances only, or a parent's id to list its children. Omit it to list every Balance.",
             "schema": {
+              "description": "Send null to list root Balances only, or a parent's id to list its children. Omit it to list every Balance.",
               "type": "string"
             }
           },
           {
             "name": "limit",
             "in": "query",
+            "description": "Default 25, at most 100.",
             "schema": {
+              "description": "Default 25, at most 100.",
               "type": "integer"
             }
           },
           {
             "name": "after_cursor",
             "in": "query",
+            "description": "The after_cursor of the previous page.",
             "schema": {
+              "description": "The after_cursor of the previous page.",
               "type": "string"
             }
           }
@@ -133,6 +165,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -146,8 +188,20 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Create a balance",
+        "summary": "Create a Balance",
+        "description": "Open a sub-balance under one of your root balances, with its own spending limits; roots are created when the user approves a connection.",
         "operationId": "createBalance",
+        "parameters": [
+          {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -207,6 +261,26 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -222,14 +296,26 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Get a balance",
+        "summary": "Get a Balance",
+        "description": "Read one balance, including its limits, the limits an ancestor imposed on it, and its card.",
         "operationId": "getBalance",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -274,6 +360,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -289,14 +385,26 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Get deposit instructions for a balance",
+        "summary": "Get deposit instructions",
+        "description": "Read where to send funds for a balance's tree: its deposit address when the grant allows direct deposit, and any open swap allocations.",
         "operationId": "getBalanceDepositInstructions",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -361,6 +469,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -374,14 +492,26 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Allocate a swap-receive address for a balance",
+        "summary": "Create swap deposit instructions",
+        "description": "Fix the exact amounts of a swap deposit and get the address to send to. Final swaps the asset that the user sends into the asset of the Balance. If no asset swaps into this asset, Final returns `no_inflow_route`.",
         "operationId": "allocateBalanceDepositInstructions",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -455,6 +585,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -470,28 +610,44 @@
         "tags": [
           "Balances"
         ],
-        "summary": "List what has landed in a balance's account",
+        "summary": "List deposit receipts",
+        "description": "List every direct deposit routed to this balance, newest first, including the ones still waiting and why.",
         "operationId": "listDepositReceipts",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
+            "description": "Default 25, at most 100.",
             "schema": {
+              "description": "Default 25, at most 100.",
               "type": "integer"
             }
           },
           {
             "name": "after_cursor",
             "in": "query",
+            "description": "The after_cursor of the previous page.",
             "schema": {
+              "description": "The after_cursor of the previous page.",
               "type": "string"
             }
           },
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -546,6 +702,26 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -561,14 +737,26 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Get where deposits in this asset are credited",
+        "summary": "Get deposit routing",
+        "description": "Read which rule a deposit landing in this balance's asset would route by right now, and so which Balance Final credits.",
         "operationId": "getDepositRouting",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -616,6 +804,26 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -638,14 +846,26 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Make this balance the default for deposits in its asset",
+        "summary": "Set the routing default",
+        "description": "Make this balance where the account's deposits in its asset go when no routing window covers them.",
         "operationId": "setDefaultDepositBalance",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -700,6 +920,26 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -715,14 +955,26 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Route the next deposits in this asset to this balance",
+        "summary": "Open a routing window",
+        "description": "Open a window during which the account's deposits in this asset route to this balance.",
         "operationId": "createDepositRoutingOverride",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -796,6 +1048,26 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -811,22 +1083,36 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Cancel a deposit routing override",
+        "summary": "Close a routing window",
+        "description": "Close a routing window you opened; what landed inside it before now still routes to you.",
         "operationId": "cancelDepositRoutingOverride",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           },
           {
             "name": "override_id",
             "in": "path",
+            "description": "The routing window id.",
             "required": true,
             "schema": {
+              "description": "The routing window id.",
               "type": "string"
             }
           }
@@ -874,6 +1160,154 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
+    "/balances/{balance_id}/test_deposits": {
+      "post": {
+        "tags": [
+          "Balances"
+        ],
+        "summary": "Simulate a deposit",
+        "description": "Credit a simulated test-mode balance as if a deposit had arrived, which also activates a card still provisioning on its tree.",
+        "operationId": "createBalanceTestDeposit",
+        "parameters": [
+          {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
+            "name": "balance_id",
+            "in": "path",
+            "description": "The Balance id.",
+            "required": true,
+            "schema": {
+              "description": "The Balance id.",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepositTestDepositRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepositResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -889,27 +1323,43 @@
         "tags": [
           "Balances"
         ],
-        "summary": "List balance transactions",
+        "summary": "List transactions",
+        "description": "List the ledger entries for a balance: deposits credited and card spend as it is charged.",
         "operationId": "listBalanceTransactions",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
+            "description": "Default 50, at most 100.",
             "schema": {
+              "description": "Default 50, at most 100.",
               "type": "integer"
             }
           },
           {
             "name": "type",
             "in": "query",
+            "description": "Narrow to one entry type, such as deposit_credited or card_auth. A type with no entries returns an empty page.",
             "schema": {
+              "description": "Narrow to one entry type, such as deposit_credited or card_auth. A type with no entries returns an empty page.",
               "type": "string"
             }
           },
           {
             "name": "from",
             "in": "query",
+            "description": "Inclusive lower bound on created_at, RFC 3339.",
             "schema": {
+              "description": "Inclusive lower bound on created_at, RFC 3339.",
               "format": "date-time",
               "type": "string"
             }
@@ -917,7 +1367,9 @@
           {
             "name": "to",
             "in": "query",
+            "description": "Inclusive upper bound on created_at, RFC 3339.",
             "schema": {
+              "description": "Inclusive upper bound on created_at, RFC 3339.",
               "format": "date-time",
               "type": "string"
             }
@@ -925,15 +1377,19 @@
           {
             "name": "after_cursor",
             "in": "query",
+            "description": "The after_cursor of the previous page.",
             "schema": {
+              "description": "The after_cursor of the previous page.",
               "type": "string"
             }
           },
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -978,6 +1434,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -993,14 +1459,17 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Get stored integrator card art — served as image/webp with immutable caching; the URL comes from the profile's card_art_url and is not constructed by callers",
+        "summary": "Get card art",
+        "description": "Read a stored integrator card art image. Final returns it as image/webp with immutable caching. Use the URL in the profile's `card_art_url`, and do not build it yourself.",
         "operationId": "getIntegratorCardArt",
         "parameters": [
           {
             "name": "card_art_key",
             "in": "path",
+            "description": "The key in the card_art_url an upload returned.",
             "required": true,
             "schema": {
+              "description": "The key in the card_art_url an upload returned.",
               "type": "string"
             }
           }
@@ -1036,33 +1505,58 @@
           "Cards"
         ],
         "summary": "List cards",
+        "description": "List the cards on the balances this credential reaches, active ones by default.",
         "operationId": "listCards",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "balance_id",
             "in": "query",
+            "description": "Narrow to one Balance.",
             "schema": {
+              "description": "Narrow to one Balance.",
               "type": "string"
             }
           },
           {
             "name": "status",
             "in": "query",
+            "description": "Which cards to list. active, the default, returns every card that is not closed, including provisioning and frozen ones. provisioning, frozen or closed narrows to that status, and all adds closed cards to the default set.",
             "schema": {
+              "description": "Which cards to list. active, the default, returns every card that is not closed, including provisioning and frozen ones. provisioning, frozen or closed narrows to that status, and all adds closed cards to the default set.",
+              "enum": [
+                "active",
+                "provisioning",
+                "frozen",
+                "closed",
+                "all"
+              ],
               "type": "string"
             }
           },
           {
             "name": "limit",
             "in": "query",
+            "description": "Default 25, at most 100.",
             "schema": {
+              "description": "Default 25, at most 100.",
               "type": "integer"
             }
           },
           {
             "name": "after_cursor",
             "in": "query",
+            "description": "The after_cursor of the previous page.",
             "schema": {
+              "description": "The after_cursor of the previous page.",
               "type": "string"
             }
           }
@@ -1097,6 +1591,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1111,7 +1615,19 @@
           "Cards"
         ],
         "summary": "Create a card",
+        "description": "Issue a card on a balance; it is born provisioning and activates once the balance's tree has a credited deposit.",
         "operationId": "createCard",
+        "parameters": [
+          {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1191,6 +1707,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1207,13 +1733,25 @@
           "Cards"
         ],
         "summary": "Get a card",
+        "description": "Read one card.",
         "operationId": "getCard",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1258,6 +1796,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1272,13 +1820,25 @@
           "Cards"
         ],
         "summary": "Close a card",
+        "description": "Close a card for good; the balance and its funds are untouched and a new card can be issued on it.",
         "operationId": "deleteCard",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1316,6 +1876,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1331,14 +1901,26 @@
         "tags": [
           "Cards"
         ],
-        "summary": "Mint a short-lived embed URL for a card",
+        "summary": "Create a card embed URL",
+        "description": "Mint a short-lived URL that renders the card number, expiry and CVC; the only place one is minted.",
         "operationId": "createCardEmbedURL",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1403,6 +1985,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1419,13 +2011,25 @@
           "Cards"
         ],
         "summary": "Freeze a card",
+        "description": "Pause spend on a card; authorizations decline until it is unfrozen.",
         "operationId": "freezeCard",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1480,6 +2084,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1495,14 +2109,26 @@
         "tags": [
           "Cards"
         ],
-        "summary": "Simulate a card authorization (test mode)",
+        "summary": "Simulate a card authorization",
+        "description": "Simulate a purchase on a test-mode card, through the real authorization decision and settlement.",
         "operationId": "createCardTestAuthorization",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1566,6 +2192,26 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1582,13 +2228,25 @@
           "Cards"
         ],
         "summary": "Unfreeze a card",
+        "description": "Resume spend on a frozen card.",
         "operationId": "unfreezeCard",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1643,6 +2301,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1659,13 +2327,25 @@
           "Connections"
         ],
         "summary": "Get a connection",
+        "description": "Read a connection: whether it is still active and which assets its grant covers.",
         "operationId": "getConnection",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -1720,6 +2400,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1733,14 +2423,26 @@
         "tags": [
           "Connections"
         ],
-        "summary": "Revoke a connection — this install only",
+        "summary": "Revoke a connection",
+        "description": "Revoke this connection, and only this one; the user's balances and other installs are untouched.",
         "operationId": "revokeConnection",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -1788,6 +2490,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1803,14 +2515,17 @@
         "tags": [
           "Connections"
         ],
-        "summary": "Exchange the activation code and verifier for the connection's client_secret",
+        "summary": "Activate a connection",
+        "description": "Exchange the activation code from the redirect and your PKCE verifier for the connection's client_secret, issued once.",
         "operationId": "activateConnection",
         "parameters": [
           {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -1874,6 +2589,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1889,14 +2614,26 @@
         "tags": [
           "Connections"
         ],
-        "summary": "Connection event stream (SSE)",
+        "summary": "Stream connection events",
+        "description": "Open a Server-Sent Events stream of everything that happens on the balances this connection reaches.",
         "operationId": "streamConnectionEvents",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -1951,6 +2688,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1967,19 +2714,33 @@
           "Assets"
         ],
         "summary": "Get a spot exchange rate",
+        "description": "Read a spot exchange rate between a held asset and a fiat currency, for display; nothing is converted at this rate.",
         "operationId": "getExchangeRate",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "base",
             "in": "query",
+            "description": "CAIP-19 id of the held asset.",
             "schema": {
+              "description": "CAIP-19 id of the held asset.",
               "type": "string"
             }
           },
           {
             "name": "quote",
             "in": "query",
+            "description": "The fiat unit to quote in, iso4217:USD.",
             "schema": {
+              "description": "The fiat unit to quote in, iso4217:USD.",
               "type": "string"
             }
           }
@@ -2015,6 +2776,16 @@
               }
             }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Service Unavailable",
             "content": {
@@ -2039,7 +2810,8 @@
         "tags": [
           "Assets"
         ],
-        "summary": "List inflow (swap-source) assets",
+        "summary": "List inflow assets",
+        "description": "List the assets a user can send to be swapped into a holdable asset.",
         "operationId": "listInflowAssets",
         "responses": {
           "200": {
@@ -2062,33 +2834,48 @@
           "Intents"
         ],
         "summary": "List intents",
+        "description": "List the intents this integrator key proposed, newest first.",
         "operationId": "listIntents",
         "parameters": [
           {
             "name": "kind",
             "in": "query",
+            "description": "Narrow to one kind.",
             "schema": {
+              "description": "Narrow to one kind.",
               "type": "string"
             }
           },
           {
             "name": "status",
             "in": "query",
+            "description": "Narrow to one status.",
             "schema": {
+              "description": "Narrow to one status.",
+              "enum": [
+                "pending_approval",
+                "approved",
+                "completed",
+                "failed"
+              ],
               "type": "string"
             }
           },
           {
             "name": "limit",
             "in": "query",
+            "description": "Default 25, at most 100.",
             "schema": {
+              "description": "Default 25, at most 100.",
               "type": "integer"
             }
           },
           {
             "name": "after_cursor",
             "in": "query",
+            "description": "The after_cursor of the previous page.",
             "schema": {
+              "description": "The after_cursor of the previous page.",
               "type": "string"
             }
           }
@@ -2123,6 +2910,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2136,7 +2933,8 @@
         "tags": [
           "Intents"
         ],
-        "summary": "Create an intent (integrator or publishable key)",
+        "summary": "Create an intent",
+        "description": "Propose an account.connect intent, which a user approves on a Final-hosted page to connect their balances to you. Call it with a secret key or a publishable key.",
         "operationId": "createIntent",
         "requestBody": {
           "content": {
@@ -2187,6 +2985,26 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2203,13 +3021,16 @@
           "Intents"
         ],
         "summary": "Get an intent",
+        "description": "Read one intent you proposed, including its status and the connection it minted.",
         "operationId": "getIntent",
         "parameters": [
           {
             "name": "intent_id",
             "in": "path",
+            "description": "The intent id.",
             "required": true,
             "schema": {
+              "description": "The intent id.",
               "type": "string"
             }
           }
@@ -2264,6 +3085,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2279,14 +3110,17 @@
         "tags": [
           "Accounts"
         ],
-        "summary": "Get a stored integrator logo — served as image/webp with immutable caching; the URL comes from the profile's logo_url and is not constructed by callers",
+        "summary": "Get a logo",
+        "description": "Read a stored integrator logo image. Final returns it as image/webp with immutable caching. Use the URL in the profile's `logo_url`, and do not build it yourself.",
         "operationId": "getIntegratorLogo",
         "parameters": [
           {
             "name": "logo_key",
             "in": "path",
+            "description": "The key in the logo_url an upload returned.",
             "required": true,
             "schema": {
+              "description": "The key in the logo_url an upload returned.",
               "type": "string"
             }
           }
@@ -2316,100 +3150,31 @@
         "x-audience": "public"
       }
     },
-    "/members/email_verifications": {
-      "post": {
-        "tags": [
-          "Members"
-        ],
-        "summary": "Confirm a first email address from its emailed link — sets the member's email if they still have none and the address is still free; a clash cancels the link",
-        "operationId": "verifyEmailLink",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AccountVerifyFirstEmailRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AccountEmailVerificationEnvelope"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "x-audience": "public"
-      }
-    },
     "/transactions/export": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "Download transaction history as a CSV file",
+        "summary": "Export transactions",
+        "description": "Download the transaction history of the balances this credential reaches as a CSV file; refused in test mode.",
         "operationId": "exportTransactions",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "from",
             "in": "query",
+            "description": "Inclusive lower bound on the entry time, RFC 3339.",
             "required": true,
             "schema": {
+              "description": "Inclusive lower bound on the entry time, RFC 3339.",
               "format": "date-time",
               "type": "string"
             }
@@ -2417,7 +3182,9 @@
           {
             "name": "to",
             "in": "query",
+            "description": "Exclusive upper bound on the entry time, RFC 3339. Defaults to now.",
             "schema": {
+              "description": "Exclusive upper bound on the entry time, RFC 3339. Defaults to now.",
               "format": "date-time",
               "type": "string"
             }
@@ -2453,6 +3220,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2466,33 +3243,10 @@
   },
   "components": {
     "schemas": {
-      "AccountEmailVerificationEnvelope": {
-        "properties": {
-          "email_verification": {
-            "$ref": "#/components/schemas/AccountEmailVerificationView"
-          }
-        },
-        "type": "object"
-      },
-      "AccountEmailVerificationView": {
-        "properties": {
-          "status": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "AccountVerifyFirstEmailRequest": {
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "AssetsAssetList": {
         "properties": {
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/AssetsAssetView"
             },
@@ -2507,9 +3261,11 @@
       "AssetsAssetView": {
         "properties": {
           "decimals": {
+            "description": "Smallest-unit decimals: one unit is 10^-decimals of the asset.",
             "type": "integer"
           },
           "deposit_instruction_shapes": {
+            "description": "The instruction types a Balance of this asset returns.",
             "items": {
               "$ref": "#/components/schemas/AssetsDepositInstructionShape"
             },
@@ -2519,32 +3275,43 @@
             ]
           },
           "id": {
+            "description": "CAIP-19 id. What every other route takes.",
             "type": "string"
           },
           "name": {
+            "description": "Display only.",
             "type": "string"
           },
           "symbol": {
+            "description": "Display only. Never an identifier.",
             "type": "string"
           }
         },
+        "title": "Asset",
         "type": "object"
       },
       "AssetsDepositInstructionShape": {
         "properties": {
           "chain": {
+            "description": "For onchain_address, the CAIP-2 id of the chain to send on.",
             "type": [
               "null",
               "string"
             ]
           },
           "source_chain": {
+            "description": "For swap_via, the CAIP-2 id of the chain the user sends on.",
             "type": [
               "null",
               "string"
             ]
           },
           "type": {
+            "description": "The instruction type.",
+            "enum": [
+              "onchain_address",
+              "swap_via"
+            ],
             "type": "string"
           }
         },
@@ -2553,6 +3320,7 @@
       "AssetsInflowAssetList": {
         "properties": {
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/AssetsInflowAssetView"
             },
@@ -2567,15 +3335,19 @@
       "AssetsInflowAssetView": {
         "properties": {
           "decimals": {
+            "description": "Smallest-unit decimals.",
             "type": "integer"
           },
           "id": {
+            "description": "CAIP-19 id of what the user sends.",
             "type": "string"
           },
           "name": {
+            "description": "Display only.",
             "type": "string"
           },
           "routes": {
+            "description": "Which holdable assets it swaps into.",
             "items": {
               "$ref": "#/components/schemas/AssetsRouteEdge"
             },
@@ -2585,20 +3357,25 @@
             ]
           },
           "source_chain": {
+            "description": "CAIP-2 id of the chain the user sends on.",
             "type": "string"
           },
           "symbol": {
+            "description": "Display only.",
             "type": "string"
           }
         },
+        "title": "Inflow asset",
         "type": "object"
       },
       "AssetsRouteEdge": {
         "properties": {
           "destination_asset": {
+            "description": "CAIP-19 id of what is credited.",
             "type": "string"
           },
           "source_asset": {
+            "description": "CAIP-19 id of what the user sends.",
             "type": "string"
           }
         },
@@ -2607,6 +3384,7 @@
       "AssetsShortlist": {
         "properties": {
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/AssetsShortlistView"
             },
@@ -2621,20 +3399,25 @@
       "AssetsShortlistView": {
         "properties": {
           "id": {
+            "description": "CAIP-19 id.",
             "type": "string"
           },
           "symbol": {
+            "description": "Display only.",
             "type": "string"
           }
         },
+        "title": "Asset shortlist entry",
         "type": "object"
       },
       "BalanceAllocateDepositInstructionsRequest": {
         "properties": {
           "inbound_amount": {
+            "description": "What the user will send, in the source asset's smallest unit. Exactly one of the two amounts.",
             "type": "string"
           },
           "outbound_amount": {
+            "description": "What the user wants credited, in the Balance asset's smallest unit. Exactly one of the two amounts.",
             "type": "string"
           }
         },
@@ -2643,46 +3426,52 @@
       "BalanceConnectionBalanceView": {
         "properties": {
           "asset": {
+            "description": "CAIP-19 id of the held asset. A sub-balance shares its root's.",
             "type": "string"
           },
           "available": {
+            "description": "What can be spent now, in the asset's smallest unit. Null on a sub-balance, which draws on its root. Can lag a deposit.credited event briefly.",
             "type": [
               "null",
               "string"
             ]
           },
           "card_id": {
+            "description": "The card on this Balance, or null. At most one.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "created_at": {
+            "description": "When the Balance was created.",
             "format": "date-time",
             "type": "string"
           },
           "display_available": {
+            "description": "The available amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
             ]
           },
           "display_pending": {
+            "description": "The pending amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
             ]
           },
           "id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "description": "The Balance id.",
+            "type": "string"
           },
           "label": {
+            "description": "The label given at creation. A root created by consent carries your integrator display name.",
             "type": "string"
           },
           "limits": {
+            "description": "Spending rules this Balance applies to itself.",
             "items": {
               "$ref": "#/components/schemas/LimitsRuleUnion"
             },
@@ -2692,12 +3481,14 @@
             ]
           },
           "parent_balance_id": {
+            "description": "The parent's id, or null on a root.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "parent_imposed_limits": {
+            "description": "Rules an ancestor set on this Balance, which it cannot change itself.",
             "items": {
               "$ref": "#/components/schemas/LimitsRuleUnion"
             },
@@ -2707,21 +3498,29 @@
             ]
           },
           "pending": {
+            "description": "Deposits seen but not yet credited, in the asset's smallest unit. Null on a sub-balance.",
             "type": [
               "null",
               "string"
             ]
           },
           "status": {
+            "description": "Whether the Balance can still hold and spend.",
+            "enum": [
+              "active",
+              "closed"
+            ],
             "type": "string"
           }
         },
+        "title": "Balance",
         "type": "object"
       },
       "BalanceConnectionCreateResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+            "$ref": "#/components/schemas/BalanceConnectionBalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -2729,7 +3528,8 @@
       "BalanceConnectionGetResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+            "$ref": "#/components/schemas/BalanceConnectionBalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -2737,12 +3537,14 @@
       "BalanceConnectionListResponse": {
         "properties": {
           "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
             ]
           },
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/BalanceConnectionBalanceView"
             },
@@ -2752,6 +3554,7 @@
             ]
           },
           "has_more": {
+            "description": "Whether another page follows.",
             "type": "boolean"
           }
         },
@@ -2760,21 +3563,29 @@
       "BalanceCreateRequest": {
         "properties": {
           "asset": {
+            "description": "Root only. Roots come from approval, so a connection never sends it.",
             "type": "string"
           },
           "label": {
+            "description": "A label for your own use, shown to the user in their dashboard.",
             "type": "string"
           },
           "limits": {
+            "description": "Rules the new Balance applies to itself.",
             "items": {
               "$ref": "#/components/schemas/LimitsRuleUnion"
             },
             "type": "array"
           },
           "parent_balance_id": {
-            "type": "string"
+            "description": "The root or sub-balance to create under. Required on a connection.",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "parent_imposed_limits": {
+            "description": "Rules you set on the new sub-balance as its parent, which it cannot change itself.",
             "items": {
               "$ref": "#/components/schemas/LimitsRuleUnion"
             },
@@ -2786,7 +3597,8 @@
       "BalanceCreateResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceView"
+            "$ref": "#/components/schemas/BalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -2806,13 +3618,16 @@
       "BalanceDepositInProgress": {
         "properties": {
           "balance_id": {
+            "description": "The Balance holding the window. Present only when your own connection opened it.",
             "type": "string"
           },
           "ends_at": {
+            "description": "When the window closes and the address can be read again.",
             "format": "date-time",
             "type": "string"
           }
         },
+        "title": "Deposit in progress",
         "type": "object"
       },
       "BalanceDepositInstructionUnion": {
@@ -2825,27 +3640,34 @@
             "$ref": "#/components/schemas/BalanceSwapViaInstruction"
           }
         ],
+        "title": "Deposit instruction",
         "type": "object"
       },
       "BalanceDepositInstructionsResponse": {
         "properties": {
           "as_of": {
+            "description": "When this was read.",
             "format": "date-time",
             "type": "string"
           },
           "asset": {
+            "description": "CAIP-19 id of the held asset.",
             "type": "string"
           },
           "balance_id": {
+            "description": "Always the root's. Money lives there whichever Balance you asked for.",
             "type": "string"
           },
           "delegation_required": {
+            "description": "True when the address is withheld until the user finishes a step on Final. Absent otherwise.",
             "type": "boolean"
           },
           "deposit_in_progress": {
-            "$ref": "#/components/schemas/BalanceDepositInProgress"
+            "$ref": "#/components/schemas/BalanceDepositInProgress",
+            "description": "Present when another Balance's routing window holds the account and the address is withheld until it ends."
           },
           "instructions": {
+            "description": "The onchain_address instruction first, when your grant allows direct deposit, then one swap_via per open allocation.",
             "items": {
               "$ref": "#/components/schemas/BalanceDepositInstructionUnion"
             },
@@ -2855,12 +3677,14 @@
             ]
           }
         },
+        "title": "Deposit instructions",
         "type": "object"
       },
       "BalanceGetResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceView"
+            "$ref": "#/components/schemas/BalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -2880,12 +3704,14 @@
       "BalanceListResponse": {
         "properties": {
           "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
             ]
           },
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/BalanceView"
             },
@@ -2895,6 +3721,7 @@
             ]
           },
           "has_more": {
+            "description": "Whether another page follows.",
             "type": "boolean"
           }
         },
@@ -2915,56 +3742,71 @@
       "BalanceOnchainAddressInstruction": {
         "properties": {
           "address": {
+            "description": "The user's own wallet address: what a sender enters.",
             "type": "string"
           },
           "chain": {
+            "description": "CAIP-2 id of the chain to send on.",
             "type": "string"
           },
           "fee_basis_points": {
+            "description": "Final's fee on each landing, in basis points, taken from what landed.",
             "type": "integer"
           },
           "fiat_currency": {
+            "description": "The unit minimum_fiat is in.",
             "type": "string"
           },
           "memo": {
+            "description": "Currently always null, reserved for future asset support.",
             "type": [
               "null",
               "string"
             ]
           },
           "min_confirmations": {
+            "description": "Confirmations to wait for before treating a send as final.",
             "type": "integer"
           },
           "minimum_fiat": {
+            "description": "The floor, in fiat_currency's smallest unit. A landing under it waits and credits with later ones.",
             "type": "string"
           },
           "mint": {
-            "type": "string"
-          },
-          "token_account": {
+            "description": "The asset's mint.",
             "type": "string"
           },
           "type": {
+            "description": "Send the asset itself, from any wallet.",
+            "enum": [
+              "onchain_address"
+            ],
             "type": "string"
           }
         },
+        "title": "Onchain address instruction",
         "type": "object"
       },
       "BalanceSwapViaInstruction": {
         "properties": {
           "deposit_id": {
+            "description": "The deposit this allocation belongs to.",
             "type": "string"
           },
           "display_inbound_amount": {
+            "description": "The inbound_amount as a decimal string, for display only.",
             "type": "string"
           },
           "display_outbound_amount": {
+            "description": "The outbound_amount as a decimal string, for display only.",
             "type": "string"
           },
           "estimated_settlement_minutes": {
+            "description": "How long settlement usually takes after the send.",
             "type": "integer"
           },
           "expires_at": {
+            "description": "Send before this, or allocate again.",
             "format": "date-time",
             "type": [
               "null",
@@ -2972,125 +3814,166 @@
             ]
           },
           "inbound_amount": {
+            "description": "The exact amount of the source asset to send, in its smallest unit.",
             "type": "string"
           },
           "memo": {
+            "description": "Currently always null, reserved for future asset support.",
             "type": [
               "null",
               "string"
             ]
           },
           "min_source_confirmations": {
+            "description": "The number of confirmations required on the source chain.",
             "type": "integer"
           },
           "outbound_amount": {
+            "description": "What will be credited, in the Balance asset's smallest unit.",
             "type": "string"
           },
           "source_address": {
+            "description": "Where the user sends the source asset.",
             "type": "string"
           },
           "source_chain": {
+            "description": "CAIP-2 id of the chain the user sends on.",
             "type": "string"
           },
           "type": {
+            "description": "Send a different asset, which Final swaps into the asset of the Balance.",
+            "enum": [
+              "swap_via"
+            ],
             "type": "string"
           }
         },
+        "title": "Swap instruction",
         "type": "object"
       },
       "BalanceTransactionFiat": {
         "properties": {
           "amount": {
+            "description": "In the currency's smallest unit: cents for USD.",
             "type": "string"
           },
           "currency": {
+            "description": "The fiat unit, iso4217:USD.",
             "type": "string"
           },
           "display_amount": {
+            "description": "The amount as a decimal string, for display only.",
             "type": "string"
           }
         },
+        "title": "Transaction fiat",
         "type": "object"
       },
       "BalanceTransactionMerchant": {
         "properties": {
           "country": {
+            "description": "ISO 3166-1 alpha-2.",
             "type": "string"
           },
           "descriptor": {
+            "description": "The merchant's name as the issuer reported it.",
             "type": "string"
           },
           "mcc": {
+            "description": "Merchant category code.",
             "type": "string"
           }
         },
+        "title": "Transaction merchant",
         "type": "object"
       },
       "BalanceTransactionRelated": {
         "properties": {
-          "card_id": {
-            "type": "string"
-          },
           "deposit_id": {
+            "description": "The deposit this credit posts under. Set on every deposit entry, direct deposits included.",
             "type": "string"
           },
           "deposit_receipt_id": {
+            "description": "The landing this entry credits, on a direct deposit. One entry per landing.",
             "type": "string"
           }
         },
+        "title": "Transaction related resource",
         "type": "object"
       },
       "BalanceTransactionView": {
         "properties": {
           "amount": {
+            "description": "In the asset's smallest unit.",
             "type": "string"
           },
           "asset": {
+            "description": "CAIP-19 id of the Balance's asset.",
             "type": "string"
           },
           "balance_id": {
+            "description": "The Balance the entry is on.",
             "type": "string"
           },
           "created_at": {
+            "description": "When the entry occurred.",
             "format": "date-time",
             "type": "string"
           },
           "direction": {
+            "description": "Which way the amount moved.",
+            "enum": [
+              "credit",
+              "debit"
+            ],
             "type": "string"
           },
           "display_amount": {
+            "description": "The amount as a decimal string, for display only.",
             "type": "string"
           },
           "fiat": {
-            "$ref": "#/components/schemas/BalanceTransactionFiat"
+            "$ref": "#/components/schemas/BalanceTransactionFiat",
+            "description": "The fiat figure stamped with the entry: always on card spend, on a deposit when Final could value it. Absent otherwise."
           },
           "id": {
+            "description": "The entry id.",
             "type": "string"
           },
           "merchant": {
-            "$ref": "#/components/schemas/BalanceTransactionMerchant"
+            "$ref": "#/components/schemas/BalanceTransactionMerchant",
+            "description": "Card spend only."
           },
           "related": {
-            "$ref": "#/components/schemas/BalanceTransactionRelated"
+            "$ref": "#/components/schemas/BalanceTransactionRelated",
+            "description": "The deposit or direct-deposit landing this entry credits. Absent on card entries."
           },
           "status": {
+            "description": "Always posted. The ledger is append-only.",
+            "enum": [
+              "posted"
+            ],
             "type": "string"
           },
           "type": {
+            "description": "The entry type. deposit_credited is a deposit that Final credited. card_auth is card spend at authorization as a debit, or the credit that reverses it when the authorization is voided. More types will be added, so handle a value you do not recognise.",
             "type": "string"
           }
         },
+        "title": "Transaction",
         "type": "object"
       },
       "BalanceTransactionsListResponse": {
         "properties": {
           "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
             ]
           },
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/BalanceTransactionView"
             },
@@ -3100,6 +3983,7 @@
             ]
           },
           "has_more": {
+            "description": "Whether another page follows.",
             "type": "boolean"
           }
         },
@@ -3108,49 +3992,56 @@
       "BalanceView": {
         "properties": {
           "account_id": {
+            "description": "The owning account.",
             "type": "string"
           },
           "asset": {
+            "description": "CAIP-19 id of the held asset. A sub-balance shares its root's.",
             "type": "string"
           },
           "available": {
+            "description": "What can be spent now, in the asset's smallest unit. Null on a sub-balance, which draws on its root. Can lag a deposit.credited event briefly.",
             "type": [
               "null",
               "string"
             ]
           },
           "card_id": {
+            "description": "The card on this Balance, or null. At most one.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "created_at": {
+            "description": "When the Balance was created.",
             "format": "date-time",
             "type": "string"
           },
           "display_available": {
+            "description": "The available amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
             ]
           },
           "display_pending": {
+            "description": "The pending amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
             ]
           },
           "id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "description": "The Balance id.",
+            "type": "string"
           },
           "label": {
+            "description": "The label given at creation. A root created by consent carries your integrator display name.",
             "type": "string"
           },
           "limits": {
+            "description": "Spending rules this Balance applies to itself.",
             "items": {
               "$ref": "#/components/schemas/LimitsRuleUnion"
             },
@@ -3160,12 +4051,14 @@
             ]
           },
           "parent_balance_id": {
+            "description": "The parent's id, or null on a root.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "parent_imposed_limits": {
+            "description": "Rules an ancestor set on this Balance, which it cannot change itself.",
             "items": {
               "$ref": "#/components/schemas/LimitsRuleUnion"
             },
@@ -3175,20 +4068,28 @@
             ]
           },
           "pending": {
+            "description": "Deposits seen but not yet credited, in the asset's smallest unit. Null on a sub-balance.",
             "type": [
               "null",
               "string"
             ]
           },
           "status": {
+            "description": "Whether the Balance can still hold and spend.",
+            "enum": [
+              "active",
+              "closed"
+            ],
             "type": "string"
           }
         },
+        "title": "Balance (owner view)",
         "type": "object"
       },
       "CardCreateRequest": {
         "properties": {
           "balance_id": {
+            "description": "The Balance the card spends from.",
             "type": "string"
           }
         },
@@ -3197,24 +4098,29 @@
       "CardEmbedURLResponse": {
         "properties": {
           "embed_url": {
+            "description": "Open it top level in a web view. It renders the card number, expiry and CVC.",
             "type": "string"
           },
           "expires_at": {
+            "description": "When the URL expires. Mint a new one after it.",
             "format": "date-time",
             "type": "string"
           }
         },
+        "title": "Embed URL",
         "type": "object"
       },
       "CardListResponse": {
         "properties": {
           "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
             ]
           },
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/CardView"
             },
@@ -3224,6 +4130,7 @@
             ]
           },
           "has_more": {
+            "description": "Whether another page follows.",
             "type": "boolean"
           }
         },
@@ -3232,7 +4139,8 @@
       "CardResponse": {
         "properties": {
           "card": {
-            "$ref": "#/components/schemas/CardView"
+            "$ref": "#/components/schemas/CardView",
+            "description": "The card."
           }
         },
         "type": "object"
@@ -3240,6 +4148,7 @@
       "CardView": {
         "properties": {
           "activated_at": {
+            "description": "When it became active, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -3247,9 +4156,11 @@
             ]
           },
           "balance_id": {
+            "description": "The Balance the card spends from.",
             "type": "string"
           },
           "closed_at": {
+            "description": "When it was closed, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -3257,22 +4168,26 @@
             ]
           },
           "created_at": {
+            "description": "When the card was issued.",
             "format": "date-time",
             "type": "string"
           },
           "exp_month": {
+            "description": "Null while provisioning.",
             "type": [
               "null",
               "integer"
             ]
           },
           "exp_year": {
+            "description": "Null while provisioning.",
             "type": [
               "null",
               "integer"
             ]
           },
           "frozen_at": {
+            "description": "When it was frozen, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -3280,69 +4195,97 @@
             ]
           },
           "id": {
+            "description": "The card id.",
             "type": "string"
           },
           "last4": {
+            "description": "The last four digits. Null while provisioning.",
             "type": [
               "null",
               "string"
             ]
           },
           "network": {
+            "description": "The card network. Null while provisioning.",
             "type": [
               "null",
               "string"
             ]
           },
           "status": {
+            "description": "The card status. It is provisioning until the Balance's tree has a credited deposit.",
+            "enum": [
+              "provisioning",
+              "active",
+              "frozen",
+              "closed"
+            ],
             "type": "string"
           }
         },
+        "title": "Card",
         "type": "object"
       },
       "CardauthTestAuthorizationRequest": {
         "properties": {
           "amount": {
+            "description": "What the merchant charges, in the currency's smallest unit.",
             "type": "string"
           },
           "asset_amount": {
+            "description": "What the swipe pulls from the Balance, in the asset's smallest unit.",
             "type": "string"
           },
           "currency": {
+            "description": "Defaults to iso4217:USD.",
             "type": "string"
           },
           "merchant_category": {
+            "description": "Merchant category code.",
             "type": "string"
           },
           "merchant_country": {
+            "description": "ISO 3166-1 alpha-2.",
             "type": "string"
           },
           "merchant_name": {
+            "description": "Required. Limits match on it.",
             "type": "string"
           }
         },
+        "title": "Test authorization request",
         "type": "object"
       },
       "CardauthTestAuthorizationResponse": {
         "properties": {
           "decline_reason": {
+            "description": "Declines only. The same reason card_auth.declined carries.",
             "type": "string"
           },
           "partner_auth_id": {
+            "description": "Carried on the card_auth.* events for this swipe.",
             "type": "string"
           },
           "status": {
+            "description": "The decision.",
+            "enum": [
+              "approved",
+              "declined"
+            ],
             "type": "string"
           }
         },
+        "title": "Test authorization",
         "type": "object"
       },
       "ConnectionActivateRequest": {
         "properties": {
           "code": {
+            "description": "From ?code= on the redirect. Valid for 10 minutes. Omitted only on the test-mode terminal flow.",
             "type": "string"
           },
           "code_verifier": {
+            "description": "The verifier whose hash you proposed with, 43 to 128 characters.",
             "type": "string"
           }
         },
@@ -3351,6 +4294,7 @@
       "ConnectionGrantView": {
         "properties": {
           "assets": {
+            "description": "CAIP-19 ids. One root Balance per asset.",
             "items": {
               "type": "string"
             },
@@ -3360,32 +4304,46 @@
             ]
           },
           "id": {
+            "description": "The grant id.",
             "type": "string"
           }
         },
+        "title": "Grant",
         "type": "object"
       },
       "ConnectionIntentLink": {
         "properties": {
           "grant": {
-            "$ref": "#/components/schemas/ConnectionGrantView"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionGrantView"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the user approved. Null until they approve."
           },
           "id": {
+            "description": "The connection id.",
             "type": "string"
           },
           "reference": {
+            "description": "Your own id for the user, from a secret-key proposal. Null otherwise.",
             "type": [
               "null",
               "string"
             ]
           }
         },
+        "title": "Connection link",
         "type": "object"
       },
       "ConnectionResponse": {
         "properties": {
           "connection": {
-            "$ref": "#/components/schemas/ConnectionView"
+            "$ref": "#/components/schemas/ConnectionView",
+            "description": "The connection."
           }
         },
         "type": "object"
@@ -3393,42 +4351,59 @@
       "ConnectionSecretResponse": {
         "properties": {
           "client_secret": {
+            "description": "The secret for this connection, in the form connection_…_secret_…. With a publishable key, send it as the Final-Connection header on each request for this connection. Final returns it only once, so store it securely.",
             "type": "string"
           },
           "id": {
+            "description": "The connection id.",
             "type": "string"
           }
         },
+        "title": "Connection secret",
         "type": "object"
       },
       "ConnectionView": {
         "properties": {
           "created_at": {
+            "description": "When the user approved. While pending or failed, when the proposal was made.",
             "format": "date-time",
             "type": "string"
           },
           "failure_reason": {
+            "description": "Why the approval did not complete. Set only when status is failed.",
             "type": [
               "null",
               "string"
             ]
           },
           "grant": {
-            "$ref": "#/components/schemas/ConnectionGrantView"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionGrantView"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the user approved. Null while pending or failed."
           },
           "id": {
+            "description": "The connection id.",
             "type": "string"
           },
           "livemode": {
+            "description": "Whether this is a live-mode connection.",
             "type": "boolean"
           },
           "reference": {
+            "description": "Your own id for the user, from a secret-key proposal. Null otherwise.",
             "type": [
               "null",
               "string"
             ]
           },
           "revoked_at": {
+            "description": "When this connection was revoked, or null. Also null on a connection that is revoked because the user revoked its grant.",
             "format": "date-time",
             "type": [
               "null",
@@ -3436,74 +4411,181 @@
             ]
           },
           "status": {
+            "description": "The connection state: pending until the user approves, failed if the approval did not complete, then active until revoked. A secret key reads every state. With a publishable key and the connection's client_secret, a revoked connection answers 403 connection_revoked instead.",
+            "enum": [
+              "pending",
+              "failed",
+              "active",
+              "revoked"
+            ],
             "type": "string"
           }
         },
+        "title": "Connection",
+        "type": "object"
+      },
+      "DepositResponse": {
+        "properties": {
+          "deposit": {
+            "$ref": "#/components/schemas/DepositView",
+            "description": "The deposit."
+          }
+        },
+        "type": "object"
+      },
+      "DepositTestDepositRequest": {
+        "properties": {
+          "amount": {
+            "description": "What lands, in the Balance asset's smallest unit.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DepositView": {
+        "properties": {
+          "amount": {
+            "description": "The most authoritative figure known, in the asset's smallest unit: settled, else detected, else the pinned outbound amount.",
+            "type": "string"
+          },
+          "asset": {
+            "description": "CAIP-19 id of the asset credited.",
+            "type": "string"
+          },
+          "balance_id": {
+            "description": "The root Balance the deposit credits.",
+            "type": "string"
+          },
+          "credited_at": {
+            "description": "When the ledger entry was posted, or null.",
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "detected_at": {
+            "description": "When Final created the row.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "display_amount": {
+            "description": "amount as a decimal string, for display only.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The deposit id.",
+            "type": "string"
+          },
+          "partner_detected_at": {
+            "description": "When Final detected the inbound transfer, or null.",
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "received_via": {
+            "description": "The instruction the funds arrived through, when one was published."
+          },
+          "status": {
+            "description": "Current state of the deposit.",
+            "enum": [
+              "pending",
+              "confirmed",
+              "credited",
+              "failed",
+              "stranded"
+            ],
+            "type": "string"
+          }
+        },
+        "title": "Deposit",
         "type": "object"
       },
       "DirectdepositBatchDTO": {
         "properties": {
           "created_at": {
+            "description": "When the batch was formed.",
             "format": "date-time",
             "type": "string"
           },
           "deposit_id": {
+            "description": "The deposit the credit posts under.",
             "type": "string"
           },
           "display_fee_amount": {
+            "description": "The fee_amount as a decimal string, for display only.",
             "type": "string"
           },
           "display_gross_total": {
+            "description": "The gross_total as a decimal string, for display only.",
             "type": "string"
           },
           "display_net_amount": {
+            "description": "The net_amount as a decimal string, for display only.",
             "type": "string"
           },
           "fee_amount": {
+            "description": "Final's fee, taken from what landed.",
             "type": "string"
           },
           "fee_basis_points": {
+            "description": "The fee rate applied.",
             "type": "integer"
           },
           "gross_total": {
+            "description": "What landed, before the fee, in the asset's smallest unit.",
             "type": "string"
           },
           "id": {
+            "description": "The batch id.",
             "type": "string"
           },
           "net_amount": {
+            "description": "What is credited.",
             "type": "string"
           },
           "status": {
+            "description": "Current state of the batch.",
+            "enum": [
+              "pulling",
+              "credited",
+              "stranded"
+            ],
             "type": "string"
           },
           "strand_reason": {
+            "description": "Set when stranded.",
             "type": "string"
           }
         },
+        "title": "Deposit batch",
         "type": "object"
       },
       "DirectdepositDepositReceiptsDTO": {
         "properties": {
           "address": {
+            "description": "The user's own wallet address, where landings arrive. Every Balance on the account shares it. To show a sender where to send, use the onchain_address instruction from deposit_instructions, which withholds the address while a step is outstanding.",
             "type": "string"
           },
           "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
             ]
           },
           "asset": {
+            "description": "CAIP-19 id of the asset.",
             "type": "string"
           },
           "balance_id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "description": "The Balance asked about.",
+            "type": "string"
           },
           "data": {
+            "description": "Receipt data, newest first.",
             "items": {
               "$ref": "#/components/schemas/DirectdepositReceiptDTO"
             },
@@ -3513,38 +4595,45 @@
             ]
           },
           "display_waiting_total": {
+            "description": "The waiting_total as a decimal string, for display only.",
             "type": "string"
           },
           "fee_basis_points": {
+            "description": "Final's fee on each landing, in basis points.",
             "type": "integer"
           },
           "fiat_currency": {
+            "description": "The unit the fiat figures are in.",
             "type": "string"
           },
           "has_more": {
+            "description": "Whether another page follows.",
             "type": "boolean"
           },
           "minimum_fiat": {
+            "description": "The floor a group must reach to credit, in fiat_currency's smallest unit.",
             "type": "string"
           },
           "waiting_total": {
+            "description": "What is waiting to credit, in the asset's smallest unit.",
             "type": "string"
           },
           "waiting_total_fiat": {
+            "description": "The same, in fiat_currency's smallest unit.",
             "type": "string"
           }
         },
+        "title": "Deposit receipts",
         "type": "object"
       },
       "DirectdepositOverrideDTO": {
         "properties": {
           "balance_id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "description": "Present only when the window is on your Balance.",
+            "type": "string"
           },
           "closed_at": {
+            "description": "When it was closed early, when it was.",
             "format": "date-time",
             "type": [
               "null",
@@ -3552,32 +4641,45 @@
             ]
           },
           "created_at": {
+            "description": "When it was opened.",
             "format": "date-time",
             "type": "string"
           },
           "ends_at": {
+            "description": "When it closes.",
             "format": "date-time",
             "type": "string"
           },
           "id": {
+            "description": "Present only when the window is on your Balance.",
             "type": "string"
           },
           "opened_by_caller": {
+            "description": "Whether your own connection opened it.",
             "type": "boolean"
           },
           "starts_at": {
+            "description": "When it opened.",
             "format": "date-time",
             "type": "string"
           },
           "status": {
+            "description": "Whether it is still routing.",
+            "enum": [
+              "active",
+              "expired",
+              "cancelled"
+            ],
             "type": "string"
           }
         },
+        "title": "Routing window",
         "type": "object"
       },
       "DirectdepositOverrideRequestDTO": {
         "properties": {
           "ends_at": {
+            "description": "An hour from now by default, or the latest allowed if that is sooner. The latest allowed is 24 hours out by default and can differ by environment. A time not in the future, or later than that, answers 400 ends_at_out_of_range.",
             "format": "date-time",
             "type": [
               "null",
@@ -3585,29 +4687,36 @@
             ]
           },
           "replace_active": {
+            "description": "Close the open window and open this one in its place. Through a connection, only a window that connection opened; the account's own credentials close any window. Without it, an open window answers 409 override_in_flight.",
             "type": "boolean"
           }
         },
+        "title": "Routing window request",
         "type": "object"
       },
       "DirectdepositReceiptDTO": {
         "properties": {
           "amount": {
+            "description": "What landed, before the fee, in the asset's smallest unit.",
             "type": "string"
           },
           "asset": {
+            "description": "CAIP-19 id of what landed.",
             "type": "string"
           },
           "balance_id": {
+            "description": "The Balance it routed to, or null while unrouted.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "batch": {
-            "$ref": "#/components/schemas/DirectdepositBatchDTO"
+            "$ref": "#/components/schemas/DirectdepositBatchDTO",
+            "description": "Present once the fee pull has started."
           },
           "block_time": {
+            "description": "When the chain recorded it, when known.",
             "format": "date-time",
             "type": [
               "null",
@@ -3615,117 +4724,195 @@
             ]
           },
           "chain": {
+            "description": "CAIP-2 id of the chain it landed on.",
             "type": "string"
           },
           "display_amount": {
+            "description": "The amount as a decimal string, for display only.",
             "type": "string"
           },
           "id": {
+            "description": "The receipt id.",
             "type": "string"
           },
           "livemode": {
+            "description": "Whether this is a live-mode landing.",
             "type": "boolean"
           },
           "observed_at": {
+            "description": "When Final saw it.",
             "format": "date-time",
             "type": "string"
           },
           "routed_by": {
+            "description": "The rule that routed it.",
+            "enum": [
+              "override",
+              "default",
+              "sole_balance",
+              "oldest_balance"
+            ],
             "type": "string"
           },
           "status": {
+            "description": "Current state of the landing.",
+            "enum": [
+              "uncredited",
+              "held",
+              "unbacked",
+              "rejected",
+              "pulling",
+              "credited"
+            ],
             "type": "string"
           },
           "tx_signature": {
+            "description": "The on-chain transaction.",
             "type": "string"
           },
           "waiting_reason": {
+            "description": "Why it has not credited. Absent when nothing is in the way.",
+            "enum": [
+              "unrouted",
+              "delegation_required",
+              "below_minimum"
+            ],
             "type": "string"
           }
         },
+        "title": "Deposit receipt",
         "type": "object"
       },
       "DirectdepositRoutingDTO": {
         "properties": {
           "address": {
+            "description": "The user's own wallet address, where landings arrive. Every Balance on the account shares it. To show a sender where to send, use the onchain_address instruction from deposit_instructions, which withholds the address while a step is outstanding.",
             "type": "string"
           },
           "asset": {
+            "description": "CAIP-19 id of the asset.",
             "type": "string"
           },
           "balance_id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "description": "The Balance asked about.",
+            "type": "string"
           },
           "default_balance_id": {
+            "description": "The account's default for this asset, or null when unset or not yours.",
             "type": [
-              "string",
-              "null"
+              "null",
+              "string"
             ]
           },
           "is_default": {
+            "description": "Whether this Balance is the default.",
             "type": "boolean"
           },
           "override": {
-            "$ref": "#/components/schemas/DirectdepositOverrideDTO"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectdepositOverrideDTO"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The open window, or null."
           },
           "routed_by": {
+            "description": "The rule a landing arriving now would route by.",
+            "enum": [
+              "override",
+              "default",
+              "sole_balance",
+              "oldest_balance"
+            ],
             "type": "string"
           }
         },
+        "title": "Deposit routing",
         "type": "object"
       },
       "ExchangerateResponse": {
         "properties": {
           "base": {
+            "description": "CAIP-19 id of the held asset.",
             "type": "string"
           },
           "display_rate": {
+            "description": "The rate, rounded for display only.",
             "type": "string"
           },
           "quote": {
+            "description": "The fiat unit.",
             "type": "string"
           },
           "rate": {
+            "description": "Quote units per one base unit, as a decimal string. Compute against this.",
             "type": "string"
           }
         },
+        "title": "Exchange rate",
         "type": "object"
       },
       "HttpxAPIError": {
         "properties": {
           "code": {
+            "description": "What to branch on.",
             "type": "string"
           },
-          "detail": {},
+          "detail": {
+            "description": "More about the failure, as an object whose shape depends on code. On a user-present gate it carries url, where to send the user."
+          },
           "message": {
+            "description": "For logs, not for users.",
             "type": "string"
           },
           "param": {
+            "description": "The field at fault, when one is.",
             "type": "string"
           },
           "request_id": {
+            "description": "Always present. The X-Request-ID that you sent, or an id that Final generates if you sent none or an invalid one. Include this value in support requests.",
             "type": "string"
           },
           "type": {
+            "description": "The class of failure.",
+            "enum": [
+              "invalid_request",
+              "authentication",
+              "permission",
+              "compliance",
+              "payment_required",
+              "not_found",
+              "conflict",
+              "gone",
+              "precondition",
+              "rate_limited",
+              "unavailable",
+              "upstream_failed",
+              "internal"
+            ],
             "type": "string"
           }
         },
+        "title": "Error",
         "type": "object"
       },
       "HttpxErrorEnvelope": {
         "properties": {
           "error": {
-            "$ref": "#/components/schemas/HttpxAPIError"
+            "$ref": "#/components/schemas/HttpxAPIError",
+            "description": "The error."
           }
         },
+        "title": "Error envelope",
         "type": "object"
       },
       "IntentAccountConnectPayload": {
         "properties": {
           "assets": {
+            "description": "1 to 8 CAIP-19 ids. One root Balance each.",
             "items": {
               "type": "string"
             },
@@ -3735,38 +4922,48 @@
             ]
           },
           "code_challenge": {
+            "description": "The PKCE challenge: base64url(sha256(code_verifier)). Required on a publishable key.",
             "type": "string"
           },
           "direct_deposit": {
+            "description": "Ask to route the user's own deposits to your Balances.",
             "type": "boolean"
           },
           "redirect_uri": {
+            "description": "Must exactly equal a registered redirect. Omitting it falls back to the primary.",
             "type": "string"
           },
           "reference": {
+            "description": "Your own id for the user, up to 256 printable characters. Secret key only.",
             "type": "string"
           }
         },
+        "title": "Account connect payload",
         "type": "object"
       },
       "IntentAccountConnectResult": {
         "properties": {
           "id": {
+            "description": "The connection id.",
             "type": "string"
           },
           "kind": {
+            "description": "The intent kind. Always account.connect.",
             "type": "string"
           }
         },
+        "title": "Account connect result",
         "type": "object"
       },
       "IntentCreateRequest": {
         "properties": {
           "kind": {
-            "$ref": "#/components/schemas/IntentKind"
+            "$ref": "#/components/schemas/IntentKind",
+            "description": "The type of proposal. Currently always account.connect."
           },
           "payload": {
-            "$ref": "#/components/schemas/IntentPayloadUnion"
+            "$ref": "#/components/schemas/IntentPayloadUnion",
+            "description": "The details of the proposal. Its shape depends on kind."
           }
         },
         "type": "object"
@@ -3774,10 +4971,12 @@
       "IntentCreateResponse": {
         "properties": {
           "connection": {
-            "$ref": "#/components/schemas/IntentCreateResponseConnection"
+            "$ref": "#/components/schemas/IntentCreateResponseConnection",
+            "description": "The connection whose creation is proposed."
           },
           "intent": {
-            "$ref": "#/components/schemas/IntentView"
+            "$ref": "#/components/schemas/IntentView",
+            "description": "The intent."
           }
         },
         "type": "object"
@@ -3785,6 +4984,7 @@
       "IntentCreateResponseConnection": {
         "properties": {
           "id": {
+            "description": "The connection id you will activate or address.",
             "type": "string"
           }
         },
@@ -3799,12 +4999,14 @@
       "IntentListResponse": {
         "properties": {
           "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
             ]
           },
           "data": {
+            "description": "The page, in order.",
             "items": {
               "$ref": "#/components/schemas/IntentView"
             },
@@ -3814,6 +5016,7 @@
             ]
           },
           "has_more": {
+            "description": "Whether another page follows.",
             "type": "boolean"
           }
         },
@@ -3831,7 +5034,8 @@
       "IntentResponse": {
         "properties": {
           "intent": {
-            "$ref": "#/components/schemas/IntentView"
+            "$ref": "#/components/schemas/IntentView",
+            "description": "The intent."
           }
         },
         "type": "object"
@@ -3839,15 +5043,18 @@
       "IntentView": {
         "properties": {
           "account_id": {
+            "description": "Your integrator account.",
             "type": "string"
           },
           "approval_url": {
+            "description": "Open it top level as it is. Set only while status is pending_approval, null otherwise. It does not expire.",
             "type": [
               "null",
               "string"
             ]
           },
           "approved_at": {
+            "description": "When the user approved, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -3855,6 +5062,7 @@
             ]
           },
           "completed_at": {
+            "description": "When it completed, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -3862,13 +5070,16 @@
             ]
           },
           "connection": {
-            "$ref": "#/components/schemas/ConnectionIntentLink"
+            "$ref": "#/components/schemas/ConnectionIntentLink",
+            "description": "The connection created from this proposal. Present on the single read and on events, never on the list."
           },
           "created_at": {
+            "description": "When it was proposed.",
             "format": "date-time",
             "type": "string"
           },
           "failed_at": {
+            "description": "When it failed, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -3876,38 +5087,54 @@
             ]
           },
           "failure_reason": {
+            "description": "Set when failed.",
             "type": [
               "null",
               "string"
             ]
           },
           "id": {
+            "description": "The intent id.",
             "type": "string"
           },
           "kind": {
-            "$ref": "#/components/schemas/IntentKind"
+            "$ref": "#/components/schemas/IntentKind",
+            "description": "The type of proposal. Currently always account.connect."
           },
           "payload": {
-            "$ref": "#/components/schemas/IntentPayloadUnion"
+            "$ref": "#/components/schemas/IntentPayloadUnion",
+            "description": "The details of the proposal. Its shape depends on kind."
           },
           "result_resource": {
-            "$ref": "#/components/schemas/IntentAccountConnectResult"
+            "$ref": "#/components/schemas/IntentAccountConnectResult",
+            "description": "The connection the approval created, once completed."
           },
           "status": {
+            "description": "Current state of the intent.",
+            "enum": [
+              "pending_approval",
+              "approved",
+              "completed",
+              "failed"
+            ],
             "type": "string"
           }
         },
+        "title": "Intent",
         "type": "object"
       },
       "LimitsCalendarWindowRule": {
         "properties": {
           "id": {
+            "description": "Assigned by Final.",
             "type": "string"
           },
           "max": {
-            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+            "$ref": "#/components/schemas/LimitsRuleVariantMax",
+            "description": "The cap."
           },
           "period": {
+            "description": "The calendar period.",
             "enum": [
               "day",
               "week",
@@ -3918,80 +5145,99 @@
             "type": "string"
           },
           "type": {
+            "description": "At most max per calendar period.",
             "enum": [
               "calendar_window"
             ],
             "type": "string"
           }
         },
+        "title": "Calendar window rule",
         "type": "object"
       },
       "LimitsLifetimeRule": {
         "properties": {
           "id": {
+            "description": "Assigned by Final.",
             "type": "string"
           },
           "max": {
-            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+            "$ref": "#/components/schemas/LimitsRuleVariantMax",
+            "description": "The cap."
           },
           "type": {
+            "description": "At most max ever.",
             "enum": [
               "lifetime"
             ],
             "type": "string"
           }
         },
+        "title": "Lifetime rule",
         "type": "object"
       },
       "LimitsPerRecipientRule": {
         "properties": {
           "id": {
+            "description": "Assigned by Final.",
             "type": "string"
           },
           "max": {
-            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+            "$ref": "#/components/schemas/LimitsRuleVariantMax",
+            "description": "The cap."
           },
           "recipient": {
-            "$ref": "#/components/schemas/LimitsRecipientRef"
+            "$ref": "#/components/schemas/LimitsRecipientRef",
+            "description": "Who the cap applies to."
           },
           "type": {
+            "description": "At most max to one recipient.",
             "enum": [
               "per_recipient"
             ],
             "type": "string"
           }
         },
+        "title": "Per-recipient rule",
         "type": "object"
       },
       "LimitsRecipientRef": {
         "properties": {
           "id": {
+            "description": "The merchant name as the issuer reports it.",
             "type": "string"
           },
           "kind": {
+            "description": "The recipient kind: merchant, for card spend.",
             "type": "string"
           }
         },
+        "title": "Recipient",
         "type": "object"
       },
       "LimitsRollingWindowRule": {
         "properties": {
           "id": {
+            "description": "Assigned by Final.",
             "type": "string"
           },
           "max": {
-            "$ref": "#/components/schemas/LimitsRuleVariantMax"
+            "$ref": "#/components/schemas/LimitsRuleVariantMax",
+            "description": "The cap."
           },
           "type": {
+            "description": "At most max in any window of this length.",
             "enum": [
               "rolling_window"
             ],
             "type": "string"
           },
           "window": {
+            "description": "ISO 8601 duration, such as P1D or PT1H.",
             "type": "string"
           }
         },
+        "title": "Rolling window rule",
         "type": "object"
       },
       "LimitsRuleUnion": {
@@ -4010,17 +5256,21 @@
             "$ref": "#/components/schemas/LimitsPerRecipientRule"
           }
         ],
+        "title": "Limit rule",
         "type": "object"
       },
       "LimitsRuleVariantMax": {
         "properties": {
           "amount": {
+            "description": "The cap, in that asset's smallest unit.",
             "type": "string"
           },
           "asset": {
+            "description": "The cap's asset: iso4217:USD, or the Balance's own asset.",
             "type": "string"
           }
         },
+        "title": "Limit cap",
         "type": "object"
       }
     },
