@@ -7,7 +7,7 @@ export const Intent = () => (
     </ResponseField>
 
     <ResponseField name="approval_url" type="string | null">
-      Open it top level as it is. It does not expire.
+      Open it top level as it is. Set only while status is pending_approval, null otherwise. It does not expire.
     </ResponseField>
 
     <ResponseField name="approved_at" type="string | null">
@@ -19,7 +19,7 @@ export const Intent = () => (
     </ResponseField>
 
     <ResponseField name="connection" type="Connection link">
-      The connection this proposal became. Present on the single read and on events, never on the list. See <a href="/reference/objects/connection-link">Connection link</a>.
+      The connection created from this proposal. Present on the single read and on events, never on the list. See <a href="/reference/objects/connection-link">Connection link</a>.
     </ResponseField>
 
     <ResponseField name="created_at" type="string">
@@ -39,11 +39,11 @@ export const Intent = () => (
     </ResponseField>
 
     <ResponseField name="kind" type="IntentKind">
-      What was proposed.
+      The type of proposal. Currently always account.connect.
     </ResponseField>
 
     <ResponseField name="payload" type="IntentPayloadUnion">
-      What you proposed.
+      The details of the proposal. Its shape depends on kind.
       <Expandable title="fields">
         <ResponseField name="Account connect payload" type="object">
           Account connect payload.
@@ -53,7 +53,7 @@ export const Intent = () => (
             </ResponseField>
 
             <ResponseField name="code_challenge" type="string">
-              base64url(sha256(code_verifier)). Required on a publishable key.
+              The PKCE challenge: base64url(sha256(code_verifier)). Required on a publishable key.
             </ResponseField>
 
             <ResponseField name="direct_deposit" type="boolean">
@@ -80,13 +80,13 @@ export const Intent = () => (
         </ResponseField>
 
         <ResponseField name="kind" type="string">
-          account.connect.
+          The intent kind. Always account.connect.
         </ResponseField>
       </Expandable>
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Where the intent is. One of <code>pending_approval</code>, <code>approved</code>, <code>completed</code>, <code>failed</code>.
+      Current state of the intent. One of <code>pending_approval</code>, <code>approved</code>, <code>completed</code>, <code>failed</code>.
     </ResponseField>
   </>
 );

@@ -3,7 +3,7 @@
 export const DepositRouting = () => (
   <>
     <ResponseField name="address" type="string">
-      The address landings in this asset arrive on.
+      The user's own wallet address, where landings arrive. Every Balance on the account shares it. To show a sender where to send, use the onchain_address instruction from deposit_instructions, which withholds the address while a step is outstanding.
     </ResponseField>
 
     <ResponseField name="asset" type="string">
@@ -22,8 +22,8 @@ export const DepositRouting = () => (
       Whether this Balance is the default.
     </ResponseField>
 
-    <ResponseField name="override" type="Routing window">
-      The open window, or null. See <a href="/reference/objects/routing-window">Routing window</a>.
+    <ResponseField name="override" type="object">
+      The open window, or null.
     </ResponseField>
 
     <ResponseField name="routed_by" type="string">

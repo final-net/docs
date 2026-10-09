@@ -23,7 +23,7 @@ export const Transaction = () => (
     </ResponseField>
 
     <ResponseField name="display_amount" type="string">
-      amount as a decimal string, for display only.
+      The amount as a decimal string, for display only.
     </ResponseField>
 
     <ResponseField name="fiat" type="Transaction fiat">
@@ -38,7 +38,7 @@ export const Transaction = () => (
         </ResponseField>
 
         <ResponseField name="display_amount" type="string">
-          amount as a decimal string, for display only.
+          The amount as a decimal string, for display only.
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -65,14 +65,10 @@ export const Transaction = () => (
     </ResponseField>
 
     <ResponseField name="related" type="Transaction related resource">
-      The deposit this entry belongs to. Absent on card spend.
+      The deposit or direct-deposit landing this entry credits. Absent on card entries.
       <Expandable title="fields">
-        <ResponseField name="card_id" type="string">
-          The card, where an entry is attributed to one.
-        </ResponseField>
-
         <ResponseField name="deposit_id" type="string">
-          The deposit this credit posts under.
+          The deposit this credit posts under. Set on every deposit entry, direct deposits included.
         </ResponseField>
 
         <ResponseField name="deposit_receipt_id" type="string">
@@ -86,7 +82,7 @@ export const Transaction = () => (
     </ResponseField>
 
     <ResponseField name="type" type="string">
-      deposit_credited for a credit that landed, card_auth for card spend charged at authorization. One of <code>deposit_credited</code>, <code>card_auth</code>.
+      The entry type. deposit_credited is a deposit that Final credited. card_auth is card spend at authorization as a debit, or the credit that reverses it when the authorization is voided. More types will be added, so handle a value you do not recognise.
     </ResponseField>
   </>
 );

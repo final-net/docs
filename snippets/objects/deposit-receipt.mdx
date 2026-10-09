@@ -3,7 +3,7 @@
 export const DepositReceipt = () => (
   <>
     <ResponseField name="amount" type="string">
-      What landed, in the asset's smallest unit.
+      What landed, before the fee, in the asset's smallest unit.
     </ResponseField>
 
     <ResponseField name="asset" type="string">
@@ -26,15 +26,15 @@ export const DepositReceipt = () => (
         </ResponseField>
 
         <ResponseField name="display_fee_amount" type="string">
-          fee_amount as a decimal string, for display only.
+          The fee_amount as a decimal string, for display only.
         </ResponseField>
 
         <ResponseField name="display_gross_total" type="string">
-          gross_total as a decimal string, for display only.
+          The gross_total as a decimal string, for display only.
         </ResponseField>
 
         <ResponseField name="display_net_amount" type="string">
-          net_amount as a decimal string, for display only.
+          The net_amount as a decimal string, for display only.
         </ResponseField>
 
         <ResponseField name="fee_amount" type="string">
@@ -58,7 +58,7 @@ export const DepositReceipt = () => (
         </ResponseField>
 
         <ResponseField name="status" type="string">
-          Where the batch is. One of <code>pulling</code>, <code>credited</code>, <code>stranded</code>.
+          Current state of the batch. One of <code>pulling</code>, <code>credited</code>, <code>stranded</code>.
         </ResponseField>
 
         <ResponseField name="strand_reason" type="string">
@@ -76,7 +76,7 @@ export const DepositReceipt = () => (
     </ResponseField>
 
     <ResponseField name="display_amount" type="string">
-      amount as a decimal string, for display only.
+      The amount as a decimal string, for display only.
     </ResponseField>
 
     <ResponseField name="id" type="string">
@@ -96,7 +96,7 @@ export const DepositReceipt = () => (
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Where the landing is. One of <code>uncredited</code>, <code>held</code>, <code>unbacked</code>, <code>rejected</code>, <code>pulling</code>, <code>credited</code>.
+      Current state of the landing. One of <code>uncredited</code>, <code>held</code>, <code>unbacked</code>, <code>rejected</code>, <code>pulling</code>, <code>credited</code>.
     </ResponseField>
 
     <ResponseField name="tx_signature" type="string">

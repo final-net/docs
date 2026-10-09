@@ -7,11 +7,11 @@ export const SwapInstruction = () => (
     </ResponseField>
 
     <ResponseField name="display_inbound_amount" type="string">
-      inbound_amount as a decimal string, for display only.
+      The inbound_amount as a decimal string, for display only.
     </ResponseField>
 
     <ResponseField name="display_outbound_amount" type="string">
-      outbound_amount as a decimal string, for display only.
+      The outbound_amount as a decimal string, for display only.
     </ResponseField>
 
     <ResponseField name="estimated_settlement_minutes" type="integer">
@@ -27,11 +27,11 @@ export const SwapInstruction = () => (
     </ResponseField>
 
     <ResponseField name="memo" type="string | null">
-      Always null.
+      Currently always null, reserved for future asset support.
     </ResponseField>
 
     <ResponseField name="min_source_confirmations" type="integer">
-      Confirmations the partner waits for on the source chain.
+      The number of confirmations required on the source chain.
     </ResponseField>
 
     <ResponseField name="outbound_amount" type="string">
@@ -47,7 +47,7 @@ export const SwapInstruction = () => (
     </ResponseField>
 
     <ResponseField name="type" type="string">
-      Send a different asset, which a partner swaps in. Always <code>swap_via</code>.
+      Send a different asset, which Final swaps into the asset of the Balance. Always <code>swap_via</code>.
     </ResponseField>
   </>
 );

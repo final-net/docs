@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/v1/assets": {
+    "/assets": {
       "get": {
         "tags": [
           "Assets"
@@ -33,12 +33,12 @@
         "x-audience": "public"
       }
     },
-    "/v1/assets/shortlist": {
+    "/assets/shortlist": {
       "get": {
         "tags": [
           "Assets"
         ],
-        "summary": "List assets a Balance can be opened with",
+        "summary": "List the asset shortlist",
         "description": "List the assets a balance can be opened with, before there is an account to ask on behalf of.",
         "operationId": "listAssetShortlist",
         "responses": {
@@ -66,12 +66,12 @@
         "x-audience": "public"
       }
     },
-    "/v1/balances": {
+    "/balances": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "List balances",
+        "summary": "List Balances",
         "description": "List the balances this credential reaches, with their ledger-derived available and pending amounts.",
         "operationId": "listBalances",
         "parameters": [
@@ -110,9 +110,9 @@
           {
             "name": "parent_balance_id",
             "in": "query",
-            "description": "null for roots only, or a parent's id for its children.",
+            "description": "Send null to list root Balances only, or a parent's id to list its children. Omit it to list every Balance.",
             "schema": {
-              "description": "null for roots only, or a parent's id for its children.",
+              "description": "Send null to list root Balances only, or a parent's id to list its children. Omit it to list every Balance.",
               "type": "string"
             }
           },
@@ -188,7 +188,7 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Create a balance",
+        "summary": "Create a Balance",
         "description": "Open a sub-balance under one of your root balances, with its own spending limits; roots are created when the user approves a connection.",
         "operationId": "createBalance",
         "parameters": [
@@ -291,12 +291,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}": {
+    "/balances/{balance_id}": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "Get a balance",
+        "summary": "Get a Balance",
         "description": "Read one balance, including its limits, the limits an ancestor imposed on it, and its card.",
         "operationId": "getBalance",
         "parameters": [
@@ -312,8 +312,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -378,12 +380,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_instructions": {
+    "/balances/{balance_id}/deposit_instructions": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "Get deposit instructions for a balance",
+        "summary": "Get deposit instructions",
         "description": "Read where to send funds for a balance's tree: its deposit address when the grant allows direct deposit, and any open swap allocations.",
         "operationId": "getBalanceDepositInstructions",
         "parameters": [
@@ -399,8 +401,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -488,8 +492,8 @@
         "tags": [
           "Balances"
         ],
-        "summary": "Allocate a swap-receive address for a balance",
-        "description": "Pin an exact-amount swap deposit, which a partner swaps into the balance's asset; answers no_inflow_route for an asset nothing swaps into.",
+        "summary": "Create swap deposit instructions",
+        "description": "Fix the exact amounts of a swap deposit and get the address to send to. Final swaps the asset that the user sends into the asset of the Balance. If no asset swaps into this asset, Final returns `no_inflow_route`.",
         "operationId": "allocateBalanceDepositInstructions",
         "parameters": [
           {
@@ -504,8 +508,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -599,12 +605,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_receipts": {
+    "/balances/{balance_id}/deposit_receipts": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "List what has landed in a balance's account",
+        "summary": "List deposit receipts",
         "description": "List every direct deposit routed to this balance, newest first, including the ones still waiting and why.",
         "operationId": "listDepositReceipts",
         "parameters": [
@@ -620,9 +626,9 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "Default 25.",
+            "description": "Default 25, at most 100.",
             "schema": {
-              "description": "Default 25.",
+              "description": "Default 25, at most 100.",
               "type": "integer"
             }
           },
@@ -638,8 +644,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -724,13 +732,13 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing": {
+    "/balances/{balance_id}/deposit_routing": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "Get where deposits in this asset are credited",
-        "description": "Read which rule a deposit landing in this balance's asset would route by right now.",
+        "summary": "Get deposit routing",
+        "description": "Read which rule a deposit landing in this balance's asset would route by right now, and so which Balance Final credits.",
         "operationId": "getDepositRouting",
         "parameters": [
           {
@@ -745,8 +753,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -831,12 +841,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing/default": {
+    "/balances/{balance_id}/deposit_routing/default": {
       "post": {
         "tags": [
           "Balances"
         ],
-        "summary": "Make this balance the default for deposits in its asset",
+        "summary": "Set the routing default",
         "description": "Make this balance where the account's deposits in its asset go when no routing window covers them.",
         "operationId": "setDefaultDepositBalance",
         "parameters": [
@@ -852,8 +862,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -938,12 +950,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing/overrides": {
+    "/balances/{balance_id}/deposit_routing/overrides": {
       "post": {
         "tags": [
           "Balances"
         ],
-        "summary": "Route the next deposits in this asset to this balance",
+        "summary": "Open a routing window",
         "description": "Open a window during which the account's deposits in this asset route to this balance.",
         "operationId": "createDepositRoutingOverride",
         "parameters": [
@@ -959,8 +971,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -1064,12 +1078,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/deposit_routing/overrides/{override_id}": {
+    "/balances/{balance_id}/deposit_routing/overrides/{override_id}": {
       "delete": {
         "tags": [
           "Balances"
         ],
-        "summary": "Cancel a deposit routing override",
+        "summary": "Close a routing window",
         "description": "Close a routing window you opened; what landed inside it before now still routes to you.",
         "operationId": "cancelDepositRoutingOverride",
         "parameters": [
@@ -1085,16 +1099,20 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           },
           {
             "name": "override_id",
             "in": "path",
+            "description": "The routing window id.",
             "required": true,
             "schema": {
+              "description": "The routing window id.",
               "type": "string"
             }
           }
@@ -1172,13 +1190,13 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/test_deposits": {
+    "/balances/{balance_id}/test_deposits": {
       "post": {
         "tags": [
           "Balances"
         ],
-        "summary": "Simulate a deposit landing on a simulated balance (test mode)",
-        "description": "Credit a simulated test-mode balance as if the asset had landed, which activates a provisioning card on its tree; nothing can be sent to a simulated balance's placeholder address.",
+        "summary": "Simulate a deposit",
+        "description": "Credit a simulated test-mode balance as if a deposit had arrived, which also activates a card still provisioning on its tree.",
         "operationId": "createBalanceTestDeposit",
         "parameters": [
           {
@@ -1193,8 +1211,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -1278,6 +1298,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1288,12 +1318,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/balances/{balance_id}/transactions": {
+    "/balances/{balance_id}/transactions": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "List balance transactions",
+        "summary": "List transactions",
         "description": "List the ledger entries for a balance: deposits credited and card spend as it is charged.",
         "operationId": "listBalanceTransactions",
         "parameters": [
@@ -1309,22 +1339,18 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "Default 25, at most 100.",
+            "description": "Default 50, at most 100.",
             "schema": {
-              "description": "Default 25, at most 100.",
+              "description": "Default 50, at most 100.",
               "type": "integer"
             }
           },
           {
             "name": "type",
             "in": "query",
-            "description": "Narrow to one entry type.",
+            "description": "Narrow to one entry type, such as deposit_credited or card_auth. A type with no entries returns an empty page.",
             "schema": {
-              "description": "Narrow to one entry type.",
-              "enum": [
-                "deposit_credited",
-                "card_auth"
-              ],
+              "description": "Narrow to one entry type, such as deposit_credited or card_auth. A type with no entries returns an empty page.",
               "type": "string"
             }
           },
@@ -1341,9 +1367,9 @@
           {
             "name": "to",
             "in": "query",
-            "description": "Exclusive upper bound on created_at, RFC 3339.",
+            "description": "Inclusive upper bound on created_at, RFC 3339.",
             "schema": {
-              "description": "Exclusive upper bound on created_at, RFC 3339.",
+              "description": "Inclusive upper bound on created_at, RFC 3339.",
               "format": "date-time",
               "type": "string"
             }
@@ -1360,8 +1386,10 @@
           {
             "name": "balance_id",
             "in": "path",
+            "description": "The Balance id.",
             "required": true,
             "schema": {
+              "description": "The Balance id.",
               "type": "string"
             }
           }
@@ -1426,20 +1454,22 @@
         "x-audience": "connection"
       }
     },
-    "/v1/card_art/{card_art_key}.webp": {
+    "/card_art/{card_art_key}.webp": {
       "get": {
         "tags": [
           "Accounts"
         ],
-        "summary": "Get stored integrator card art — served as image/webp with immutable caching; the URL comes from the profile's card_art_url and is not constructed by callers",
-        "description": "Serve a stored integrator card art image.",
+        "summary": "Get card art",
+        "description": "Read a stored integrator card art image. Final returns it as image/webp with immutable caching. Use the URL in the profile's `card_art_url`, and do not build it yourself.",
         "operationId": "getIntegratorCardArt",
         "parameters": [
           {
             "name": "card_art_key",
             "in": "path",
+            "description": "The key in the card_art_url an upload returned.",
             "required": true,
             "schema": {
+              "description": "The key in the card_art_url an upload returned.",
               "type": "string"
             }
           }
@@ -1469,7 +1499,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/cards": {
+    "/cards": {
       "get": {
         "tags": [
           "Cards"
@@ -1499,9 +1529,9 @@
           {
             "name": "status",
             "in": "query",
-            "description": "Default active.",
+            "description": "Which cards to list. active, the default, returns every card that is not closed, including provisioning and frozen ones. provisioning, frozen or closed narrows to that status, and all adds closed cards to the default set.",
             "schema": {
-              "description": "Default active.",
+              "description": "Which cards to list. active, the default, returns every card that is not closed, including provisioning and frozen ones. provisioning, frozen or closed narrows to that status, and all adds closed cards to the default set.",
               "enum": [
                 "active",
                 "provisioning",
@@ -1697,7 +1727,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}": {
+    "/cards/{card_id}": {
       "get": {
         "tags": [
           "Cards"
@@ -1718,8 +1748,10 @@
           {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1803,8 +1835,10 @@
           {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1862,12 +1896,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/embed_url": {
+    "/cards/{card_id}/embed_url": {
       "post": {
         "tags": [
           "Cards"
         ],
-        "summary": "Mint a short-lived embed URL for a card",
+        "summary": "Create a card embed URL",
         "description": "Mint a short-lived URL that renders the card number, expiry and CVC; the only place one is minted.",
         "operationId": "createCardEmbedURL",
         "parameters": [
@@ -1883,8 +1917,10 @@
           {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -1969,7 +2005,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/freeze": {
+    "/cards/{card_id}/freeze": {
       "post": {
         "tags": [
           "Cards"
@@ -1990,8 +2026,10 @@
           {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -2066,12 +2104,12 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/test_authorizations": {
+    "/cards/{card_id}/test_authorizations": {
       "post": {
         "tags": [
           "Cards"
         ],
-        "summary": "Simulate a card authorization (test mode)",
+        "summary": "Simulate a card authorization",
         "description": "Simulate a purchase on a test-mode card, through the real authorization decision and settlement.",
         "operationId": "createCardTestAuthorization",
         "parameters": [
@@ -2087,8 +2125,10 @@
           {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -2182,7 +2222,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/cards/{card_id}/unfreeze": {
+    "/cards/{card_id}/unfreeze": {
       "post": {
         "tags": [
           "Cards"
@@ -2203,8 +2243,10 @@
           {
             "name": "card_id",
             "in": "path",
+            "description": "The card id.",
             "required": true,
             "schema": {
+              "description": "The card id.",
               "type": "string"
             }
           }
@@ -2279,7 +2321,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/connections/{connection_id}": {
+    "/connections/{connection_id}": {
       "get": {
         "tags": [
           "Connections"
@@ -2289,10 +2331,21 @@
         "operationId": "getConnection",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -2370,15 +2423,26 @@
         "tags": [
           "Connections"
         ],
-        "summary": "Revoke a connection — this install only",
+        "summary": "Revoke a connection",
         "description": "Revoke this connection, and only this one; the user's balances and other installs are untouched.",
         "operationId": "revokeConnection",
         "parameters": [
           {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -2446,20 +2510,22 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/connections/{connection_id}/activate": {
+    "/connections/{connection_id}/activate": {
       "post": {
         "tags": [
           "Connections"
         ],
-        "summary": "Exchange the activation code and verifier for the connection's client_secret",
+        "summary": "Activate a connection",
         "description": "Exchange the activation code from the redirect and your PKCE verifier for the connection's client_secret, issued once.",
         "operationId": "activateConnection",
         "parameters": [
           {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -2543,12 +2609,12 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/connections/{connection_id}/events": {
+    "/connections/{connection_id}/events": {
       "get": {
         "tags": [
           "Connections"
         ],
-        "summary": "Connection event stream (SSE)",
+        "summary": "Stream connection events",
         "description": "Open a Server-Sent Events stream of everything that happens on the balances this connection reaches.",
         "operationId": "streamConnectionEvents",
         "parameters": [
@@ -2564,8 +2630,10 @@
           {
             "name": "connection_id",
             "in": "path",
+            "description": "The connection id.",
             "required": true,
             "schema": {
+              "description": "The connection id.",
               "type": "string"
             }
           }
@@ -2640,7 +2708,7 @@
         "x-audience": "connection"
       }
     },
-    "/v1/exchange_rate": {
+    "/exchange_rate": {
       "get": {
         "tags": [
           "Assets"
@@ -2649,6 +2717,15 @@
         "description": "Read a spot exchange rate between a held asset and a fiat currency, for display; nothing is converted at this rate.",
         "operationId": "getExchangeRate",
         "parameters": [
+          {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
           {
             "name": "base",
             "in": "query",
@@ -2728,12 +2805,12 @@
         "x-audience": "shared"
       }
     },
-    "/v1/inflow_assets": {
+    "/inflow_assets": {
       "get": {
         "tags": [
           "Assets"
         ],
-        "summary": "List inflow (swap-source) assets",
+        "summary": "List inflow assets",
         "description": "List the assets a user can send to be swapped into a holdable asset.",
         "operationId": "listInflowAssets",
         "responses": {
@@ -2751,7 +2828,7 @@
         "x-audience": "public"
       }
     },
-    "/v1/intents": {
+    "/intents": {
       "get": {
         "tags": [
           "Intents"
@@ -2856,8 +2933,8 @@
         "tags": [
           "Intents"
         ],
-        "summary": "Create an intent (integrator or publishable key)",
-        "description": "Propose an account.connect intent, which a user approves on a Final-hosted page to connect their balances to you.",
+        "summary": "Create an intent",
+        "description": "Propose an account.connect intent, which a user approves on a Final-hosted page to connect their balances to you. Call it with a secret key or a publishable key.",
         "operationId": "createIntent",
         "requestBody": {
           "content": {
@@ -2938,7 +3015,7 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/intents/{intent_id}": {
+    "/intents/{intent_id}": {
       "get": {
         "tags": [
           "Intents"
@@ -2950,8 +3027,10 @@
           {
             "name": "intent_id",
             "in": "path",
+            "description": "The intent id.",
             "required": true,
             "schema": {
+              "description": "The intent id.",
               "type": "string"
             }
           }
@@ -3026,20 +3105,22 @@
         "x-audience": "integrator"
       }
     },
-    "/v1/logos/{logo_key}.webp": {
+    "/logos/{logo_key}.webp": {
       "get": {
         "tags": [
           "Accounts"
         ],
-        "summary": "Get a stored integrator logo — served as image/webp with immutable caching; the URL comes from the profile's logo_url and is not constructed by callers",
-        "description": "Serve a stored integrator logo image.",
+        "summary": "Get a logo",
+        "description": "Read a stored integrator logo image. Final returns it as image/webp with immutable caching. Use the URL in the profile's `logo_url`, and do not build it yourself.",
         "operationId": "getIntegratorLogo",
         "parameters": [
           {
             "name": "logo_key",
             "in": "path",
+            "description": "The key in the logo_url an upload returned.",
             "required": true,
             "schema": {
+              "description": "The key in the logo_url an upload returned.",
               "type": "string"
             }
           }
@@ -3069,12 +3150,12 @@
         "x-audience": "public"
       }
     },
-    "/v1/transactions/export": {
+    "/transactions/export": {
       "get": {
         "tags": [
           "Balances"
         ],
-        "summary": "Download transaction history as a CSV file",
+        "summary": "Export transactions",
         "description": "Download the transaction history of the balances this credential reaches as a CSV file; refused in test mode.",
         "operationId": "exportTransactions",
         "parameters": [
@@ -3212,14 +3293,14 @@
       "AssetsDepositInstructionShape": {
         "properties": {
           "chain": {
-            "description": "onchain_address: CAIP-2 id of the chain to send on.",
+            "description": "For onchain_address, the CAIP-2 id of the chain to send on.",
             "type": [
               "null",
               "string"
             ]
           },
           "source_chain": {
-            "description": "swap_via: CAIP-2 id of the chain the user sends on.",
+            "description": "For swap_via, the CAIP-2 id of the chain the user sends on.",
             "type": [
               "null",
               "string"
@@ -3368,14 +3449,14 @@
             "type": "string"
           },
           "display_available": {
-            "description": "available as a decimal string, for display only.",
+            "description": "The available amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
             ]
           },
           "display_pending": {
-            "description": "pending as a decimal string, for display only.",
+            "description": "The pending amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
@@ -3438,7 +3519,8 @@
       "BalanceConnectionCreateResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+            "$ref": "#/components/schemas/BalanceConnectionBalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -3446,7 +3528,8 @@
       "BalanceConnectionGetResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceConnectionBalanceView"
+            "$ref": "#/components/schemas/BalanceConnectionBalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -3514,7 +3597,8 @@
       "BalanceCreateResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceView"
+            "$ref": "#/components/schemas/BalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -3599,7 +3683,8 @@
       "BalanceGetResponse": {
         "properties": {
           "balance": {
-            "$ref": "#/components/schemas/BalanceView"
+            "$ref": "#/components/schemas/BalanceView",
+            "description": "The Balance."
           }
         },
         "type": "object"
@@ -3673,7 +3758,7 @@
             "type": "string"
           },
           "memo": {
-            "description": "Always null.",
+            "description": "Currently always null, reserved for future asset support.",
             "type": [
               "null",
               "string"
@@ -3689,10 +3774,6 @@
           },
           "mint": {
             "description": "The asset's mint.",
-            "type": "string"
-          },
-          "token_account": {
-            "description": "Where the asset lands, derived from address and mint. Not an address to send to.",
             "type": "string"
           },
           "type": {
@@ -3713,11 +3794,11 @@
             "type": "string"
           },
           "display_inbound_amount": {
-            "description": "inbound_amount as a decimal string, for display only.",
+            "description": "The inbound_amount as a decimal string, for display only.",
             "type": "string"
           },
           "display_outbound_amount": {
-            "description": "outbound_amount as a decimal string, for display only.",
+            "description": "The outbound_amount as a decimal string, for display only.",
             "type": "string"
           },
           "estimated_settlement_minutes": {
@@ -3737,14 +3818,14 @@
             "type": "string"
           },
           "memo": {
-            "description": "Always null.",
+            "description": "Currently always null, reserved for future asset support.",
             "type": [
               "null",
               "string"
             ]
           },
           "min_source_confirmations": {
-            "description": "Confirmations the partner waits for on the source chain.",
+            "description": "The number of confirmations required on the source chain.",
             "type": "integer"
           },
           "outbound_amount": {
@@ -3760,7 +3841,7 @@
             "type": "string"
           },
           "type": {
-            "description": "Send a different asset, which a partner swaps in.",
+            "description": "Send a different asset, which Final swaps into the asset of the Balance.",
             "enum": [
               "swap_via"
             ],
@@ -3781,7 +3862,7 @@
             "type": "string"
           },
           "display_amount": {
-            "description": "amount as a decimal string, for display only.",
+            "description": "The amount as a decimal string, for display only.",
             "type": "string"
           }
         },
@@ -3808,12 +3889,8 @@
       },
       "BalanceTransactionRelated": {
         "properties": {
-          "card_id": {
-            "description": "The card, where an entry is attributed to one.",
-            "type": "string"
-          },
           "deposit_id": {
-            "description": "The deposit this credit posts under.",
+            "description": "The deposit this credit posts under. Set on every deposit entry, direct deposits included.",
             "type": "string"
           },
           "deposit_receipt_id": {
@@ -3852,7 +3929,7 @@
             "type": "string"
           },
           "display_amount": {
-            "description": "amount as a decimal string, for display only.",
+            "description": "The amount as a decimal string, for display only.",
             "type": "string"
           },
           "fiat": {
@@ -3869,7 +3946,7 @@
           },
           "related": {
             "$ref": "#/components/schemas/BalanceTransactionRelated",
-            "description": "The deposit this entry belongs to. Absent on card spend."
+            "description": "The deposit or direct-deposit landing this entry credits. Absent on card entries."
           },
           "status": {
             "description": "Always posted. The ledger is append-only.",
@@ -3879,11 +3956,7 @@
             "type": "string"
           },
           "type": {
-            "description": "deposit_credited for a credit that landed, card_auth for card spend charged at authorization.",
-            "enum": [
-              "deposit_credited",
-              "card_auth"
-            ],
+            "description": "The entry type. deposit_credited is a deposit that Final credited. card_auth is card spend at authorization as a debit, or the credit that reverses it when the authorization is voided. More types will be added, so handle a value you do not recognise.",
             "type": "string"
           }
         },
@@ -3946,14 +4019,14 @@
             "type": "string"
           },
           "display_available": {
-            "description": "available as a decimal string, for display only.",
+            "description": "The available amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
             ]
           },
           "display_pending": {
-            "description": "pending as a decimal string, for display only.",
+            "description": "The pending amount as a decimal string, for display only.",
             "type": [
               "null",
               "string"
@@ -4029,7 +4102,7 @@
             "type": "string"
           },
           "expires_at": {
-            "description": "15 minutes out. Mint again after it.",
+            "description": "When the URL expires. Mint a new one after it.",
             "format": "date-time",
             "type": "string"
           }
@@ -4066,7 +4139,8 @@
       "CardResponse": {
         "properties": {
           "card": {
-            "$ref": "#/components/schemas/CardView"
+            "$ref": "#/components/schemas/CardView",
+            "description": "The card."
           }
         },
         "type": "object"
@@ -4139,7 +4213,7 @@
             ]
           },
           "status": {
-            "description": "provisioning until the Balance's tree has a credited deposit.",
+            "description": "The card status. It is provisioning until the Balance's tree has a credited deposit.",
             "enum": [
               "provisioning",
               "active",
@@ -4240,8 +4314,15 @@
       "ConnectionIntentLink": {
         "properties": {
           "grant": {
-            "$ref": "#/components/schemas/ConnectionGrantView",
-            "description": "Present once the user has approved."
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionGrantView"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the user approved. Null until they approve."
           },
           "id": {
             "description": "The connection id.",
@@ -4261,7 +4342,8 @@
       "ConnectionResponse": {
         "properties": {
           "connection": {
-            "$ref": "#/components/schemas/ConnectionView"
+            "$ref": "#/components/schemas/ConnectionView",
+            "description": "The connection."
           }
         },
         "type": "object"
@@ -4269,7 +4351,7 @@
       "ConnectionSecretResponse": {
         "properties": {
           "client_secret": {
-            "description": "Store it. It is never shown again.",
+            "description": "The secret for this connection, in the form connection_…_secret_…. With a publishable key, send it as the Final-Connection header on each request for this connection. Final returns it only once, so store it securely.",
             "type": "string"
           },
           "id": {
@@ -4283,20 +4365,27 @@
       "ConnectionView": {
         "properties": {
           "created_at": {
-            "description": "When the proposal was made.",
+            "description": "When the user approved. While pending or failed, when the proposal was made.",
             "format": "date-time",
             "type": "string"
           },
           "failure_reason": {
-            "description": "Never set on a connection you can read.",
+            "description": "Why the approval did not complete. Set only when status is failed.",
             "type": [
               "null",
               "string"
             ]
           },
           "grant": {
-            "$ref": "#/components/schemas/ConnectionGrantView",
-            "description": "What the user approved."
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionGrantView"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the user approved. Null while pending or failed."
           },
           "id": {
             "description": "The connection id.",
@@ -4314,7 +4403,7 @@
             ]
           },
           "revoked_at": {
-            "description": "Never set on a connection you can read.",
+            "description": "When this connection was revoked, or null. Also null on a connection that is revoked because the user revoked its grant.",
             "format": "date-time",
             "type": [
               "null",
@@ -4322,9 +4411,12 @@
             ]
           },
           "status": {
-            "description": "Always active from your side. A revoked connection answers 403 connection_revoked before you can read it.",
+            "description": "The connection state: pending until the user approves, failed if the approval did not complete, then active until revoked. A secret key reads every state. With a publishable key and the connection's client_secret, a revoked connection answers 403 connection_revoked instead.",
             "enum": [
-              "active"
+              "pending",
+              "failed",
+              "active",
+              "revoked"
             ],
             "type": "string"
           }
@@ -4386,7 +4478,7 @@
             "type": "string"
           },
           "partner_detected_at": {
-            "description": "When the partner saw the inbound transfer, or null.",
+            "description": "When Final detected the inbound transfer, or null.",
             "format": "date-time",
             "type": [
               "null",
@@ -4397,7 +4489,7 @@
             "description": "The instruction the funds arrived through, when one was published."
           },
           "status": {
-            "description": "Where the deposit is.",
+            "description": "Current state of the deposit.",
             "enum": [
               "pending",
               "confirmed",
@@ -4423,15 +4515,15 @@
             "type": "string"
           },
           "display_fee_amount": {
-            "description": "fee_amount as a decimal string, for display only.",
+            "description": "The fee_amount as a decimal string, for display only.",
             "type": "string"
           },
           "display_gross_total": {
-            "description": "gross_total as a decimal string, for display only.",
+            "description": "The gross_total as a decimal string, for display only.",
             "type": "string"
           },
           "display_net_amount": {
-            "description": "net_amount as a decimal string, for display only.",
+            "description": "The net_amount as a decimal string, for display only.",
             "type": "string"
           },
           "fee_amount": {
@@ -4455,7 +4547,7 @@
             "type": "string"
           },
           "status": {
-            "description": "Where the batch is.",
+            "description": "Current state of the batch.",
             "enum": [
               "pulling",
               "credited",
@@ -4474,11 +4566,11 @@
       "DirectdepositDepositReceiptsDTO": {
         "properties": {
           "address": {
-            "description": "The address these landed on.",
+            "description": "The user's own wallet address, where landings arrive. Every Balance on the account shares it. To show a sender where to send, use the onchain_address instruction from deposit_instructions, which withholds the address while a step is outstanding.",
             "type": "string"
           },
           "after_cursor": {
-            "description": "Send it as after_cursor for the next page.",
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
             "type": [
               "null",
               "string"
@@ -4493,7 +4585,7 @@
             "type": "string"
           },
           "data": {
-            "description": "Newest first.",
+            "description": "Receipt data, newest first.",
             "items": {
               "$ref": "#/components/schemas/DirectdepositReceiptDTO"
             },
@@ -4503,7 +4595,7 @@
             ]
           },
           "display_waiting_total": {
-            "description": "waiting_total as a decimal string, for display only.",
+            "description": "The waiting_total as a decimal string, for display only.",
             "type": "string"
           },
           "fee_basis_points": {
@@ -4587,7 +4679,7 @@
       "DirectdepositOverrideRequestDTO": {
         "properties": {
           "ends_at": {
-            "description": "An hour from now by default, at most 24 hours out.",
+            "description": "An hour from now by default, or the latest allowed if that is sooner. The latest allowed is 24 hours out by default and can differ by environment. A time not in the future, or later than that, answers 400 ends_at_out_of_range.",
             "format": "date-time",
             "type": [
               "null",
@@ -4595,7 +4687,7 @@
             ]
           },
           "replace_active": {
-            "description": "Close a window your own connection holds and open this one in its place.",
+            "description": "Close the open window and open this one in its place. Through a connection, only a window that connection opened; the account's own credentials close any window. Without it, an open window answers 409 override_in_flight.",
             "type": "boolean"
           }
         },
@@ -4605,7 +4697,7 @@
       "DirectdepositReceiptDTO": {
         "properties": {
           "amount": {
-            "description": "What landed, in the asset's smallest unit.",
+            "description": "What landed, before the fee, in the asset's smallest unit.",
             "type": "string"
           },
           "asset": {
@@ -4636,7 +4728,7 @@
             "type": "string"
           },
           "display_amount": {
-            "description": "amount as a decimal string, for display only.",
+            "description": "The amount as a decimal string, for display only.",
             "type": "string"
           },
           "id": {
@@ -4663,7 +4755,7 @@
             "type": "string"
           },
           "status": {
-            "description": "Where the landing is.",
+            "description": "Current state of the landing.",
             "enum": [
               "uncredited",
               "held",
@@ -4694,7 +4786,7 @@
       "DirectdepositRoutingDTO": {
         "properties": {
           "address": {
-            "description": "The address landings in this asset arrive on.",
+            "description": "The user's own wallet address, where landings arrive. Every Balance on the account shares it. To show a sender where to send, use the onchain_address instruction from deposit_instructions, which withholds the address while a step is outstanding.",
             "type": "string"
           },
           "asset": {
@@ -4717,7 +4809,14 @@
             "type": "boolean"
           },
           "override": {
-            "$ref": "#/components/schemas/DirectdepositOverrideDTO",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectdepositOverrideDTO"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "description": "The open window, or null."
           },
           "routed_by": {
@@ -4741,7 +4840,7 @@
             "type": "string"
           },
           "display_rate": {
-            "description": "rate rounded for display only.",
+            "description": "The rate, rounded for display only.",
             "type": "string"
           },
           "quote": {
@@ -4763,7 +4862,7 @@
             "type": "string"
           },
           "detail": {
-            "description": "On user-present gates: an object with url, where to send the user."
+            "description": "More about the failure, as an object whose shape depends on code. On a user-present gate it carries url, where to send the user."
           },
           "message": {
             "description": "For logs, not for users.",
@@ -4774,7 +4873,7 @@
             "type": "string"
           },
           "request_id": {
-            "description": "Always present. Echoes a client X-Request-ID; quote it to support.",
+            "description": "Always present. The X-Request-ID that you sent, or an id that Final generates if you sent none or an invalid one. Include this value in support requests.",
             "type": "string"
           },
           "type": {
@@ -4823,7 +4922,7 @@
             ]
           },
           "code_challenge": {
-            "description": "base64url(sha256(code_verifier)). Required on a publishable key.",
+            "description": "The PKCE challenge: base64url(sha256(code_verifier)). Required on a publishable key.",
             "type": "string"
           },
           "direct_deposit": {
@@ -4849,7 +4948,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "account.connect.",
+            "description": "The intent kind. Always account.connect.",
             "type": "string"
           }
         },
@@ -4860,11 +4959,11 @@
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/IntentKind",
-            "description": "account.connect."
+            "description": "The type of proposal. Currently always account.connect."
           },
           "payload": {
             "$ref": "#/components/schemas/IntentPayloadUnion",
-            "description": "The proposal."
+            "description": "The details of the proposal. Its shape depends on kind."
           }
         },
         "type": "object"
@@ -4872,10 +4971,12 @@
       "IntentCreateResponse": {
         "properties": {
           "connection": {
-            "$ref": "#/components/schemas/IntentCreateResponseConnection"
+            "$ref": "#/components/schemas/IntentCreateResponseConnection",
+            "description": "The connection whose creation is proposed."
           },
           "intent": {
-            "$ref": "#/components/schemas/IntentView"
+            "$ref": "#/components/schemas/IntentView",
+            "description": "The intent."
           }
         },
         "type": "object"
@@ -4933,7 +5034,8 @@
       "IntentResponse": {
         "properties": {
           "intent": {
-            "$ref": "#/components/schemas/IntentView"
+            "$ref": "#/components/schemas/IntentView",
+            "description": "The intent."
           }
         },
         "type": "object"
@@ -4945,7 +5047,7 @@
             "type": "string"
           },
           "approval_url": {
-            "description": "Open it top level as it is. It does not expire.",
+            "description": "Open it top level as it is. Set only while status is pending_approval, null otherwise. It does not expire.",
             "type": [
               "null",
               "string"
@@ -4969,7 +5071,7 @@
           },
           "connection": {
             "$ref": "#/components/schemas/ConnectionIntentLink",
-            "description": "The connection this proposal became. Present on the single read and on events, never on the list."
+            "description": "The connection created from this proposal. Present on the single read and on events, never on the list."
           },
           "created_at": {
             "description": "When it was proposed.",
@@ -4997,18 +5099,18 @@
           },
           "kind": {
             "$ref": "#/components/schemas/IntentKind",
-            "description": "What was proposed."
+            "description": "The type of proposal. Currently always account.connect."
           },
           "payload": {
             "$ref": "#/components/schemas/IntentPayloadUnion",
-            "description": "What you proposed."
+            "description": "The details of the proposal. Its shape depends on kind."
           },
           "result_resource": {
             "$ref": "#/components/schemas/IntentAccountConnectResult",
             "description": "The connection the approval created, once completed."
           },
           "status": {
-            "description": "Where the intent is.",
+            "description": "Current state of the intent.",
             "enum": [
               "pending_approval",
               "approved",
@@ -5106,7 +5208,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "merchant, for card spend.",
+            "description": "The recipient kind: merchant, for card spend.",
             "type": "string"
           }
         },
@@ -5164,7 +5266,7 @@
             "type": "string"
           },
           "asset": {
-            "description": "iso4217:USD, or the Balance's own asset.",
+            "description": "The cap's asset: iso4217:USD, or the Balance's own asset.",
             "type": "string"
           }
         },

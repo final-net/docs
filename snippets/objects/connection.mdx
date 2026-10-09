@@ -3,15 +3,15 @@
 export const Connection = () => (
   <>
     <ResponseField name="created_at" type="string">
-      When the proposal was made.
+      When the user approved. While pending or failed, when the proposal was made.
     </ResponseField>
 
     <ResponseField name="failure_reason" type="string | null">
-      Never set on a connection you can read.
+      Why the approval did not complete. Set only when status is failed.
     </ResponseField>
 
-    <ResponseField name="grant" type="Grant">
-      What the user approved. See <a href="/reference/objects/grant">Grant</a>.
+    <ResponseField name="grant" type="object">
+      What the user approved. Null while pending or failed.
     </ResponseField>
 
     <ResponseField name="id" type="string">
@@ -27,11 +27,11 @@ export const Connection = () => (
     </ResponseField>
 
     <ResponseField name="revoked_at" type="string | null">
-      Never set on a connection you can read.
+      When this connection was revoked, or null. Also null on a connection that is revoked because the user revoked its grant.
     </ResponseField>
 
     <ResponseField name="status" type="string">
-      Always active from your side. A revoked connection answers 403 connection_revoked before you can read it. Always <code>active</code>.
+      The connection state: pending until the user approves, failed if the approval did not complete, then active until revoked. A secret key reads every state. With a publishable key and the connection's client_secret, a revoked connection answers 403 connection_revoked instead. One of <code>pending</code>, <code>failed</code>, <code>active</code>, <code>revoked</code>.
     </ResponseField>
   </>
 );

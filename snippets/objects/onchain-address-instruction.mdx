@@ -19,7 +19,7 @@ export const OnchainAddressInstruction = () => (
     </ResponseField>
 
     <ResponseField name="memo" type="string | null">
-      Always null.
+      Currently always null, reserved for future asset support.
     </ResponseField>
 
     <ResponseField name="min_confirmations" type="integer">
@@ -32,10 +32,6 @@ export const OnchainAddressInstruction = () => (
 
     <ResponseField name="mint" type="string">
       The asset's mint.
-    </ResponseField>
-
-    <ResponseField name="token_account" type="string">
-      Where the asset lands, derived from address and mint. Not an address to send to.
     </ResponseField>
 
     <ResponseField name="type" type="string">

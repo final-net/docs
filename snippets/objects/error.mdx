@@ -7,7 +7,7 @@ export const ErrorObject = () => (
     </ResponseField>
 
     <ResponseField name="detail" type="object">
-      On user-present gates: an object with url, where to send the user.
+      More about the failure, as an object whose shape depends on code. On a user-present gate it carries url, where to send the user.
     </ResponseField>
 
     <ResponseField name="message" type="string">
@@ -19,7 +19,7 @@ export const ErrorObject = () => (
     </ResponseField>
 
     <ResponseField name="request_id" type="string">
-      Always present. Echoes a client X-Request-ID; quote it to support.
+      Always present. The X-Request-ID that you sent, or an id that Final generates if you sent none or an invalid one. Include this value in support requests.
     </ResponseField>
 
     <ResponseField name="type" type="string">

@@ -3,11 +3,11 @@
 export const DepositReceipts = () => (
   <>
     <ResponseField name="address" type="string">
-      The address these landed on.
+      The user's own wallet address, where landings arrive. Every Balance on the account shares it. To show a sender where to send, use the onchain_address instruction from deposit_instructions, which withholds the address while a step is outstanding.
     </ResponseField>
 
     <ResponseField name="after_cursor" type="string | null">
-      Send it as after_cursor for the next page.
+      Send it as after_cursor for the next page. Null on the last page.
     </ResponseField>
 
     <ResponseField name="asset" type="string">
@@ -19,11 +19,11 @@ export const DepositReceipts = () => (
     </ResponseField>
 
     <ResponseField name="data" type="Deposit receipt[]">
-      Newest first. See <a href="/reference/objects/deposit-receipt">Deposit receipt</a>.
+      Receipt data, newest first. See <a href="/reference/objects/deposit-receipt">Deposit receipt</a>.
     </ResponseField>
 
     <ResponseField name="display_waiting_total" type="string">
-      waiting_total as a decimal string, for display only.
+      The waiting_total as a decimal string, for display only.
     </ResponseField>
 
     <ResponseField name="fee_basis_points" type="integer">

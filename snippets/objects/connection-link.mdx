@@ -2,8 +2,8 @@
 
 export const ConnectionLink = () => (
   <>
-    <ResponseField name="grant" type="Grant">
-      Present once the user has approved. See <a href="/reference/objects/grant">Grant</a>.
+    <ResponseField name="grant" type="object">
+      What the user approved. Null until they approve.
     </ResponseField>
 
     <ResponseField name="id" type="string">
