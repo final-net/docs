@@ -1896,6 +1896,113 @@
         "x-audience": "connection"
       }
     },
+    "/cards/{card_id}/authorizations": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "List a card's authorizations",
+        "description": "List what the issuer decided on this card, newest first. Observational: Final records these after the fact and takes no part in the decision.",
+        "operationId": "listCardAuthorizations",
+        "parameters": [
+          {
+            "name": "Final-Connection",
+            "in": "header",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "schema": {
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many to return, 1-100. Defaults to 25.",
+            "schema": {
+              "description": "How many to return, 1-100. Defaults to 25.",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The after_cursor from the previous page.",
+            "schema": {
+              "description": "The after_cursor from the previous page.",
+              "type": "string"
+            }
+          },
+          {
+            "name": "card_id",
+            "in": "path",
+            "description": "The card whose authorizations to list.",
+            "required": true,
+            "schema": {
+              "description": "The card whose authorizations to list.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardauthorizationListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "connection"
+      }
+    },
     "/cards/{card_id}/embed_url": {
       "post": {
         "tags": [
@@ -3437,7 +3544,7 @@
             ]
           },
           "card_id": {
-            "description": "The card on this Balance, or null. At most one.",
+            "description": "The Balance's long-lived card, or null.",
             "type": [
               "null",
               "string"
@@ -4007,7 +4114,7 @@
             ]
           },
           "card_id": {
-            "description": "The card on this Balance, or null. At most one.",
+            "description": "The Balance's long-lived card, or null.",
             "type": [
               "null",
               "string"
@@ -4276,6 +4383,131 @@
           }
         },
         "title": "Test authorization",
+        "type": "object"
+      },
+      "CardauthorizationListResponse": {
+        "properties": {
+          "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "description": "The page, in order.",
+            "items": {
+              "$ref": "#/components/schemas/CardauthorizationView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "description": "Whether another page follows.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "CardauthorizationView": {
+        "properties": {
+          "amount": {
+            "description": "The amount in that currency's smallest unit, as an integer string.",
+            "type": "string"
+          },
+          "balance_id": {
+            "description": "The Balance the card spends from.",
+            "type": "string"
+          },
+          "card_id": {
+            "description": "The card that was presented.",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "When Final recorded it. The gap from requested_at is ingest lag.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "currency": {
+            "description": "The cardholder currency, as a CAIP-19 asset id.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The authorization's Final id.",
+            "type": "string"
+          },
+          "livemode": {
+            "description": "Whether this is a live-mode authorization.",
+            "type": "boolean"
+          },
+          "merchant_amount": {
+            "description": "The amount the merchant billed, in that currency's smallest unit. Null where the merchant billed in the cardholder currency.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_category": {
+            "description": "The merchant category as a slug, such as eating_places_restaurants. Null where the network sent none.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_city": {
+            "description": "The merchant's city as the network reported it. Null where the network sent none.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_country": {
+            "description": "The merchant's country as an ISO 3166-1 alpha-2 code. Null where the network sent none.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_currency": {
+            "description": "The currency the merchant billed in, as a CAIP-19 asset id. Null where it matches currency.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_mcc": {
+            "description": "The four-digit merchant category code. Null where the network sent none.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_name": {
+            "description": "The merchant's name as the network reported it. Null where the network sent none.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "merchant_network_id": {
+            "description": "The card network's own id for the merchant. Null where the network sent none.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requested_at": {
+            "description": "When the issuer recorded the swipe.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "approved (a live hold), captured, declined, reversed or expired.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "ConnectionActivateRequest": {
