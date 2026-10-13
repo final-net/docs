@@ -1,0 +1,22 @@
+---
+title: "Connect an AI agent"
+description: "Connect an AI agent to your Final account through MCP."
+---
+
+To connect Claude Code, run this command:
+
+```bash
+claude mcp add --transport http final https://api.final.com/mcp
+```
+
+Then, in Claude Code, run `/mcp` and select `final`. Final opens a page in your browser, where you approve the connection.
+
+For a different MCP client, add this URL as a remote MCP server:
+
+```
+https://api.final.com/mcp
+```
+
+<Warning>
+  The agent can spend the funds that are in your Balances. If you allow card details, the agent can read your card number and CVC.
+</Warning>
