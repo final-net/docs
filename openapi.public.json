@@ -4178,10 +4178,6 @@
       },
       "BalanceView": {
         "properties": {
-          "account_id": {
-            "description": "The owning account.",
-            "type": "string"
-          },
           "asset": {
             "description": "CAIP-19 id of the held asset. A sub-balance shares its root's.",
             "type": "string"
@@ -5354,10 +5350,6 @@
       },
       "IntentView": {
         "properties": {
-          "account_id": {
-            "description": "Your integrator account.",
-            "type": "string"
-          },
           "approval_url": {
             "description": "Open it top level as it is. Set only while status is pending_approval, null otherwise. It does not expire.",
             "type": [
