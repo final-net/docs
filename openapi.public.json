@@ -1494,6 +1494,51 @@
         "x-audience": "connection"
       }
     },
+    "/card_art/{card_art_key}.png": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get card art as a PNG",
+        "description": "Read an organization's card art at the resolution wallet providers take. Final returns it as image/png with immutable caching. Use the URL in the card program's `card_art_master_url`, or its `card_art_url` where that names a PNG, and do not build it yourself.",
+        "operationId": "getCardArtPNG",
+        "parameters": [
+          {
+            "name": "card_art_key",
+            "in": "path",
+            "description": "The key in the card_art_url an upload returned.",
+            "required": true,
+            "schema": {
+              "description": "The key in the card_art_url an upload returned.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
     "/card_art/{card_art_key}.webp": {
       "get": {
         "tags": [
