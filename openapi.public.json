@@ -1545,7 +1545,7 @@
           "Accounts"
         ],
         "summary": "Get card art",
-        "description": "Read a stored integrator card art image. Final returns it as image/webp with immutable caching. Use the URL in the profile's `card_art_url`, and do not build it yourself.",
+        "description": "Read stored card art. Final returns it as image/webp with immutable caching. Use the URL in a card program's `card_art_url`, and do not build it yourself.",
         "operationId": "getIntegratorCardArt",
         "parameters": [
           {
@@ -3156,7 +3156,7 @@
           "Intents"
         ],
         "summary": "Create an intent",
-        "description": "Propose an account.connect intent, which a user approves on a Final-hosted page to connect their balances to you. Call it with a secret key or a publishable key.",
+        "description": "Propose an account.connect intent, which a user approves on a Final-hosted page to connect their balances to you. Call it with a secret key or a publishable key. Name the app it is for in `developer_app_id` where your workspace has more than one.",
         "operationId": "createIntent",
         "requestBody": {
           "content": {
@@ -3200,6 +3200,16 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -3388,7 +3398,7 @@
           "Accounts"
         ],
         "summary": "Get a logo",
-        "description": "Read a stored integrator logo image. Final returns it as image/webp with immutable caching. Use the URL in the profile's `logo_url`, and do not build it yourself.",
+        "description": "Read a stored logo. Final returns it as image/webp with immutable caching. Use the URL in an organization's `logo_url`, and do not build it yourself.",
         "operationId": "getIntegratorLogo",
         "parameters": [
           {
@@ -5355,6 +5365,13 @@
       },
       "IntentCreateRequest": {
         "properties": {
+          "developer_app_id": {
+            "description": "The app this proposal is for, whose name, links and redirect URIs the person approving is shown. Optional where the workspace has one app.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "kind": {
             "$ref": "#/components/schemas/IntentKind",
             "description": "The type of proposal. Currently always account.connect."
