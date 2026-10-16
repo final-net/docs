@@ -3292,6 +3292,51 @@
         "x-audience": "integrator"
       }
     },
+    "/logos/{logo_key}.png": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get a PNG logo",
+        "description": "Read a stored logo uploaded as PNG, which only an organization's may be. Final returns it as image/png with immutable caching. Use the URL in the organization's `logo_url`, and do not build it yourself.",
+        "operationId": "getLogoPNG",
+        "parameters": [
+          {
+            "name": "logo_key",
+            "in": "path",
+            "description": "The key in the logo_url an upload returned.",
+            "required": true,
+            "schema": {
+              "description": "The key in the logo_url an upload returned.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-audience": "public"
+      }
+    },
     "/logos/{logo_key}.webp": {
       "get": {
         "tags": [
