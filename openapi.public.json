@@ -307,7 +307,7 @@
           "Balances"
         ],
         "summary": "Get a Balance",
-        "description": "Read one balance, including its limits, the limits an ancestor imposed on it, and its card.",
+        "description": "Read one balance, including its limits, the limits an ancestor imposed on it, its card, and what has to happen before it can receive deposits.",
         "operationId": "getBalance",
         "parameters": [
           {
@@ -489,6 +489,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -608,6 +618,16 @@
           },
           "429": {
             "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -4301,6 +4321,15 @@
             "format": "date-time",
             "type": "string"
           },
+          "delegation_status": {
+            "description": "What still has to happen before the Balance can receive deposits. Appears only when you read one Balance, and is absent when it could not be read, when the Balance has no token account on chain, and on a test-mode Balance of a live asset, which never reaches a chain.",
+            "enum": [
+              "ready",
+              "ceremony_required",
+              "wallet_approval_required"
+            ],
+            "type": "string"
+          },
           "display_available": {
             "description": "The available amount as a decimal string, for display only.",
             "type": [
@@ -5183,6 +5212,7 @@
             "enum": [
               "unrouted",
               "delegation_required",
+              "wallet_approval_required",
               "below_minimum"
             ],
             "type": "string"
