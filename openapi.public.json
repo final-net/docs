@@ -78,9 +78,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -195,9 +195,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           }
@@ -313,9 +313,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -402,9 +402,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -519,9 +519,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -657,9 +657,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -784,9 +784,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -893,9 +893,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1002,9 +1002,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1140,9 +1140,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1252,9 +1252,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1390,9 +1390,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1616,9 +1616,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1726,9 +1726,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           }
@@ -1854,9 +1854,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -1941,9 +1941,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2023,9 +2023,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2124,15 +2124,15 @@
           "Cards"
         ],
         "summary": "Create a card embed URL",
-        "description": "Mint a short-lived URL that renders the card number, expiry and CVC; the only place one is minted.",
+        "description": "Mint a short-lived URL that renders a connected person's card number, expiry and CVC. Only a connection can call this route, and no other route returns an embed URL.",
         "operationId": "createCardEmbedURL",
         "parameters": [
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2239,9 +2239,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2326,6 +2326,106 @@
         "x-audience": "connection"
       }
     },
+    "/cards/{card_id}/sensitive_details": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Get sensitive card details",
+        "description": "Read a card's full number and CVC. In an organization, only an Admin or Super Admin can read one in a session. A secret key needs Cards read. Final audits each read.",
+        "operationId": "getCardSensitiveDetails",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "description": "The card id.",
+            "required": true,
+            "schema": {
+              "description": "The card id.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardSensitiveDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      }
+    },
     "/cards/{card_id}/test_authorizations": {
       "post": {
         "tags": [
@@ -2338,9 +2438,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2466,9 +2566,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2565,9 +2665,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2662,9 +2762,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2802,6 +2902,16 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -2863,9 +2973,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -2962,9 +3072,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -3076,7 +3186,7 @@
           "Intents"
         ],
         "summary": "List intents",
-        "description": "List the intents this integrator key proposed, newest first.",
+        "description": "List the intents this workspace proposed, newest first.",
         "operationId": "listIntents",
         "parameters": [
           {
@@ -3145,6 +3255,16 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3457,6 +3577,384 @@
         "x-audience": "public"
       }
     },
+    "/origins": {
+      "get": {
+        "tags": [
+          "Origins"
+        ],
+        "summary": "List origins",
+        "description": "List the browser origins registered for this workspace.",
+        "operationId": "listOrigins",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Which origins to list. active, the default, returns the ones not deleted; deleted returns only deleted ones, and all returns both.",
+            "schema": {
+              "description": "Which origins to list. active, the default, returns the ones not deleted; deleted returns only deleted ones, and all returns both.",
+              "enum": [
+                "active",
+                "deleted",
+                "all"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Default 25, at most 100.",
+            "schema": {
+              "description": "Default 25, at most 100.",
+              "type": "integer"
+            }
+          },
+          {
+            "name": "after_cursor",
+            "in": "query",
+            "description": "The after_cursor of the previous page.",
+            "schema": {
+              "description": "The after_cursor of the previous page.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OriginListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      },
+      "post": {
+        "tags": [
+          "Origins"
+        ],
+        "summary": "Register an origin",
+        "description": "Register a browser origin for one of your web apps, so its browser code can call Final with a publishable key.",
+        "operationId": "createOrigin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OriginCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OriginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      }
+    },
+    "/origins/{origin_id}": {
+      "get": {
+        "tags": [
+          "Origins"
+        ],
+        "summary": "Get an origin",
+        "description": "Read one registered browser origin.",
+        "operationId": "getOrigin",
+        "parameters": [
+          {
+            "name": "origin_id",
+            "in": "path",
+            "description": "The origin id.",
+            "required": true,
+            "schema": {
+              "description": "The origin id.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OriginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      },
+      "delete": {
+        "tags": [
+          "Origins"
+        ],
+        "summary": "Delete an origin",
+        "description": "Delete a browser origin, so Final stops accepting browser calls from it.",
+        "operationId": "deleteOrigin",
+        "parameters": [
+          {
+            "name": "origin_id",
+            "in": "path",
+            "description": "The origin id.",
+            "required": true,
+            "schema": {
+              "description": "The origin id.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      }
+    },
     "/transactions/export": {
       "get": {
         "tags": [
@@ -3469,9 +3967,9 @@
           {
             "name": "Final-Connection",
             "in": "header",
-            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+            "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
             "schema": {
-              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. An account's own session or account key omits the header and acts on its own balances.",
+              "description": "Names the connection this request acts through, in one of two shapes. A publishable key sends the client_secret that activation returned (connection_…_secret_…). A secret key sends the bare connection id (connection_…), since the key already proves the integrator. A session, or a secret key acting on its own workspace, omits the header.",
               "type": "string"
             }
           },
@@ -4453,6 +4951,56 @@
           "card": {
             "$ref": "#/components/schemas/CardView",
             "description": "The card."
+          }
+        },
+        "type": "object"
+      },
+      "CardSensitiveDetailsResponse": {
+        "properties": {
+          "sensitive_details": {
+            "$ref": "#/components/schemas/CardSensitiveDetailsView",
+            "description": "The card's number and CVC."
+          }
+        },
+        "type": "object"
+      },
+      "CardSensitiveDetailsView": {
+        "properties": {
+          "cvc": {
+            "description": "The card verification code.",
+            "type": "string"
+          },
+          "exp_month": {
+            "description": "Null while provisioning.",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "exp_year": {
+            "description": "Null while provisioning.",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "last4": {
+            "description": "The last four digits. Null while provisioning.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "network": {
+            "description": "The card network. Null while provisioning.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "number": {
+            "description": "The full card number.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -5712,6 +6260,98 @@
           }
         },
         "title": "Limit cap",
+        "type": "object"
+      },
+      "OriginCreateRequest": {
+        "properties": {
+          "description": {
+            "description": "A note for your team about what calls from this origin.",
+            "type": "string"
+          },
+          "developer_app_id": {
+            "description": "The web app whose browser code calls Final from this origin.",
+            "type": "string"
+          },
+          "origin": {
+            "description": "A browser origin: scheme, host and optional port, such as https://app.example.com.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OriginListResponse": {
+        "properties": {
+          "after_cursor": {
+            "description": "Send it as after_cursor for the next page. Null on the last page.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "data": {
+            "description": "The origins on this page.",
+            "items": {
+              "$ref": "#/components/schemas/OriginView"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "has_more": {
+            "description": "Whether another page follows.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "OriginResponse": {
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/OriginView",
+            "description": "The origin."
+          }
+        },
+        "type": "object"
+      },
+      "OriginView": {
+        "properties": {
+          "created_at": {
+            "description": "When the origin was registered.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "deleted_at": {
+            "description": "When the origin was deleted. Null while it is active.",
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "description": "The note given when it was registered. Null when none was.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "developer_app_id": {
+            "description": "The web app it was registered for; null on one registered before apps.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "description": "The origin id.",
+            "type": "string"
+          },
+          "origin": {
+            "description": "The browser origin Final accepts calls from.",
+            "type": "string"
+          }
+        },
         "type": "object"
       }
     },
