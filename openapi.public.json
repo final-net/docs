@@ -513,7 +513,7 @@
           "Balances"
         ],
         "summary": "Create swap deposit instructions",
-        "description": "Fix the exact amounts of a swap deposit and get the address to send to. Final swaps the asset that the user sends into the asset of the Balance. If no asset swaps into this asset, Final returns `no_inflow_route`.",
+        "description": "Fix the exact amounts of a swap deposit and get the address to send to. Final swaps the asset that the user sends into the asset of the Balance. If no asset swaps into this asset, Final returns `no_inflow_route`. If `source_asset` names an asset you can't send to this Balance, Final returns `source_asset_invalid`. If deposits from that asset are temporarily unavailable, Final returns `inflow_source_unavailable`.",
         "operationId": "allocateBalanceDepositInstructions",
         "parameters": [
           {
@@ -4223,6 +4223,10 @@
           },
           "outbound_amount": {
             "description": "What the user wants credited, in the Balance asset's smallest unit. Exactly one of the two amounts.",
+            "type": "string"
+          },
+          "source_asset": {
+            "description": "CAIP-19 id of what the user will send, one of the sources GET /inflow_assets lists for this Balance's asset. Omitted, Final picks the default source.",
             "type": "string"
           }
         },
