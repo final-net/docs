@@ -390,6 +390,106 @@
         "x-audience": "connection"
       }
     },
+    "/balances/{balance_id}/card_eligibility": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Get card eligibility",
+        "description": "Read what stands between the person and a card on this balance, before asking for one: each step the person has to finish, with the page in Final where they finish it, or that nothing does. In an organization, only an Admin or Super Admin can read it in a session. A secret key needs Cards read.",
+        "operationId": "getBalanceCardEligibility",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "path",
+            "description": "The Balance id.",
+            "required": true,
+            "schema": {
+              "description": "The Balance id.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardCardEligibilityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpxErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-audience": "shared"
+      }
+    },
     "/balances/{balance_id}/deposit_instructions": {
       "get": {
         "tags": [
@@ -1720,7 +1820,7 @@
           "Cards"
         ],
         "summary": "Create a card",
-        "description": "Issue a card on a balance; it is born provisioning and activates once the balance's tree has a credited deposit.",
+        "description": "Issue a card on a balance; it is born provisioning, with no number yet, and activates once the balance's tree has a credited deposit. The balance's deposit instructions say where to send one. The balance's card eligibility says, ahead of this call, what the person has to finish before it succeeds.",
         "operationId": "createCard",
         "parameters": [
           {
@@ -1848,7 +1948,7 @@
           "Cards"
         ],
         "summary": "Get a card",
-        "description": "Read one card.",
+        "description": "Read one card. A provisioning card reads active once its balance's tree has a credited deposit, so this one read says whether it has activated.",
         "operationId": "getCard",
         "parameters": [
           {
@@ -2332,7 +2432,7 @@
           "Cards"
         ],
         "summary": "Get sensitive card details",
-        "description": "Read a card's full number and CVC. In an organization, only an Admin or Super Admin can read one in a session. A secret key needs Cards read. Final audits each read.",
+        "description": "Read a card's full number and CVC. A provisioning card has none yet and answers card_provisioning until its balance's tree has a credited deposit. In an organization, only an Admin or Super Admin can read one in a session. A secret key needs Card numbers read. Final audits each read.",
         "operationId": "getCardSensitiveDetails",
         "parameters": [
           {
@@ -4372,7 +4472,7 @@
       "BalanceCreateRequest": {
         "properties": {
           "asset": {
-            "description": "Root only. Roots come from approval, so a connection never sends it.",
+            "description": "The asset a new root holds, as CAIP-19. A sub-balance holds its root's asset and sends none.",
             "type": "string"
           },
           "label": {
@@ -4387,7 +4487,7 @@
             "type": "array"
           },
           "parent_balance_id": {
-            "description": "The root or sub-balance to create under. Required on a connection.",
+            "description": "The root or sub-balance to create under; leave it out to open a root. Required on a connection and on a key limited to some balances, which open only inside their scope.",
             "type": [
               "null",
               "string"
@@ -4556,6 +4656,10 @@
           },
           "chain": {
             "description": "CAIP-2 id of the chain to send on.",
+            "type": "string"
+          },
+          "display_minimum_fiat": {
+            "description": "The minimum_fiat as a decimal string, for display only.",
             "type": "string"
           },
           "fee_basis_points": {
@@ -4900,10 +5004,57 @@
         "title": "Balance (owner view)",
         "type": "object"
       },
+      "CardCardEligibilityResponse": {
+        "properties": {
+          "balance_id": {
+            "description": "The Balance asked about.",
+            "type": "string"
+          },
+          "card_id": {
+            "description": "The balance's long-lived card, or null. POST /cards answers with it rather than issuing a second, whatever steps are listed.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "eligible": {
+            "description": "True when POST /cards on this balance answers with a card now: a new one, or the one it already has.",
+            "type": "boolean"
+          },
+          "steps": {
+            "description": "What the person has to finish before a card can be issued, in the order POST /cards checks them. Empty when eligible.",
+            "items": {
+              "$ref": "#/components/schemas/CardEligibilityStep"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CardCreateRequest": {
         "properties": {
           "balance_id": {
             "description": "The Balance the card spends from.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CardEligibilityStep": {
+        "properties": {
+          "code": {
+            "description": "The code POST /cards would refuse with.",
+            "type": "string"
+          },
+          "message": {
+            "description": "What is missing.",
+            "type": "string"
+          },
+          "url": {
+            "description": "The page in Final where the person finishes this step. Absent when only Final can move it.",
             "type": "string"
           }
         },
