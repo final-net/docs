@@ -4813,6 +4813,14 @@
           "deposit_receipt_id": {
             "description": "The landing this entry credits, on a direct deposit. One entry per landing.",
             "type": "string"
+          },
+          "source_asset": {
+            "description": "CAIP-19 of what the person sent, where it differs from the Balance's asset: set on the credit of a BTC deposit.",
+            "type": "string"
+          },
+          "source_symbol": {
+            "description": "The ticker of source_asset. Display only. Never an identifier.",
+            "type": "string"
           }
         },
         "title": "Transaction related resource",
@@ -5630,7 +5638,7 @@
             ]
           },
           "received_via": {
-            "description": "The instruction the funds arrived through, when one was published."
+            "description": "The instruction the funds arrived through, when one was published. A swap's carries source_symbol, the ticker of its source_asset, for display only."
           },
           "status": {
             "description": "Current state of the deposit.",
@@ -5759,7 +5767,7 @@
             "type": "string"
           },
           "waiting_total": {
-            "description": "What is waiting to credit, in the asset's smallest unit.",
+            "description": "What is waiting to credit, in the asset's smallest unit. A BTC deposit's landing credits on its own and is not counted.",
             "type": "string"
           },
           "waiting_total_fiat": {
@@ -5871,6 +5879,10 @@
             "description": "CAIP-2 id of the chain it landed on.",
             "type": "string"
           },
+          "deposit_id": {
+            "description": "The deposit it credits under, as batch.deposit_id names once it is batched. A landing that completes a swap_via deposit names that deposit from the moment it lands.",
+            "type": "string"
+          },
           "display_amount": {
             "description": "The amount as a decimal string, for display only.",
             "type": "string"
@@ -5889,8 +5901,9 @@
             "type": "string"
           },
           "routed_by": {
-            "description": "The rule that routed it.",
+            "description": "The rule that routed it. swap_via is a landing that completes a swap_via deposit, routed to that deposit's Balance.",
             "enum": [
+              "swap_via",
               "override",
               "default",
               "sole_balance",
