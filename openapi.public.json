@@ -4943,7 +4943,6 @@
             "description": "What still has to happen before the Balance can receive deposits. Appears only when you read one Balance, and is absent when it could not be read, when the Balance has no token account on chain, and on a test-mode Balance of a live asset, which never reaches a chain.",
             "enum": [
               "ready",
-              "ceremony_required",
               "wallet_approval_required"
             ],
             "type": "string"
@@ -5931,7 +5930,6 @@
             "description": "Why it has not credited. Absent when nothing is in the way.",
             "enum": [
               "unrouted",
-              "delegation_required",
               "wallet_approval_required",
               "below_minimum"
             ],
