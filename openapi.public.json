@@ -5289,7 +5289,7 @@
             "type": "string"
           },
           "partner_auth_id": {
-            "description": "Carried on the card_auth.* events for this swipe.",
+            "description": "Carried on the card_auth.* events for this swipe. An increment on the same authorization carries it too, so key each request on the events' authorization_request_id.",
             "type": "string"
           },
           "status": {
